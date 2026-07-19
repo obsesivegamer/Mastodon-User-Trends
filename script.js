@@ -315,16 +315,20 @@ const initDashboard = () => {
         applyFilter('ALL');
         setStatus('archive');
         
+        const yearSelect = document.querySelector('.year-range-select');
+
         // Setup Event Listeners for Time Scale Buttons
         document.querySelectorAll('.time-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
                 e.target.classList.add('active');
+                if (yearSelect) {
+                    yearSelect.selectedIndex = 0;
+                }
                 applyFilter(e.target.dataset.range);
             });
         });
 
-        const yearSelect = document.querySelector('.year-range-select');
         if (yearSelect) {
             yearSelect.addEventListener('change', (e) => {
                 document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
