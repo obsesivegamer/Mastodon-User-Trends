@@ -25,9 +25,16 @@
                 <h1>Mastodon <span>Network Pulse</span></h1>
                 <p>Tracking the growth of the decentralized web.</p>
             </div>
-            <div class="status-indicator">
-                <div class="status-dot"></div>
-                <span id="data-status">Connecting...</span>
+            <div class="header-right">
+                <div class="status-indicator">
+                    <div class="status-dot"></div>
+                    <span id="data-status">Connecting...</span>
+                </div>
+                <div class="last-updated-badge">
+                    <span class="update-label">Last Updated:</span>
+                    <span id="last-updated-time">--</span>
+                    <button id="refresh-data-btn" class="refresh-btn" title="Refresh data from local archive">↻</button>
+                </div>
             </div>
         </header>
 

@@ -4,6 +4,7 @@
 const API_URL = "https://api.joinmastodon.org/statistics";
 let totalChartInstance = null;
 let activeChartInstance = null;
+let lastDataLoadTime = null;
 
 // Format numbers
 const formatNumber = (num) => {
@@ -205,6 +206,34 @@ const setStatus = (mode) => {
     }
 };
 
+const formatTimestamp = (date) => {
+    const now = new Date();
+    const diffMs = now - date;
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+    
+    if (diffMins < 1) return 'just now';
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    if (diffDays < 30) return `${diffDays}d ago`;
+    
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+};
+
+const updateLastUpdatedDisplay = () => {
+    const timeEl = document.getElementById('last-updated-time');
+    if (!timeEl || !lastDataLoadTime) return;
+    
+    timeEl.textContent = formatTimestamp(lastDataLoadTime);
+    timeEl.title = lastDataLoadTime.toLocaleString();
+};
+
+const recordDataLoadTime = () => {
+    lastDataLoadTime = new Date();
+    updateLastUpdatedDisplay();
+};
+
 const resetChartZoom = () => {
     if (totalChartInstance && typeof totalChartInstance.resetZoom === 'function') {
         totalChartInstance.resetZoom();
@@ -329,6 +358,7 @@ const initDashboard = () => {
             throw new Error("No historical data found.");
         }
         
+        recordDataLoadTime();
         buildYearRangeButtons();
         applyFilter('ALL');
         setStatus('archive');
@@ -336,6 +366,22 @@ const initDashboard = () => {
         document.querySelectorAll('.reset-zoom-btn').forEach(btn => {
             btn.addEventListener('click', resetChartZoom);
         });
+
+        // Setup refresh button
+        const refreshBtn = document.getElementById('refresh-data-btn');
+        if (refreshBtn) {
+            refreshBtn.addEventListener('click', () => {
+                refreshBtn.classList.add('refreshing');
+                refreshBtn.disabled = true;
+                
+                setTimeout(() => {
+                    recordDataLoadTime();
+                    applyFilter(document.querySelector('.time-btn.active')?.dataset.range || 'ALL');
+                    refreshBtn.classList.remove('refreshing');
+                    refreshBtn.disabled = false;
+                }, 500);
+            });
+        }
 
         // Setup Event Listeners for Time Scale Buttons
         document.querySelectorAll('.time-btn').forEach(btn => {
