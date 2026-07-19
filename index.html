@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mastodon User Statistics Dashboard</title>
+    <meta name="description" content="A real-time dashboard displaying Mastodon user growth and active user statistics.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="background-effects">
+        <div class="glow-orb orb-1"></div>
+        <div class="glow-orb orb-2"></div>
+    </div>
+    
+    <div class="dashboard-container">
+        <header class="dashboard-header glass-panel">
+            <div class="header-content">
+                <h1>Mastodon <span>Network Pulse</span></h1>
+                <p>Tracking the growth of the decentralized web.</p>
+            </div>
+            <div class="status-indicator">
+                <div class="status-dot"></div>
+                <span id="data-status">Connecting...</span>
+            </div>
+        </header>
+
+        <main class="dashboard-grid">
+            <!-- Time Scale Selector -->
+            <div class="time-scale-selector glass-panel">
+                <button class="time-btn" data-range="1W">1W</button>
+                <button class="time-btn" data-range="1M">1M</button>
+                <button class="time-btn" data-range="6M">6M</button>
+                <button class="time-btn" data-range="YTD">YTD</button>
+                <div id="year-range-container" class="year-range-container"></div>
+                <button class="time-btn active" data-range="ALL">ALL</button>
+            </div>
+
+            <!-- Key Metrics Cards -->
+            <section class="metrics-row">
+                <div class="metric-card glass-panel" id="card-total">
+                    <h3>Total Users</h3>
+                    <div class="value" id="val-total-users">--</div>
+                    <div class="trend" id="trend-total">--</div>
+                </div>
+                <div class="metric-card glass-panel" id="card-active">
+                    <h3>Active Users</h3>
+                    <div class="value" id="val-active-users">--</div>
+                    <div class="trend" id="trend-active">--</div>
+                </div>
+            </section>
+
+            <!-- Charts Area -->
+            <section class="charts-grid">
+                <div class="chart-section glass-panel">
+                    <div class="chart-header">
+                        <h2>Total Users Over Time</h2>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="totalChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-section glass-panel">
+                    <div class="chart-header">
+                        <h2>Active Users Over Time</h2>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="activeChart"></canvas>
+                    </div>
+                </div>
+            </section>
+        </main>
+        
+        <footer class="dashboard-footer">
+            <p>Data provided by <a href="https://api.joinmastodon.org/statistics" target="_blank" rel="noopener">Mastodon API</a>.</p>
+        </footer>
+    </div>
+
+    <script src="historicalData.js?v=2"></script>
+    <script src="script.js?v=2"></script>
+</body>
+</html>

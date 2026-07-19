@@ -1,0 +1,5749 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Mastodon Analytics - How many users uses Mastodon?</title>
+
+    <!-- FACEBOOK / Open Graph -->
+    <meta property="og:url" content="https://mastodon-analytics.com" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Mastodon Analytics" />
+    <meta
+      property="og:image"
+      content="https://mastodon-analytics.com/stats.png"
+    />
+    <meta
+      property="og:description"
+      content="How many users, active users, servers are on Mastodon?"
+    />
+    <meta property="og:site_name" content="Mastodon Analytics" />
+    <link rel="canonical" href="https://mastodon-analytics.com" />
+
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:creator" content="@eric_khun" />
+    <meta name="twitter:url" content="https://mastodon-analytics.com" />
+    <meta name="twitter:title" content="Mastodon Analytics" />
+    <meta
+      name="twitter:description"
+      content="How many users, active users, servers are on Mastodon?"
+    />
+    <meta
+      name="twitter:image"
+      content="https://mastodon-analytics.com/stats.png"
+    />
+
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22256%22 height=%22256%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%234f37f5%22></rect><path fill=%22%23fff%22 d=%22M53.83 63.00L53.83 63.00Q53.19 63.45 52.16 63.81Q51.13 64.17 49.86 64.17L49.86 64.17Q48.42 64.17 47.30 63.72Q46.17 63.27 45.72 62.28L45.72 62.28Q40.86 52.20 37.36 43.83Q33.84 35.46 31.68 29.97L31.68 29.97L31.32 29.97Q31.05 36.72 30.74 42.53Q30.43 48.33 30.06 53.87Q29.70 59.40 29.34 65.07Q28.98 70.74 28.63 77.22L28.63 77.22Q28.09 77.41 27.23 77.58Q26.38 77.77 25.38 77.77L25.38 77.77Q23.41 77.77 22.59 76.95Q21.79 76.14 21.79 74.61L21.79 74.61Q21.79 73.71 21.92 70.74Q22.05 67.77 22.32 63.54Q22.59 59.31 22.91 54.18Q23.23 49.05 23.63 43.74Q24.04 38.43 24.44 33.30Q24.84 28.17 25.20 23.94L25.20 23.94Q25.93 23.31 27.27 22.77Q28.63 22.23 30.34 22.23L30.34 22.23Q34.48 22.23 36.09 25.56L36.09 25.56Q37.80 29.07 39.56 32.99Q41.31 36.90 43.07 40.95Q44.83 45.00 46.49 48.96Q48.16 52.92 49.69 56.52L49.69 56.52L50.05 56.52Q52.03 51.75 54.00 47.12Q55.98 42.48 57.88 38.16Q59.77 33.84 61.47 30.06Q63.19 26.28 64.53 23.13L64.53 23.13Q65.34 22.68 66.61 22.46Q67.86 22.23 68.94 22.23L68.94 22.23Q73.17 22.23 73.80 25.11L73.80 25.11Q74.16 26.73 74.61 30.47Q75.06 34.20 75.52 39.06Q75.97 43.92 76.37 49.50Q76.77 55.08 77.14 60.26Q77.50 65.44 77.77 69.80Q78.03 74.16 78.22 76.68L78.22 76.68Q76.59 77.77 74.44 77.77L74.44 77.77Q73.08 77.77 72.05 77.09Q71.02 76.41 70.83 74.61L70.83 74.61Q70.39 68.04 70.03 61.56Q69.66 55.08 69.35 49.23Q69.03 43.38 68.77 38.48Q68.50 33.57 68.31 30.15L68.31 30.15L67.95 30.15Q66.97 32.67 65.66 35.82Q64.36 38.97 62.60 42.93Q60.84 46.89 58.69 51.89Q56.53 56.88 53.83 63.00Z%22></path></svg>"
+    />
+
+    <meta
+      name="description"
+      content="How many users, active users, servers are on Mastodon?"
+    />
+    <!-- CSS files -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/css/tabler.min.css"
+    />
+
+    <style>
+      @import url("https://rsms.me/inter/inter.css");
+      :root {
+        --tblr-font-sans-serif: "Inter Var", -apple-system, BlinkMacSystemFont,
+          San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif;
+      }
+      body {
+        font-feature-settings: "cv03", "cv04", "cv11";
+      }
+    </style>
+
+    <script>
+      analytics = [
+        // https://bitcoinhackers.org/@mastodonusercount
+        // {"period":"2018-09-24T00:00:00.000+00:00","user_count":" 1549547"},
+        // {"period":"2019-01-15T00:00:00.000+00:00","user_count":" 1932030"},
+        // {"period":"2019-03-29T00:00:00.000+00:00","user_count":" 2174085"},
+        // {"period":"2019-05-12T00:00:00.000+00:00","user_count":" 2264204"},
+        // {"period":"2019-07-09T00:00:00.000+00:00","user_count":" 3354651"},
+        // {"period":"2022-03-24T00:00:00.000+00:00","user_count":" 4997162"},
+        // 3606754  5,665,535 (* 0.6365)
+        // 5796234  8,825,501  * 0.6469 25dec
+        {
+          period: "2022-09-30T00:00:00.000+00:00",
+          server_count: "2829",
+          user_count: "3605039",
+          active_user_count: "470403",
+        },
+        {
+          period: "2022-10-01T00:00:00.000+00:00",
+          server_count: "2830",
+          user_count: "3605684",
+          active_user_count: "470799",
+        },
+        {
+          period: "2022-10-02T00:00:00.000+00:00",
+          server_count: "2822",
+          user_count: "3607107",
+          active_user_count: "470914",
+        },
+        {
+          period: "2022-10-03T00:00:00.000+00:00",
+          server_count: "2825",
+          user_count: "3608231",
+          active_user_count: "397138",
+        },
+        {
+          period: "2022-10-04T00:00:00.000+00:00",
+          server_count: "2817",
+          user_count: "3609492",
+          active_user_count: "397392",
+        },
+        {
+          period: "2022-10-05T00:00:00.000+00:00",
+          server_count: "2826",
+          user_count: "3555038",
+          active_user_count: "400142",
+        },
+        {
+          period: "2022-10-06T00:00:00.000+00:00",
+          server_count: "2821",
+          user_count: "3558111",
+          active_user_count: "403908",
+        },
+        {
+          period: "2022-10-07T00:00:00.000+00:00",
+          server_count: "2833",
+          user_count: "3607938",
+          active_user_count: "405108",
+        },
+        {
+          period: "2022-10-08T00:00:00.000+00:00",
+          server_count: "2824",
+          user_count: "3608413",
+          active_user_count: "406435",
+        },
+        {
+          period: "2022-10-09T00:00:00.000+00:00",
+          server_count: "2843",
+          user_count: "3606890",
+          active_user_count: "406757",
+        },
+        {
+          period: "2022-10-10T00:00:00.000+00:00",
+          server_count: "2842",
+          user_count: "3609407",
+          active_user_count: "360412",
+        },
+        {
+          period: "2022-10-11T00:00:00.000+00:00",
+          server_count: "2860",
+          user_count: "3611764",
+          active_user_count: "362067",
+        },
+        {
+          period: "2022-10-12T00:00:00.000+00:00",
+          server_count: "2862",
+          user_count: "3616698",
+          active_user_count: "364588",
+        },
+        {
+          period: "2022-10-13T00:00:00.000+00:00",
+          server_count: "2861",
+          user_count: "3618085",
+          active_user_count: "365401",
+        },
+        {
+          period: "2022-10-14T00:00:00.000+00:00",
+          server_count: "2855",
+          user_count: "3572286",
+          active_user_count: "367020",
+        },
+        {
+          period: "2022-10-15T00:00:00.000+00:00",
+          server_count: "2853",
+          user_count: "3573878",
+          active_user_count: "368486",
+        },
+        {
+          period: "2022-10-16T00:00:00.000+00:00",
+          server_count: "2858",
+          user_count: "3575381",
+          active_user_count: "368290",
+        },
+        {
+          period: "2022-10-17T00:00:00.000+00:00",
+          server_count: "2869",
+          user_count: "3575376",
+          active_user_count: "356682",
+        },
+        {
+          period: "2022-10-18T00:00:00.000+00:00",
+          server_count: "2864",
+          user_count: "3576825",
+          active_user_count: "356818",
+        },
+        {
+          period: "2022-10-19T00:00:00.000+00:00",
+          server_count: "2870",
+          user_count: "3578645",
+          active_user_count: "358009",
+        },
+        {
+          period: "2022-10-20T00:00:00.000+00:00",
+          server_count: "2866",
+          user_count: "3580505",
+          active_user_count: "359022",
+        },
+        {
+          period: "2022-10-21T00:00:00.000+00:00",
+          server_count: "2860",
+          user_count: "3582208",
+          active_user_count: "359882",
+        },
+        {
+          period: "2022-10-22T00:00:00.000+00:00",
+          server_count: "2854",
+          user_count: "3584600",
+          active_user_count: "361864",
+        },
+        {
+          period: "2022-10-23T00:00:00.000+00:00",
+          server_count: "2859",
+          user_count: "3586608",
+          active_user_count: "366395",
+        },
+        {
+          period: "2022-10-24T00:00:00.000+00:00",
+          server_count: "2853",
+          user_count: "3589552",
+          active_user_count: "360244",
+        },
+        {
+          period: "2022-10-25T00:00:00.000+00:00",
+          server_count: "2862",
+          user_count: "3591245",
+          active_user_count: "361397",
+        },
+        {
+          period: "2022-10-26T00:00:00.000+00:00",
+          server_count: "2862",
+          user_count: "3594472",
+          active_user_count: "364871",
+        },
+        {
+          period: "2022-10-27T00:00:00.000+00:00",
+          server_count: "2874",
+          user_count: "3598722",
+          active_user_count: "370360",
+        },
+        {
+          period: "2022-10-28T00:00:00.000+00:00",
+          server_count: "2877",
+          user_count: "3606754",
+          active_user_count: "381167",
+        },
+        {
+          period: "2022-10-29T00:00:00.000+00:00",
+          server_count: "2962",
+          user_count: "3656265",
+          active_user_count: "452016",
+        },
+        {
+          period: "2022-10-30T00:00:00.000+00:00",
+          server_count: "2963",
+          user_count: "3690437",
+          active_user_count: "496010",
+        },
+        {
+          period: "2022-10-31T00:00:00.000+00:00",
+          server_count: "3088",
+          user_count: "3723223",
+          active_user_count: "528916",
+        },
+        {
+          period: "2022-11-01T00:00:00.000+00:00",
+          server_count: "3088",
+          user_count: "3761979",
+          active_user_count: "572392",
+        },
+        {
+          period: "2022-11-02T00:00:00.000+00:00",
+          server_count: "3311",
+          user_count: "3798152",
+          active_user_count: "608837",
+        },
+        {
+          period: "2022-11-03T00:00:00.000+00:00",
+          server_count: "3308",
+          user_count: "3833368",
+          active_user_count: "655376",
+        },
+        {
+          period: "2022-11-04T00:00:00.000+00:00",
+          server_count: "3311",
+          user_count: "3812125",
+          active_user_count: "683363",
+        },
+        {
+          period: "2022-11-05T00:00:00.000+00:00",
+          server_count: "3549",
+          user_count: "3870983",
+          active_user_count: "740722",
+        },
+        {
+          period: "2022-11-06T00:00:00.000+00:00",
+          server_count: "3550",
+          user_count: "3970007",
+          active_user_count: "863096",
+        },
+        {
+          period: "2022-11-07T00:00:00.000+00:00",
+          server_count: "4053",
+          user_count: "4105507",
+          active_user_count: "1044405",
+        },
+        {
+          period: "2022-11-08T00:00:00.000+00:00",
+          server_count: "4023",
+          user_count: "4239565",
+          active_user_count: "1194896",
+        },
+        {
+          period: "2022-11-09T00:00:00.000+00:00",
+          server_count: "4631",
+          user_count: "4367254",
+          active_user_count: "1325550",
+        },
+        {
+          period: "2022-11-10T00:00:00.000+00:00",
+          server_count: "4609",
+          user_count: "4455121",
+          active_user_count: "1460507",
+        },
+        {
+          period: "2022-11-11T00:00:00.000+00:00",
+          server_count: "5228",
+          user_count: "4530762",
+          active_user_count: "1543628",
+        },
+        {
+          period: "2022-11-12T00:00:00.000+00:00",
+          server_count: "5197",
+          user_count: "4613240",
+          active_user_count: "1638202",
+        },
+        {
+          period: "2022-11-13T00:00:00.000+00:00",
+          server_count: "5703",
+          user_count: "4681940",
+          active_user_count: "1719592",
+        },
+        {
+          period: "2022-11-14T00:00:00.000+00:00",
+          server_count: "5697",
+          user_count: "4747221",
+          active_user_count: "1785710",
+        },
+        {
+          period: "2022-11-15T00:00:00.000+00:00",
+          server_count: "6104",
+          user_count: "4794235",
+          active_user_count: "1835815",
+        },
+        {
+          period: "2022-11-16T00:00:00.000+00:00",
+          server_count: "6079",
+          user_count: "4842593",
+          active_user_count: "1850396",
+        },
+        {
+          period: "2022-11-17T00:00:00.000+00:00",
+          server_count: "6037",
+          user_count: "4881134",
+          active_user_count: "1920151",
+        },
+        {
+          period: "2022-11-18T00:00:00.000+00:00",
+          server_count: "6020",
+          user_count: "4938856",
+          active_user_count: "1958366",
+        },
+        {
+          period: "2022-11-19T00:00:00.000+00:00",
+          server_count: "6002",
+          user_count: "4932736",
+          active_user_count: "2223817",
+        },
+        {
+          period: "2022-11-20T00:00:00.000+00:00",
+          server_count: "7138",
+          user_count: "5045034",
+          active_user_count: "2321529",
+        },
+        {
+          period: "2022-11-21T00:00:00.000+00:00",
+          server_count: "7119",
+          user_count: "5144773",
+          active_user_count: "2446507",
+        },
+        {
+          period: "2022-11-22T00:00:00.000+00:00",
+          server_count: "7690",
+          user_count: "5206070",
+          active_user_count: "2475160",
+        },
+        {
+          period: "2022-11-23T00:00:00.000+00:00",
+          server_count: "7649",
+          user_count: "5249225",
+          active_user_count: "2527469",
+        },
+        {
+          period: "2022-11-24T00:00:00.000+00:00",
+          server_count: "8012",
+          user_count: "5282884",
+          active_user_count: "2565903",
+        },
+        {
+          period: "2022-11-25T00:00:00.000+00:00",
+          server_count: "7969",
+          user_count: "5295488",
+          active_user_count: "2572087",
+        },
+        {
+          period: "2022-11-26T00:00:00.000+00:00",
+          server_count: "8196",
+          user_count: "5316651",
+          active_user_count: "2592483",
+        },
+        {
+          period: "2022-11-27T00:00:00.000+00:00",
+          server_count: "8172",
+          user_count: "5332392",
+          active_user_count: "2603092",
+        },
+        {
+          period: "2022-11-28T00:00:00.000+00:00",
+          server_count: "8376",
+          user_count: "5354048",
+          active_user_count: "2584189",
+        },
+        {
+          period: "2022-11-29T00:00:00.000+00:00",
+          server_count: "8320",
+          user_count: "5369945",
+          active_user_count: "2608527",
+        },
+        {
+          period: "2022-11-30T00:00:00.000+00:00",
+          server_count: "8496",
+          user_count: "5387503",
+          active_user_count: "2624121",
+        },
+        {
+          period: "2022-12-01T00:00:00.000+00:00",
+          server_count: "8451",
+          user_count: "5401399",
+          active_user_count: "2617550",
+        },
+        {
+          period: "2022-12-02T00:00:00.000+00:00",
+          server_count: "8401",
+          user_count: "5387146",
+          active_user_count: "2527166",
+        },
+        {
+          period: "2022-12-03T00:00:00.000+00:00",
+          server_count: "8666",
+          user_count: "5404186",
+          active_user_count: "2536166",
+        },
+        {
+          period: "2022-12-04T00:00:00.000+00:00",
+          server_count: "8606",
+          user_count: "5412393",
+          active_user_count: "2524632",
+        },
+        {
+          period: "2022-12-05T00:00:00.000+00:00",
+          server_count: "8751",
+          user_count: "5421536",
+          active_user_count: "2478291",
+        },
+        {
+          period: "2022-12-06T00:00:00.000+00:00",
+          server_count: "8678",
+          user_count: "5423031",
+          active_user_count: "2424002",
+        },
+        {
+          period: "2022-12-09T00:00:00.000+00:00",
+          server_count: "8633",
+          user_count: "5446000",
+          active_user_count: "2278703",
+        },
+        {
+          period: "2022-12-10T00:00:00.000+00:00",
+          server_count: "8601",
+          user_count: "5459676",
+          active_user_count: "2244654",
+        },
+        {
+          period: "2022-12-11T00:00:00.000+00:00",
+          server_count: "8831",
+          user_count: "5465362",
+          active_user_count: "2222843",
+        },
+        {
+          period: "2022-12-12T00:00:00.000+00:00",
+          server_count: "8805",
+          user_count: "5474864",
+          active_user_count: "2163975",
+        },
+        {
+          period: "2022-12-13T00:00:00.000+00:00",
+          server_count: "8832",
+          user_count: "5489594",
+          active_user_count: "2156463",
+        },
+        {
+          period: "2022-12-14T00:00:00.000+00:00",
+          server_count: "8823",
+          user_count: "5499419",
+          active_user_count: "2131380",
+        },
+        {
+          period: "2022-12-15T00:00:00.000+00:00",
+          server_count: "8774",
+          user_count: "5513782",
+          active_user_count: "2085437",
+        },
+        {
+          period: "2022-12-16T00:00:00.000+00:00",
+          server_count: "8781",
+          user_count: "5522707",
+          active_user_count: "2081843",
+        },
+        {
+          period: "2022-12-17T00:00:00.000+00:00",
+          server_count: "8749",
+          user_count: "5614698",
+          active_user_count: "2009012",
+        },
+        {
+          period: "2022-12-18T00:00:00.000+00:00",
+          server_count: "9112",
+          user_count: "5651256",
+          active_user_count: "1976928",
+        },
+        {
+          period: "2022-12-19T00:00:00.000+00:00",
+          server_count: "9101",
+          user_count: "5677157",
+          active_user_count: "1937158",
+        },
+        {
+          period: "2022-12-20T00:00:00.000+00:00",
+          server_count: "9060",
+          user_count: "5719462",
+          active_user_count: "1944730",
+        },
+        {
+          period: "2022-12-21T00:00:00.000+00:00",
+          server_count: "9030",
+          user_count: "5742625",
+          active_user_count: "1925944",
+        },
+        {
+          period: "2022-12-22T00:00:00.000+00:00",
+          server_count: "9513",
+          user_count: "5765503",
+          active_user_count: "1922977",
+        },
+        {
+          period: "2022-12-23T00:00:00.000+00:00",
+          server_count: "9469",
+          user_count: "5777251",
+          active_user_count: "1913432",
+        },
+        {
+          period: "2022-12-24T00:00:00.000+00:00",
+          server_count: "9599",
+          user_count: "5788763.0",
+          active_user_count: "1904004.0",
+        },
+        {
+          period: "2022-12-25T00:00:00.000+00:00",
+          server_count: "9573",
+          user_count: "5796234.0",
+          active_user_count: "1891191.0",
+        },
+        {
+          period: "2022-12-26T00:00:00.000+00:00",
+          server_count: "9635",
+          user_count: "5805685.0",
+          active_user_count: "1860760.0",
+        },
+        {
+          period: "2022-12-27T00:00:00.000+00:00",
+          server_count: "9602",
+          user_count: "5810920.0",
+          active_user_count: "1843906.0",
+        },
+        {
+          period: "2022-12-28T00:00:00.000+00:00",
+          server_count: "9561",
+          user_count: "5817860.0",
+          active_user_count: "1831291.0",
+        },
+        {
+          period: "2022-12-29T00:00:00.000+00:00",
+          server_count: "9517",
+          user_count: "5829411.0",
+          active_user_count: "1823027.0",
+        },
+        {
+          period: "2022-12-30T00:00:00.000+00:00",
+          server_count: "9706",
+          user_count: "5838743.0",
+          active_user_count: "1819260.0",
+        },
+        {
+          period: "2022-12-31T00:00:00.000+00:00",
+          server_count: "9686",
+          user_count: "5844024.0",
+          active_user_count: "1820710.0",
+        },
+        {
+          period: "2023-01-01T00:00:00.000+00:00",
+          server_count: "9743",
+          user_count: "5875129.0",
+          active_user_count: "1816417.0",
+        },
+        {
+          period: "2023-01-02T00:00:00.000+00:00",
+          server_count: "9743",
+          user_count: "5883342.0",
+          active_user_count: "1813291.0",
+        },
+        {
+          period: "2023-01-03T00:00:00.000+00:00",
+          server_count: "9778",
+          user_count: "5894174.0",
+          active_user_count: "1796032.0",
+        },
+        {
+          period: "2023-01-04T00:00:00.000+00:00",
+          server_count: "9767",
+          user_count: "5899981.0",
+          active_user_count: "1795423.0",
+        },
+        {
+          period: "2023-01-05T00:00:00.000+00:00",
+          server_count: "9799",
+          user_count: "5907345.0",
+          active_user_count: "1791619.0",
+        },
+        {
+          period: "2023-01-06T00:00:00.000+00:00",
+          server_count: "9792",
+          user_count: "5913832.0",
+          active_user_count: "1787112.0",
+        },
+        {
+          period: "2023-01-07T00:00:00.000+00:00",
+          server_count: "9833",
+          user_count: "5919524.0",
+          active_user_count: "1783256.0",
+        },
+        {
+          period: "2023-01-08T00:00:00.000+00:00",
+          server_count: "9840",
+          user_count: "5923302.0",
+          active_user_count: "1779947.0",
+        },
+        {
+          period: "2023-01-09T00:00:00.000+00:00",
+          server_count: "9844",
+          user_count: "5927419.0",
+          active_user_count: "1761350.0",
+        },
+        {
+          period: "2023-01-10T00:00:00.000+00:00",
+          server_count: "9852",
+          user_count: "5931881.0",
+          active_user_count: "1758147.0",
+        },
+        {
+          period: "2023-01-11T00:00:00.000+00:00",
+          server_count: "9804",
+          user_count: "5934418.0",
+          active_user_count: "1742135.0",
+        },
+        {
+          period: "2023-01-12T00:00:00.000+00:00",
+          server_count: "9881",
+          user_count: "5940037.0",
+          active_user_count: "1731995.0",
+        },
+        {
+          period: "2023-01-13T00:00:00.000+00:00",
+          server_count: "9945",
+          user_count: "5956074.0",
+          active_user_count: "1728681.0",
+        },
+        {
+          period: "2023-01-14T00:00:00.000+00:00",
+          server_count: "9969",
+          user_count: "5961575.0",
+          active_user_count: "1664881.0",
+        },
+        {
+          period: "2023-01-15T00:00:00.000+00:00",
+          server_count: "9942",
+          user_count: "6261109.0",
+          active_user_count: "1705918.0",
+        },
+        {
+          period: "2023-01-16T00:00:00.000+00:00",
+          server_count: "9920",
+          user_count: "6265924.0",
+          active_user_count: "1644476.0",
+        },
+        {
+          period: "2023-01-17T00:00:00.000+00:00",
+          server_count: "9892",
+          user_count: "6271827.0",
+          active_user_count: "1616640.0",
+        },
+        {
+          period: "2023-01-18T00:00:00.000+00:00",
+          server_count: "9876",
+          user_count: "6277087.0",
+          active_user_count: "1568309.0",
+        },
+        {
+          period: "2023-01-19T00:00:00.000+00:00",
+          server_count: "9845",
+          user_count: "6289037.0",
+          active_user_count: "1552538.0",
+        },
+        {
+          period: "2023-01-20T00:00:00.000+00:00",
+          server_count: "9829",
+          user_count: "5998967.0",
+          active_user_count: "1470842.0",
+        },
+        {
+          period: "2023-01-21T00:00:00.000+00:00",
+          server_count: "9810",
+          user_count: "6006576.0",
+          active_user_count: "1463988.0",
+        },
+        {
+          period: "2023-01-22T00:00:00.000+00:00",
+          server_count: "9780",
+          user_count: "6008298.0",
+          active_user_count: "1455339.0",
+        },
+        {
+          period: "2023-01-23T00:00:00.000+00:00",
+          server_count: "9760",
+          user_count: "6013281.0",
+          active_user_count: "1437246.0",
+        },
+        {
+          period: "2023-01-24T00:00:00.000+00:00",
+          server_count: "9742",
+          user_count: "6017874.0",
+          active_user_count: "1427829.0",
+        },
+        {
+          period: "2023-01-25T00:00:00.000+00:00",
+          server_count: "9727",
+          user_count: "6025810.0",
+          active_user_count: "1423089.0",
+        },
+        {
+          period: "2023-01-26T00:00:00.000+00:00",
+          server_count: "9720",
+          user_count: "6330640.0",
+          active_user_count: "1488638.0",
+        },
+        {
+          period: "2023-01-27T00:00:00.000+00:00",
+          server_count: "9697",
+          user_count: "6337333.0",
+          active_user_count: "1480845.0",
+        },
+        {
+          period: "2023-01-28T00:00:00.000+00:00",
+          server_count: "9669",
+          user_count: "6342971.0",
+          active_user_count: "1472931.0",
+        },
+        {
+          period: "2023-01-29T00:00:00.000+00:00",
+          server_count: "9656",
+          user_count: "6347205.0",
+          active_user_count: "1466547.0",
+        },
+        {
+          period: "2023-01-30T00:00:00.000+00:00",
+          server_count: "9644",
+          user_count: "6351327.0",
+          active_user_count: "1443580.0",
+        },
+        {
+          period: "2023-01-31T00:00:00.000+00:00",
+          server_count: "9592",
+          user_count: "6356139.0",
+          active_user_count: "1431727.0",
+        },
+        {
+          period: "2023-02-01",
+          server_count: "9602",
+          user_count: "6359836",
+          active_user_count: "1420508",
+        },
+        {
+          period: "2023-02-02",
+          server_count: "9564",
+          user_count: "6363801",
+          active_user_count: "1410878",
+        },
+        {
+          period: "2023-02-03",
+          server_count: "9523",
+          user_count: "6373994",
+          active_user_count: "1413737",
+        },
+        {
+          period: "2023-02-04",
+          server_count: "10449",
+          user_count: "6394614",
+          active_user_count: "1425631",
+        },
+        {
+          period: "2023-02-05",
+          server_count: "10415",
+          user_count: "6400336",
+          active_user_count: "1410538",
+        },
+        {
+          period: "2023-02-06",
+          server_count: "10497",
+          user_count: "6404504",
+          active_user_count: "1404790",
+        },
+        {
+          period: "2023-02-07",
+          server_count: "10447",
+          user_count: "6405695",
+          active_user_count: "1371606",
+        },
+        {
+          period: "2023-02-08",
+          server_count: "10421",
+          user_count: "6415146",
+          active_user_count: "1373683",
+        },
+        {
+          period: "2023-02-09",
+          server_count: "10497",
+          user_count: "6423774",
+          active_user_count: "1379355",
+        },
+        {
+          period: "2023-02-10",
+          server_count: "10462",
+          user_count: "6436066",
+          active_user_count: "1356978",
+        },
+        {
+          period: "2023-02-11",
+          server_count: "10512",
+          user_count: "6442865",
+          active_user_count: "1366646",
+        },
+        {
+          period: "2023-02-12",
+          server_count: "10462",
+          user_count: "6449538",
+          active_user_count: "1368073",
+        },
+        {
+          period: "2023-02-13",
+          server_count: "10432",
+          user_count: "6456702",
+          active_user_count: "1366261",
+        },
+        {
+          period: "2023-02-14",
+          server_count: "10416",
+          user_count: "6460375",
+          active_user_count: "1369841",
+        },
+        {
+          period: "2023-02-15",
+          server_count: "10389",
+          user_count: "6464758",
+          active_user_count: "1369968",
+        },
+        {
+          period: "2023-02-16",
+          server_count: "10550",
+          user_count: "6471070",
+          active_user_count: "1366993",
+        },
+        {
+          period: "2023-02-17",
+          server_count: "10500",
+          user_count: "6474520",
+          active_user_count: "1365222",
+        },
+        {
+          period: "2023-02-18",
+          server_count: "10466",
+          user_count: "6458723",
+          active_user_count: "1357687",
+        },
+        {
+          period: "2023-02-19",
+          server_count: "10428",
+          user_count: "6483257",
+          active_user_count: "1361415",
+        },
+        {
+          period: "2023-02-20",
+          server_count: "10439",
+          user_count: "6490211",
+          active_user_count: "1358971",
+        },
+        {
+          period: "2023-02-21",
+          server_count: "10411",
+          user_count: "6492165",
+          active_user_count: "1352606",
+        },
+        {
+          period: "2023-02-22",
+          server_count: "10418",
+          user_count: "6494057",
+          active_user_count: "1347228",
+        },
+        {
+          period: "2023-02-23",
+          server_count: "10404",
+          user_count: "6499155",
+          active_user_count: "1333760",
+        },
+        {
+          period: "2023-02-24",
+          server_count: "10512",
+          user_count: "6506047",
+          active_user_count: "1332169",
+        },
+        {
+          period: "2023-02-25",
+          server_count: "10402",
+          user_count: "6510505",
+          active_user_count: "1331688",
+        },
+        {
+          period: "2023-02-26",
+          server_count: "10394",
+          user_count: "6511198",
+          active_user_count: "1331383",
+        },
+        {
+          period: "2023-02-27",
+          server_count: "10367",
+          user_count: "6490683",
+          active_user_count: "1327216",
+        },
+        {
+          period: "2023-02-28",
+          server_count: "10323",
+          user_count: "6497314",
+          active_user_count: "1322928",
+        },
+        {
+          period: "2023-03-01",
+          server_count: "10315",
+          user_count: "6483884",
+          active_user_count: "1325187",
+        },
+        {
+          period: "2023-03-02",
+          server_count: "10268",
+          user_count: "6491613",
+          active_user_count: "1321815",
+        },
+        {
+          period: "2023-03-03",
+          server_count: "10234",
+          user_count: "6495270",
+          active_user_count: "1319437",
+        },
+        {
+          period: "2023-03-04",
+          server_count: "10212",
+          user_count: "6504089",
+          active_user_count: "1311154",
+        },
+        {
+          period: "2023-03-05",
+          server_count: "10177",
+          user_count: "6478044",
+          active_user_count: "1305033",
+        },
+        {
+          period: "2023-03-06",
+          server_count: "10164",
+          user_count: "6478864",
+          active_user_count: "1294800",
+        },
+        {
+          period: "2023-03-07",
+          server_count: "10137",
+          user_count: "6484172",
+          active_user_count: "1294368",
+        },
+        {
+          period: "2023-03-08",
+          server_count: "10120",
+          user_count: "6487855",
+          active_user_count: "1293325",
+        },
+        {
+          period: "2023-03-09",
+          server_count: "10083",
+          user_count: "6487774",
+          active_user_count: "1286240",
+        },
+        {
+          period: "2023-03-10",
+          server_count: "10075",
+          user_count: "6495628",
+          active_user_count: "1275466",
+        },
+        {
+          period: "2023-03-11",
+          server_count: "10036",
+          user_count: "6500917",
+          active_user_count: "1271114",
+        },
+        {
+          period: "2023-03-12",
+          server_count: "10015",
+          user_count: "6503642",
+          active_user_count: "1265932",
+        },
+        {
+          period: "2023-03-13",
+          server_count: "9985",
+          user_count: "6507241",
+          active_user_count: "1250206",
+        },
+        {
+          period: "2023-03-14",
+          server_count: "9930",
+          user_count: "6510193",
+          active_user_count: "1248517",
+        },
+        {
+          period: "2023-03-15",
+          server_count: "9904",
+          user_count: "6515017",
+          active_user_count: "1247487",
+        },
+        {
+          period: "2023-03-16",
+          server_count: "9905",
+          user_count: "6519843",
+          active_user_count: "1246292",
+        },
+        {
+          period: "2023-03-17",
+          server_count: "9864",
+          user_count: "6522722",
+          active_user_count: "1243302",
+        },
+        {
+          period: "2023-03-18",
+          server_count: "9830",
+          user_count: "6519413",
+          active_user_count: "1237860",
+        },
+        {
+          period: "2023-03-19",
+          server_count: "9797",
+          user_count: "6515276",
+          active_user_count: "1232365",
+        },
+        {
+          period: "2023-03-20",
+          server_count: "10007",
+          user_count: "6528055",
+          active_user_count: "1219261",
+        },
+        {
+          period: "2023-03-21",
+          server_count: "9992",
+          user_count: "6532906",
+          active_user_count: "1217731",
+        },
+        {
+          period: "2023-03-22",
+          server_count: "9957",
+          user_count: "6534112",
+          active_user_count: "1216396",
+        },
+        {
+          period: "2023-03-23",
+          server_count: "9923",
+          user_count: "6537218",
+          active_user_count: "1212809",
+        },
+        {
+          period: "2023-03-24",
+          server_count: "9931",
+          user_count: "6540377",
+          active_user_count: "1208317",
+        },
+        {
+          period: "2023-03-25",
+          server_count: "9917",
+          user_count: "6543803",
+          active_user_count: "1204827",
+        },
+        {
+          period: "2023-03-26",
+          server_count: "9882",
+          user_count: "6543927",
+          active_user_count: "1199270",
+        },
+        {
+          period: "2023-03-27",
+          server_count: "9853",
+          user_count: "6547471",
+          active_user_count: "1182000",
+        },
+        {
+          period: "2023-03-28",
+          server_count: "9849",
+          user_count: "6551513",
+          active_user_count: "1177493",
+        },
+        {
+          period: "2023-03-29",
+          server_count: "9821",
+          user_count: "6558758",
+          active_user_count: "1180692",
+        },
+        {
+          period: "2023-03-30",
+          server_count: "9816",
+          user_count: "6563500",
+          active_user_count: "1177878",
+        },
+        {
+          period: "2023-03-31",
+          server_count: "9806",
+          user_count: "6567383",
+          active_user_count: "1174657",
+        },
+        {
+          period: "2023-04-01",
+          server_count: "9838",
+          user_count: "6570824",
+          active_user_count: "1173293",
+        },
+        {
+          period: "2023-04-02",
+          server_count: "9808",
+          user_count: "6571718",
+          active_user_count: "1170691",
+        },
+        {
+          period: "2023-04-03",
+          server_count: "9787",
+          user_count: "6576402",
+          active_user_count: "1159077",
+        },
+        {
+          period: "2023-04-04",
+          server_count: "9758",
+          user_count: "6580720",
+          active_user_count: "1157392",
+        },
+        {
+          period: "2023-04-05",
+          server_count: "9719",
+          user_count: "6587032",
+          active_user_count: "1158242",
+        },
+        {
+          period: "2023-04-06",
+          server_count: "9682",
+          user_count: "6593370",
+          active_user_count: "1161473",
+        },
+        {
+          period: "2023-04-07",
+          server_count: "9665",
+          user_count: "6597758",
+          active_user_count: "1188797",
+        },
+        {
+          period: "2023-04-08",
+          server_count: "9645",
+          user_count: "6605736",
+          active_user_count: "1195702",
+        },
+        {
+          period: "2023-04-09",
+          server_count: "9628",
+          user_count: "6611629",
+          active_user_count: "1196528",
+        },
+        {
+          period: "2023-04-10",
+          server_count: "9619",
+          user_count: "6620135",
+          active_user_count: "1192014",
+        },
+        {
+          period: "2023-04-11",
+          server_count: "9596",
+          user_count: "6625660",
+          active_user_count: "1195264",
+        },
+        {
+          period: "2023-04-12",
+          server_count: "9573",
+          user_count: "6631919",
+          active_user_count: "1198625",
+        },
+        {
+          period: "2023-04-13",
+          server_count: "9555",
+          user_count: "6638506",
+          active_user_count: "1202791",
+        },
+        {
+          period: "2023-04-14",
+          server_count: "9544",
+          user_count: "6635264",
+          active_user_count: "1196003",
+        },
+        {
+          period: "2023-04-15",
+          server_count: "9509",
+          user_count: "6641082",
+          active_user_count: "1201004",
+        },
+        {
+          period: "2023-04-16",
+          server_count: "9481",
+          user_count: "6642782",
+          active_user_count: "1204341",
+        },
+        {
+          period: "2023-04-17",
+          server_count: "9474",
+          user_count: "6651031",
+          active_user_count: "1198114",
+        },
+        {
+          period: "2023-04-18",
+          server_count: "9457",
+          user_count: "6656819",
+          active_user_count: "1199268",
+        },
+        {
+          period: "2023-04-19",
+          server_count: "9589",
+          user_count: "6651384",
+          active_user_count: "1204633",
+        },
+        {
+          period: "2023-04-20",
+          server_count: "9558",
+          user_count: "6665646",
+          active_user_count: "1210115",
+        },
+        {
+          period: "2023-04-21",
+          server_count: "9551",
+          user_count: "6670713",
+          active_user_count: "1214010",
+        },
+        {
+          period: "2023-04-22",
+          server_count: "9523",
+          user_count: "6675335",
+          active_user_count: "1214744",
+        },
+        {
+          period: "2023-04-23",
+          server_count: "9518",
+          user_count: "6674294",
+          active_user_count: "1216191",
+        },
+        {
+          period: "2023-04-24",
+          server_count: "9509",
+          user_count: "6685731",
+          active_user_count: "1212163",
+        },
+        {
+          period: "2023-04-25",
+          server_count: "9501",
+          user_count: "6690373",
+          active_user_count: "1214955",
+        },
+        {
+          period: "2023-04-26",
+          server_count: "9477",
+          user_count: "6689715",
+          active_user_count: "1209546",
+        },
+        {
+          period: "2023-04-27",
+          server_count: "9457",
+          user_count: "6698290",
+          active_user_count: "1208963",
+        },
+        {
+          period: "2023-04-28",
+          server_count: "9435",
+          user_count: "6702386",
+          active_user_count: "1210003",
+        },
+        {
+          period: "2023-04-29",
+          server_count: "9526",
+          user_count: "6708359",
+          active_user_count: "1213535",
+        },
+        {
+          period: "2023-04-30",
+          server_count: "9514",
+          user_count: "6703505",
+          active_user_count: "1211821",
+        },
+        {
+          period: "2023-05-01",
+          server_count: "9494",
+          user_count: "6705045",
+          active_user_count: "1199951",
+        },
+        {
+          period: "2023-05-19",
+          server_count: "9321",
+          user_count: "6696138",
+          active_user_count: "1136021",
+        },
+        {
+          period: "2023-05-20",
+          server_count: "9291",
+          user_count: "6697629",
+          active_user_count: "1129626",
+        },
+        {
+          period: "2023-05-21",
+          server_count: "9261",
+          user_count: "6700623",
+          active_user_count: "1127057",
+        },
+        {
+          period: "2023-05-22",
+          server_count: "9256",
+          user_count: "6703461",
+          active_user_count: "1114821",
+        },
+        {
+          period: "2023-05-23",
+          server_count: "9240",
+          user_count: "6705598",
+          active_user_count: "1111851",
+        },
+        {
+          period: "2023-05-24",
+          server_count: "9235",
+          user_count: "6681892",
+          active_user_count: "1107172",
+        },
+        {
+          period: "2023-05-25",
+          server_count: "9206",
+          user_count: "6685782",
+          active_user_count: "1106715",
+        },
+        {
+          period: "2023-05-26",
+          server_count: "9201",
+          user_count: "6710514",
+          active_user_count: "1108361",
+        },
+        {
+          period: "2023-05-27",
+          server_count: "9176",
+          user_count: "6714171",
+          active_user_count: "1106700",
+        },
+        {
+          period: "2023-05-28",
+          server_count: "9147",
+          user_count: "6714004",
+          active_user_count: "1103920",
+        },
+        {
+          period: "2023-05-29",
+          server_count: "9316",
+          user_count: "6818966",
+          active_user_count: "1143766",
+        },
+        {
+          period: "2023-05-30",
+          server_count: "9318",
+          user_count: "6824070",
+          active_user_count: "1156218",
+        },
+        {
+          period: "2023-05-31",
+          server_count: "9304",
+          user_count: "6843011",
+          active_user_count: "1170852",
+        },
+        {
+          period: "2023-06-01",
+          server_count: "9270",
+          user_count: "6857971",
+          active_user_count: "1181560",
+        },
+        {
+          period: "2023-06-02",
+          server_count: "9237",
+          user_count: "6873516",
+          active_user_count: "1180826",
+        },
+        {
+          period: "2023-06-03",
+          server_count: "9226",
+          user_count: "6884104",
+          active_user_count: "1180819",
+        },
+        {
+          period: "2023-06-04",
+          server_count: "9214",
+          user_count: "6888468",
+          active_user_count: "1179334",
+        },
+        {
+          period: "2023-06-05",
+          server_count: "9203",
+          user_count: "6890504",
+          active_user_count: "1170309",
+        },
+        {
+          period: "2023-06-06",
+          server_count: "9185",
+          user_count: "6892307",
+          active_user_count: "1170475",
+        },
+        {
+          period: "2023-06-07",
+          server_count: "9163",
+          user_count: "6923470",
+          active_user_count: "1166349",
+        },
+        {
+          period: "2023-06-08",
+          server_count: "9139",
+          user_count: "6926143",
+          active_user_count: "1159615",
+        },
+        {
+          period: "2023-06-09",
+          server_count: "9121",
+          user_count: "6933994",
+          active_user_count: "1157495",
+        },
+        {
+          period: "2023-06-10",
+          server_count: "9105",
+          user_count: "6939670",
+          active_user_count: "1158575",
+        },
+        {
+          period: "2023-06-11",
+          server_count: "9098",
+          user_count: "6945277",
+          active_user_count: "1161727",
+        },
+        {
+          period: "2023-06-12",
+          server_count: "9095",
+          user_count: "6949419",
+          active_user_count: "1142397",
+        },
+        {
+          period: "2023-06-13",
+          server_count: "9094",
+          user_count: "6957564",
+          active_user_count: "1148775",
+        },
+        {
+          period: "2023-06-14",
+          server_count: "9316",
+          user_count: "6994241",
+          active_user_count: "1145398",
+        },
+        {
+          period: "2023-06-15",
+          server_count: "9300",
+          user_count: "6999691",
+          active_user_count: "1140840",
+        },
+        {
+          period: "2023-06-16",
+          server_count: "9340",
+          user_count: "7005100",
+          active_user_count: "1141149",
+        },
+        {
+          period: "2023-06-17",
+          server_count: "9311",
+          user_count: "6989075",
+          active_user_count: "1152419",
+        },
+        {
+          period: "2023-06-18",
+          server_count: "9291",
+          user_count: "7009601",
+          active_user_count: "1169758",
+        },
+        {
+          period: "2023-06-19",
+          server_count: "9274",
+          user_count: "7031215",
+          active_user_count: "1177551",
+        },
+        {
+          period: "2023-06-20",
+          server_count: "9254",
+          user_count: "7054516",
+          active_user_count: "1189420",
+        },
+        {
+          period: "2023-06-21",
+          server_count: "9232",
+          user_count: "7073320",
+          active_user_count: "1201531",
+        },
+        {
+          period: "2023-06-22",
+          server_count: "9207",
+          user_count: "7094749",
+          active_user_count: "1217344",
+        },
+        {
+          period: "2023-06-23",
+          server_count: "9180",
+          user_count: "7118284",
+          active_user_count: "1224985",
+        },
+        {
+          period: "2023-06-24",
+          server_count: "9165",
+          user_count: "7139376",
+          active_user_count: "1241559",
+        },
+        {
+          period: "2023-06-25",
+          server_count: "9164",
+          user_count: "7136816",
+          active_user_count: "1255941",
+        },
+        {
+          period: "2023-06-26",
+          server_count: "9150",
+          user_count: "7177728",
+          active_user_count: "1264103",
+        },
+        {
+          period: "2023-06-27",
+          server_count: "9141",
+          user_count: "7199720",
+          active_user_count: "1226332",
+        },
+        {
+          period: "2023-06-28",
+          server_count: "9124",
+          user_count: "7219070",
+          active_user_count: "1242728",
+        },
+        {
+          period: "2023-06-29",
+          server_count: "9111",
+          user_count: "7242698",
+          active_user_count: "1259740",
+        },
+        {
+          period: "2023-06-16",
+          server_count: "9340",
+          user_count: "7005100",
+          active_user_count: "1141149",
+        },
+        {
+          period: "2023-06-17",
+          server_count: "9311",
+          user_count: "6989075",
+          active_user_count: "1152419",
+        },
+        {
+          period: "2023-06-18",
+          server_count: "9291",
+          user_count: "7009601",
+          active_user_count: "1169758",
+        },
+        {
+          period: "2023-06-19",
+          server_count: "9274",
+          user_count: "7031215",
+          active_user_count: "1177551",
+        },
+        {
+          period: "2023-06-20",
+          server_count: "9254",
+          user_count: "7054516",
+          active_user_count: "1189420",
+        },
+        {
+          period: "2023-06-21",
+          server_count: "9232",
+          user_count: "7073320",
+          active_user_count: "1201531",
+        },
+        {
+          period: "2023-06-22",
+          server_count: "9207",
+          user_count: "7094749",
+          active_user_count: "1217344",
+        },
+        {
+          period: "2023-06-23",
+          server_count: "9180",
+          user_count: "7118284",
+          active_user_count: "1224985",
+        },
+        {
+          period: "2023-06-24",
+          server_count: "9165",
+          user_count: "7139376",
+          active_user_count: "1241559",
+        },
+        {
+          period: "2023-06-25",
+          server_count: "9164",
+          user_count: "7136816",
+          active_user_count: "1255941",
+        },
+        {
+          period: "2023-06-26",
+          server_count: "9150",
+          user_count: "7177728",
+          active_user_count: "1264103",
+        },
+        {
+          period: "2023-06-27",
+          server_count: "9141",
+          user_count: "7199720",
+          active_user_count: "1226332",
+        },
+        {
+          period: "2023-06-28",
+          server_count: "9124",
+          user_count: "7219070",
+          active_user_count: "1242728",
+        },
+        {
+          period: "2023-06-29",
+          server_count: "9111",
+          user_count: "7242698",
+          active_user_count: "1259740",
+        },
+        {
+          period: "2023-06-30",
+          server_count: "9100",
+          user_count: "7264539",
+          active_user_count: "1276469",
+        },
+        {
+          period: "2023-07-01",
+          server_count: "9076",
+          user_count: "7284590",
+          active_user_count: "1298269",
+        },
+        {
+          period: "2023-07-02",
+          server_count: "9063",
+          user_count: "7380546",
+          active_user_count: "1408994",
+        },
+        {
+          period: "2023-07-03",
+          server_count: "9057",
+          user_count: "7478913",
+          active_user_count: "1583998",
+        },
+        {
+          period: "2023-07-04",
+          server_count: "9028",
+          user_count: "7583192",
+          active_user_count: "1675202",
+        },
+        {
+          period: "2023-07-05",
+          server_count: "9003",
+          user_count: "7619665",
+          active_user_count: "1737787",
+        },
+        {
+          period: "2023-07-06",
+          server_count: "9017",
+          user_count: "7602237",
+          active_user_count: "1773028",
+        },
+        {
+          period: "2023-07-07",
+          server_count: "8975",
+          user_count: "7643506",
+          active_user_count: "1826515",
+        },
+        {
+          period: "2023-07-08",
+          server_count: "8941",
+          user_count: "7675745",
+          active_user_count: "1872951",
+        },
+        {
+          period: "2023-07-09",
+          server_count: "8886",
+          user_count: "7679331",
+          active_user_count: "1906425",
+        },
+        {
+          period: "2023-07-10",
+          server_count: "8848",
+          user_count: "7700576",
+          active_user_count: "1930218",
+        },
+        {
+          period: "2023-07-11",
+          server_count: "8827",
+          user_count: "7747731",
+          active_user_count: "1962715",
+        },
+        {
+          period: "2023-07-12",
+          server_count: "8810",
+          user_count: "7771200",
+          active_user_count: "1989334",
+        },
+        {
+          period: "2023-07-13",
+          server_count: "8807",
+          user_count: "7796975",
+          active_user_count: "2018802",
+        },
+        {
+          period: "2023-07-14",
+          server_count: "9021",
+          user_count: "7829676",
+          active_user_count: "2058427",
+        },
+        {
+          period: "2023-07-15",
+          server_count: "8984",
+          user_count: "7848649",
+          active_user_count: "2083344",
+        },
+        {
+          period: "2023-07-16",
+          server_count: "8970",
+          user_count: "7853017",
+          active_user_count: "2094949",
+        },
+        {
+          period: "2023-07-17",
+          server_count: "8960",
+          user_count: "7849574",
+          active_user_count: "2095048",
+        },
+        {
+          period: "2023-07-18",
+          server_count: "8938",
+          user_count: "7857393",
+          active_user_count: "2105031",
+        },
+        {
+          period: "2023-07-19",
+          server_count: "8922",
+          user_count: "7860720",
+          active_user_count: "2109729",
+        },
+        {
+          period: "2023-07-20",
+          server_count: "8931",
+          user_count: "7865323",
+          active_user_count: "2111539",
+        },
+        {
+          period: "2023-07-21",
+          server_count: "8907",
+          user_count: "7870372",
+          active_user_count: "2112504",
+        },
+        {
+          period: "2023-07-22",
+          server_count: "8885",
+          user_count: "7872071",
+          active_user_count: "2108027",
+        },
+        {
+          period: "2023-07-23",
+          server_count: "8889",
+          user_count: "7876946",
+          active_user_count: "2108264",
+        },
+        {
+          period: "2023-07-24",
+          server_count: "8902",
+          user_count: "7882462",
+          active_user_count: "2098725",
+        },
+        {
+          period: "2023-07-25",
+          server_count: "8892",
+          user_count: "7878125",
+          active_user_count: "2116455",
+        },
+        {
+          period: "2023-07-26",
+          server_count: "8871",
+          user_count: "7892323",
+          active_user_count: "2135632",
+        },
+        {
+          period: "2023-07-27",
+          server_count: "8861",
+          user_count: "7901482",
+          active_user_count: "2144420",
+        },
+        {
+          period: "2023-07-28",
+          server_count: "9290",
+          user_count: "7916570",
+          active_user_count: "2157702",
+        },
+        {
+          period: "2023-07-29",
+          server_count: "9272",
+          user_count: "7921022",
+          active_user_count: "2164968",
+        },
+        {
+          period: "2023-07-30",
+          server_count: "9285",
+          user_count: "7924540",
+          active_user_count: "2136812",
+        },
+        {
+          period: "2023-07-31",
+          server_count: "9276",
+          user_count: "7931659",
+          active_user_count: "2058942",
+        },
+        {
+          period: "2023-08-01",
+          server_count: "9227",
+          user_count: "7938664",
+          active_user_count: "2024780",
+        },
+        {
+          period: "2023-08-02",
+          server_count: "9192",
+          user_count: "7963736",
+          active_user_count: "2007200",
+        },
+        {
+          period: "2023-08-03",
+          server_count: "9171",
+          user_count: "7970283",
+          active_user_count: "1993011",
+        },
+        {
+          period: "2023-08-04",
+          server_count: "9162",
+          user_count: "7974975",
+          active_user_count: "1957666",
+        },
+        {
+          period: "2023-08-05",
+          server_count: "9135",
+          user_count: "7982381",
+          active_user_count: "1936843",
+        },
+        {
+          period: "2023-08-06",
+          server_count: "9116",
+          user_count: "7986688",
+          active_user_count: "1921914",
+        },
+        {
+          period: "2023-08-07",
+          server_count: "9311",
+          user_count: "7990197",
+          active_user_count: "1895207",
+        },
+        {
+          period: "2023-08-08",
+          server_count: "9306",
+          user_count: "7996914",
+          active_user_count: "1881225",
+        },
+        {
+          period: "2023-08-09",
+          server_count: "9286",
+          user_count: "8002101",
+          active_user_count: "1869982",
+        },
+        {
+          period: "2023-08-10",
+          server_count: "9274",
+          user_count: "8008798",
+          active_user_count: "1865631",
+        },
+        {
+          period: "2023-08-11",
+          server_count: "9255",
+          user_count: "8009632",
+          active_user_count: "1851045",
+        },
+        {
+          period: "2023-08-12",
+          server_count: "9246",
+          user_count: "8015892",
+          active_user_count: "1838253",
+        },
+        {
+          period: "2023-08-13",
+          server_count: "9289",
+          user_count: "8020399",
+          active_user_count: "1832354",
+        },
+        {
+          period: "2023-08-14",
+          server_count: "9281",
+          user_count: "8027039",
+          active_user_count: "1818809",
+        },
+        {
+          period: "2023-08-15",
+          server_count: "9234",
+          user_count: "8028889",
+          active_user_count: "1814400",
+        },
+        {
+          period: "2023-08-20",
+          server_count: "9186",
+          user_count: "8053257",
+          active_user_count: "1850610",
+        },
+        {
+          period: "2023-08-21",
+          server_count: "9171",
+          user_count: "8058930",
+          active_user_count: "1845569",
+        },
+        {
+          period: "2023-08-22",
+          server_count: "9161",
+          user_count: "8057746",
+          active_user_count: "1839598",
+        },
+        {
+          period: "2023-08-23",
+          server_count: "9151",
+          user_count: "8058649",
+          active_user_count: "1833097",
+        },
+        {
+          period: "2023-08-24",
+          server_count: "9150",
+          user_count: "8064622",
+          active_user_count: "1835768",
+        },
+        {
+          period: "2023-08-25",
+          server_count: "9137",
+          user_count: "8067168",
+          active_user_count: "1831638",
+        },
+        {
+          period: "2023-08-26",
+          server_count: "9125",
+          user_count: "8070175",
+          active_user_count: "1827662",
+        },
+        {
+          period: "2023-08-27",
+          server_count: "9115",
+          user_count: "8075162",
+          active_user_count: "1823419",
+        },
+        {
+          period: "2023-08-28",
+          server_count: "9104",
+          user_count: "8075329",
+          active_user_count: "1805641",
+        },
+        {
+          period: "2023-08-29",
+          server_count: "9088",
+          user_count: "8081518",
+          active_user_count: "1801509",
+        },
+        {
+          period: "2023-08-30",
+          server_count: "9077",
+          user_count: "8066724",
+          active_user_count: "1789784",
+        },
+        {
+          period: "2023-08-31",
+          server_count: "9217",
+          user_count: "8070897",
+          active_user_count: "1786127",
+        },
+        {
+          period: "2023-09-01",
+          server_count: "9203",
+          user_count: "8074433",
+          active_user_count: "1780831",
+        },
+        {
+          period: "2023-09-02",
+          server_count: "9190",
+          user_count: "8062931",
+          active_user_count: "1773131",
+        },
+        {
+          period: "2023-09-03",
+          server_count: "9163",
+          user_count: "8067228",
+          active_user_count: "1769000",
+        },
+        {
+          period: "2023-09-04",
+          server_count: "9154",
+          user_count: "8070083",
+          active_user_count: "1755151",
+        },
+        {
+          period: "2023-09-05",
+          server_count: "9138",
+          user_count: "8073406",
+          active_user_count: "1751098",
+        },
+        {
+          period: "2023-09-06",
+          server_count: "9131",
+          user_count: "8077119",
+          active_user_count: "1744468",
+        },
+        {
+          period: "2023-09-07",
+          server_count: "9121",
+          user_count: "8082902",
+          active_user_count: "1735535",
+        },
+        {
+          period: "2023-09-08",
+          server_count: "9118",
+          user_count: "8086312",
+          active_user_count: "1730939",
+        },
+        {
+          period: "2023-09-09",
+          server_count: "9116",
+          user_count: "8090093",
+          active_user_count: "1728435",
+        },
+        {
+          period: "2023-09-10",
+          server_count: "9101",
+          user_count: "8094539",
+          active_user_count: "1725955",
+        },
+        {
+          period: "2023-09-11",
+          server_count: "9076",
+          user_count: "8096771",
+          active_user_count: "1714281",
+        },
+        {
+          period: "2023-09-12",
+          server_count: "9073",
+          user_count: "8078213",
+          active_user_count: "1660453",
+        },
+        {
+          period: "2023-09-13",
+          server_count: "9062",
+          user_count: "8082757",
+          active_user_count: "1671311",
+        },
+        {
+          period: "2023-09-14",
+          server_count: "9021",
+          user_count: "8084035",
+          active_user_count: "1674396",
+        },
+        {
+          period: "2023-09-15",
+          server_count: "9018",
+          user_count: "8089678",
+          active_user_count: "1674879",
+        },
+        {
+          period: "2023-09-16",
+          server_count: "8987",
+          user_count: "8090947",
+          active_user_count: "1671429",
+        },
+        {
+          period: "2023-09-17",
+          server_count: "8962",
+          user_count: "8091585",
+          active_user_count: "1667202",
+        },
+        {
+          period: "2023-09-18",
+          server_count: "8956",
+          user_count: "8095929",
+          active_user_count: "1661844",
+        },
+        {
+          period: "2023-09-19",
+          server_count: "8968",
+          user_count: "8122088",
+          active_user_count: "1663991",
+        },
+        {
+          period: "2023-09-20",
+          server_count: "8941",
+          user_count: "8132024",
+          active_user_count: "1674668",
+        },
+        {
+          period: "2023-09-21",
+          server_count: "9003",
+          user_count: "8135868",
+          active_user_count: "1678806",
+        },
+        {
+          period: "2023-09-22",
+          server_count: "8948",
+          user_count: "8137879",
+          active_user_count: "1678069",
+        },
+        {
+          period: "2023-09-23",
+          server_count: "8917",
+          user_count: "8142830",
+          active_user_count: "1686625",
+        },
+        {
+          period: "2023-09-24",
+          server_count: "8898",
+          user_count: "8146292",
+          active_user_count: "1695889",
+        },
+        {
+          period: "2023-09-25",
+          server_count: "8901",
+          user_count: "8149529",
+          active_user_count: "1704087",
+        },
+        {
+          period: "2023-09-26",
+          server_count: "8897",
+          user_count: "8154919",
+          active_user_count: "1709974",
+        },
+        {
+          period: "2023-09-27",
+          server_count: "8881",
+          user_count: "8156662",
+          active_user_count: "1711030",
+        },
+        {
+          period: "2023-09-28",
+          server_count: "8855",
+          user_count: "8157416",
+          active_user_count: "1708464",
+        },
+        {
+          period: "2023-09-29",
+          server_count: "8843",
+          user_count: "8158833",
+          active_user_count: "1711350",
+        },
+        {
+          period: "2023-09-30",
+          server_count: "8824",
+          user_count: "8164170",
+          active_user_count: "1714616",
+        },
+        {
+          period: "2023-10-01",
+          server_count: "8810",
+          user_count: "8160987",
+          active_user_count: "1716704",
+        },
+        {
+          period: "2023-10-02",
+          server_count: "8807",
+          user_count: "8163126",
+          active_user_count: "1717625",
+        },
+        {
+          period: "2023-10-08",
+          server_count: "10233",
+          user_count: "8768465",
+          active_user_count: "1815766",
+        },
+        {
+          period: "2023-10-09",
+          server_count: "10227",
+          user_count: "8771712",
+          active_user_count: "1807333",
+        },
+        {
+          period: "2023-10-10",
+          server_count: "10169",
+          user_count: "8770034",
+          active_user_count: "1801655",
+        },
+        {
+          period: "2023-10-11",
+          server_count: "10119",
+          user_count: "8765681",
+          active_user_count: "1790960",
+        },
+        {
+          period: "2023-10-12",
+          server_count: "10085",
+          user_count: "8768580",
+          active_user_count: "1781615",
+        },
+        {
+          period: "2023-10-13",
+          server_count: "10069",
+          user_count: "8764444",
+          active_user_count: "1771823",
+        },
+        {
+          period: "2023-10-14",
+          server_count: "10024",
+          user_count: "8767098",
+          active_user_count: "1756901",
+        },
+        {
+          period: "2023-10-15",
+          server_count: "10003",
+          user_count: "8762838",
+          active_user_count: "1746458",
+        },
+        {
+          period: "2023-10-17",
+          server_count: "10123",
+          user_count: "8781680",
+          active_user_count: "1727802",
+        },
+        {
+          period: "2023-10-18",
+          server_count: "10066",
+          user_count: "8776938",
+          active_user_count: "1712305",
+        },
+        {
+          period: "2023-10-19",
+          server_count: "10043",
+          user_count: "8778769",
+          active_user_count: "1703956",
+        },
+        {
+          period: "2023-10-20",
+          server_count: "10014",
+          user_count: "8778221",
+          active_user_count: "1694863",
+        },
+        {
+          period: "2023-10-21",
+          server_count: "9986",
+          user_count: "8781154",
+          active_user_count: "1680833",
+        },
+        {
+          period: "2023-10-22",
+          server_count: "9973",
+          user_count: "8773842",
+          active_user_count: "1677506",
+        },
+        {
+          period: "2023-10-23",
+          server_count: "9942",
+          user_count: "8778154",
+          active_user_count: "1656736",
+        },
+        {
+          period: "2023-10-24",
+          server_count: "9919",
+          user_count: "8783185",
+          active_user_count: "1655333",
+        },
+        {
+          period: "2023-10-25",
+          server_count: "9917",
+          user_count: "8785935",
+          active_user_count: "1657576",
+        },
+        {
+          period: "2023-10-26",
+          server_count: "9905",
+          user_count: "8790224",
+          active_user_count: "1654979",
+        },
+        {
+          period: "2023-10-27",
+          server_count: "9900",
+          user_count: "8782618",
+          active_user_count: "1653948",
+        },
+        {
+          period: "2023-10-28",
+          server_count: "9871",
+          user_count: "8795785",
+          active_user_count: "1654997",
+        },
+        {
+          period: "2023-10-29",
+          server_count: "9992",
+          user_count: "8827194",
+          active_user_count: "1658490",
+        },
+        {
+          period: "2023-10-30",
+          server_count: "9969",
+          user_count: "8828805",
+          active_user_count: "1657131",
+        },
+        {
+          period: "2023-10-31",
+          server_count: "9930",
+          user_count: "8826629",
+          active_user_count: "1655157",
+        },
+        {
+          period: "2023-11-01",
+          server_count: "9905",
+          user_count: "8829094",
+          active_user_count: "1653180",
+        },
+        {
+          period: "2023-11-02",
+          server_count: "9889",
+          user_count: "8832231",
+          active_user_count: "1650500",
+        },
+        {
+          period: "2023-11-03",
+          server_count: "9853",
+          user_count: "8835618",
+          active_user_count: "1647796",
+        },
+        {
+          period: "2023-11-04",
+          server_count: "9831",
+          user_count: "8836721",
+          active_user_count: "1645108",
+        },
+        {
+          period: "2023-11-05",
+          server_count: "9783",
+          user_count: "8837564",
+          active_user_count: "1642521",
+        },
+        {
+          period: "2023-11-06",
+          server_count: "9775",
+          user_count: "8840102",
+          active_user_count: "1637975",
+        },
+        {
+          period: "2023-11-07",
+          server_count: "9763",
+          user_count: "8840022",
+          active_user_count: "1635294",
+        },
+        {
+          period: "2023-11-08",
+          server_count: "9745",
+          user_count: "8842874",
+          active_user_count: "1633033",
+        },
+        {
+          period: "2023-11-09",
+          server_count: "9707",
+          user_count: "8828014",
+          active_user_count: "1629518",
+        },
+        {
+          period: "2023-11-10",
+          server_count: "9705",
+          user_count: "8831476",
+          active_user_count: "1629394",
+        },
+        {
+          period: "2023-11-11",
+          server_count: "9671",
+          user_count: "8833532",
+          active_user_count: "1628609",
+        },
+        {
+          period: "2023-11-12",
+          server_count: "9660",
+          user_count: "8834513",
+          active_user_count: "1627835",
+        },
+        {
+          period: "2023-11-13",
+          server_count: "9649",
+          user_count: "8836741",
+          active_user_count: "1622660",
+        },
+        {
+          period: "2023-11-14",
+          server_count: "9636",
+          user_count: "8839488",
+          active_user_count: "1619140",
+        },
+        {
+          period: "2023-11-15",
+          server_count: "9600",
+          user_count: "8840949",
+          active_user_count: "1614879",
+        },
+        {
+          period: "2023-11-22",
+          server_count: "9668",
+          user_count: "8894000",
+          active_user_count: "1574959",
+        },
+        {
+          period: "2023-11-23",
+          server_count: "9638",
+          user_count: "8796939",
+          active_user_count: "1568179",
+        },
+        {
+          period: "2023-11-24",
+          server_count: "9590",
+          user_count: "8753686",
+          active_user_count: "1557432",
+        },
+        {
+          period: "2023-11-25",
+          server_count: "9558",
+          user_count: "8747728",
+          active_user_count: "1551170",
+        },
+        {
+          period: "2023-11-26",
+          server_count: "9547",
+          user_count: "8739880",
+          active_user_count: "1549480",
+        },
+        {
+          period: "2023-11-27",
+          server_count: "9530",
+          user_count: "8740105",
+          active_user_count: "1546265",
+        },
+        {
+          period: "2023-11-28",
+          server_count: "9510",
+          user_count: "8753175",
+          active_user_count: "1544193",
+        },
+        {
+          period: "2023-11-29",
+          server_count: "9470",
+          user_count: "8756200",
+          active_user_count: "1540496",
+        },
+        {
+          period: "2023-11-30",
+          server_count: "9646",
+          user_count: "8757922",
+          active_user_count: "1540562",
+        },
+        {
+          period: "2023-12-01",
+          server_count: "9626",
+          user_count: "8758479",
+          active_user_count: "1539889",
+        },
+        {
+          period: "2023-12-02",
+          server_count: "9762",
+          user_count: "8748299",
+          active_user_count: "1538998",
+        },
+        {
+          period: "2023-12-03",
+          server_count: "9753",
+          user_count: "8751060",
+          active_user_count: "1544894",
+        },
+        {
+          period: "2023-12-04",
+          server_count: "9751",
+          user_count: "8732987",
+          active_user_count: "1548200",
+        },
+        {
+          period: "2023-12-05",
+          server_count: "9744",
+          user_count: "8734169",
+          active_user_count: "1554440",
+        },
+        {
+          period: "2023-12-06",
+          server_count: "9706",
+          user_count: "8736886",
+          active_user_count: "1557121",
+        },
+        {
+          period: "2023-12-07",
+          server_count: "9703",
+          user_count: "8737426",
+          active_user_count: "1555563",
+        },
+        {
+          period: "2023-12-08",
+          server_count: "9674",
+          user_count: "8738527",
+          active_user_count: "1553060",
+        },
+        {
+          period: "2023-12-09",
+          server_count: "9664",
+          user_count: "8739673",
+          active_user_count: "1551399",
+        },
+        {
+          period: "2023-12-10",
+          server_count: "9800",
+          user_count: "8728789",
+          active_user_count: "1549522",
+        },
+        {
+          period: "2023-12-11",
+          server_count: "9796",
+          user_count: "8732191",
+          active_user_count: "1546719",
+        },
+        {
+          period: "2023-12-12",
+          server_count: "9769",
+          user_count: "8734509",
+          active_user_count: "1546358",
+        },
+        {
+          period: "2023-12-13",
+          server_count: "9762",
+          user_count: "8736664",
+          active_user_count: "1545072",
+        },
+        {
+          period: "2023-12-14",
+          server_count: "9755",
+          user_count: "8739027",
+          active_user_count: "1544727",
+        },
+        {
+          period: "2023-12-15",
+          server_count: "9736",
+          user_count: "8742992",
+          active_user_count: "1545773",
+        },
+        {
+          period: "2023-12-16",
+          server_count: "9703",
+          user_count: "8668819",
+          active_user_count: "1540509",
+        },
+        {
+          period: "2023-12-17",
+          server_count: "9682",
+          user_count: "8668054",
+          active_user_count: "1542921",
+        },
+        {
+          period: "2023-12-18",
+          server_count: "9670",
+          user_count: "8670435",
+          active_user_count: "1543840",
+        },
+        {
+          period: "2023-12-19",
+          server_count: "9657",
+          user_count: "8652578",
+          active_user_count: "1548102",
+        },
+        {
+          period: "2023-12-20",
+          server_count: "9634",
+          user_count: "8685296",
+          active_user_count: "1548511",
+        },
+        {
+          period: "2023-12-21",
+          server_count: "9613",
+          user_count: "8687831",
+          active_user_count: "1549639",
+        },
+        {
+          period: "2023-12-22",
+          server_count: "9595",
+          user_count: "8691513",
+          active_user_count: "1555361",
+        },
+        {
+          period: "2023-12-23",
+          server_count: "9575",
+          user_count: "8690737",
+          active_user_count: "1554604",
+        },
+        {
+          period: "2023-12-24",
+          server_count: "9538",
+          user_count: "8692941",
+          active_user_count: "1552966",
+        },
+        {
+          period: "2023-12-25",
+          server_count: "9456",
+          user_count: "8692906",
+          active_user_count: "1547741",
+        },
+        {
+          period: "2023-12-26",
+          server_count: "9381",
+          user_count: "8693566",
+          active_user_count: "1546572",
+        },
+        {
+          period: "2023-12-27",
+          server_count: "9382",
+          user_count: "8673064",
+          active_user_count: "1543476",
+        },
+        {
+          period: "2023-12-28",
+          server_count: "9496",
+          user_count: "8673250",
+          active_user_count: "1544617",
+        },
+        {
+          period: "2023-12-29",
+          server_count: "9490",
+          user_count: "8671773",
+          active_user_count: "1545311",
+        },
+        {
+          period: "2023-12-30",
+          server_count: "9477",
+          user_count: "8676293",
+          active_user_count: "1542459",
+        },
+        {
+          period: "2023-12-31",
+          server_count: "9461",
+          user_count: "8675953",
+          active_user_count: "1532984",
+        },
+        {
+          period: "2024-01-01",
+          server_count: "9446",
+          user_count: "8674230",
+          active_user_count: "1522984",
+        },
+        {
+          period: "2024-01-02",
+          server_count: "9436",
+          user_count: "8682347",
+          active_user_count: "1515563",
+        },
+        {
+          period: "2024-01-03",
+          server_count: "9438",
+          user_count: "8682082",
+          active_user_count: "1512042",
+        },
+        {
+          period: "2024-01-04",
+          server_count: "9416",
+          user_count: "8704589",
+          active_user_count: "1521346",
+        },
+        {
+          period: "2024-01-05",
+          server_count: "9460",
+          user_count: "8710423",
+          active_user_count: "1525985",
+        },
+        {
+          period: "2024-01-06",
+          server_count: "9443",
+          user_count: "8713998",
+          active_user_count: "1526720",
+        },
+        {
+          period: "2024-01-07",
+          server_count: "9437",
+          user_count: "8715091",
+          active_user_count: "1526294",
+        },
+        {
+          period: "2024-01-08",
+          server_count: "9421",
+          user_count: "8717554",
+          active_user_count: "1525335",
+        },
+        {
+          period: "2024-01-09",
+          server_count: "9396",
+          user_count: "8719454",
+          active_user_count: "1524883",
+        },
+        {
+          period: "2024-01-10",
+          server_count: "9373",
+          user_count: "8714938",
+          active_user_count: "1523826",
+        },
+        {
+          period: "2024-01-11",
+          server_count: "9380",
+          user_count: "8717462",
+          active_user_count: "1523620",
+        },
+        {
+          period: "2024-01-12",
+          server_count: "9370",
+          user_count: "8722409",
+          active_user_count: "1520920",
+        },
+        {
+          period: "2024-01-13",
+          server_count: "9351",
+          user_count: "8722540",
+          active_user_count: "1518257",
+        },
+        {
+          period: "2024-01-14",
+          server_count: "9337",
+          user_count: "8706370",
+          active_user_count: "1510289",
+        },
+        {
+          period: "2024-01-15",
+          server_count: "9317",
+          user_count: "8727893",
+          active_user_count: "1505334",
+        },
+        {
+          period: "2024-01-16",
+          server_count: "9308",
+          user_count: "8726956",
+          active_user_count: "1499987",
+        },
+        {
+          period: "2024-01-17",
+          server_count: "9288",
+          user_count: "8729531",
+          active_user_count: "1496877",
+        },
+        {
+          period: "2024-01-18",
+          server_count: "9283",
+          user_count: "8252782",
+          active_user_count: "1017963",
+        },
+        {
+          period: "2024-01-19",
+          server_count: "9265",
+          user_count: "8253375",
+          active_user_count: "1018447",
+        },
+        {
+          period: "2024-01-20",
+          server_count: "9255",
+          user_count: "8252590",
+          active_user_count: "1014608",
+        },
+        {
+          period: "2024-01-21",
+          server_count: "9231",
+          user_count: "8254874",
+          active_user_count: "1013959",
+        },
+        {
+          period: "2024-01-22",
+          server_count: "9227",
+          user_count: "8257564",
+          active_user_count: "1012108",
+        },
+        {
+          period: "2024-01-23",
+          server_count: "9207",
+          user_count: "8257328",
+          active_user_count: "1012084",
+        },
+        {
+          period: "2024-01-24",
+          server_count: "9187",
+          user_count: "8259507",
+          active_user_count: "1011008",
+        },
+        {
+          period: "2024-01-25",
+          server_count: "9820",
+          user_count: "8499007",
+          active_user_count: "1035906",
+        },
+        {
+          period: "2024-01-26",
+          server_count: "9803",
+          user_count: "8505364",
+          active_user_count: "1034346",
+        },
+        {
+          period: "2024-01-27",
+          server_count: "9835",
+          user_count: "8611384",
+          active_user_count: "1037978",
+        },
+        {
+          period: "2024-01-28",
+          server_count: "9824",
+          user_count: "8509308",
+          active_user_count: "1031172",
+        },
+        {
+          period: "2024-01-29",
+          server_count: "9840",
+          user_count: "8513030",
+          active_user_count: "1031267",
+        },
+        {
+          period: "2024-01-30",
+          server_count: "9825",
+          user_count: "8518328",
+          active_user_count: "1028713",
+        },
+        {
+          period: "2024-01-31",
+          server_count: "9818",
+          user_count: "8520704",
+          active_user_count: "1022028",
+        },
+        {
+          period: "2024-02-01",
+          server_count: "9794",
+          user_count: "8622157",
+          active_user_count: "1013389",
+        },
+        {
+          period: "2024-02-02",
+          server_count: "9766",
+          user_count: "8393982",
+          active_user_count: "1005070",
+        },
+        {
+          period: "2024-02-03",
+          server_count: "9727",
+          user_count: "8363140",
+          active_user_count: "1006765",
+        },
+        {
+          period: "2024-02-04",
+          server_count: "9751",
+          user_count: "8365980",
+          active_user_count: "1008574",
+        },
+        {
+          period: "2024-02-05",
+          server_count: "9720",
+          user_count: "8598007",
+          active_user_count: "1007796",
+        },
+        {
+          period: "2024-02-06",
+          server_count: "9715",
+          user_count: "8601477",
+          active_user_count: "1006782",
+        },
+        {
+          period: "2024-02-07",
+          server_count: "9697",
+          user_count: "8604165",
+          active_user_count: "1004740",
+        },
+        {
+          period: "2024-02-08",
+          server_count: "9828",
+          user_count: "9538194",
+          active_user_count: "1043523",
+        },
+        {
+          period: "2024-02-09",
+          server_count: "9793",
+          user_count: "9439003",
+          active_user_count: "1041966",
+        },
+        {
+          period: "2024-02-10",
+          server_count: "9790",
+          user_count: "9542635",
+          active_user_count: "1044649",
+        },
+        {
+          period: "2024-02-11",
+          server_count: "9773",
+          user_count: "9545046",
+          active_user_count: "1045180",
+        },
+        {
+          period: "2024-02-12",
+          server_count: "9777",
+          user_count: "8512561",
+          active_user_count: "1004332",
+        },
+        {
+          period: "2024-02-13",
+          server_count: "9766",
+          user_count: "8614136",
+          active_user_count: "1003862",
+        },
+        {
+          period: "2024-02-14",
+          server_count: "9774",
+          user_count: "8617989",
+          active_user_count: "1002788",
+        },
+        {
+          period: "2024-02-15",
+          server_count: "9765",
+          user_count: "8620362",
+          active_user_count: "999604",
+        },
+        {
+          period: "2024-02-16",
+          server_count: "9762",
+          user_count: "8621829",
+          active_user_count: "996516",
+        },
+        {
+          period: "2024-02-17",
+          server_count: "9721",
+          user_count: "8507930",
+          active_user_count: "992547",
+        },
+        {
+          period: "2024-02-18",
+          server_count: "9724",
+          user_count: "8592934",
+          active_user_count: "998260",
+        },
+        {
+          period: "2024-02-19",
+          server_count: "9679",
+          user_count: "8594071",
+          active_user_count: "999895",
+        },
+        {
+          period: "2024-02-20",
+          server_count: "9750",
+          user_count: "8599635",
+          active_user_count: "1007318",
+        },
+        {
+          period: "2024-02-21",
+          server_count: "9731",
+          user_count: "8491559",
+          active_user_count: "1003959",
+        },
+        {
+          period: "2024-02-22",
+          server_count: "9756",
+          user_count: "8607599",
+          active_user_count: "999966",
+        },
+        {
+          period: "2024-02-23",
+          server_count: "9753",
+          user_count: "8610760",
+          active_user_count: "999750",
+        },
+        {
+          period: "2024-02-24",
+          server_count: "9741",
+          user_count: "8607844",
+          active_user_count: "999829",
+        },
+        {
+          period: "2024-02-25",
+          server_count: "9724",
+          user_count: "8612287",
+          active_user_count: "999037",
+        },
+        {
+          period: "2024-02-26",
+          server_count: "9716",
+          user_count: "8614551",
+          active_user_count: "997952",
+        },
+        {
+          period: "2024-02-27",
+          server_count: "9719",
+          user_count: "8613123",
+          active_user_count: "995687",
+        },
+        {
+          period: "2024-02-28",
+          server_count: "9760",
+          user_count: "8606519",
+          active_user_count: "991875",
+        },
+        {
+          period: "2024-02-29",
+          server_count: "9749",
+          user_count: "8513559",
+          active_user_count: "989204",
+        },
+        {
+          period: "2024-03-01",
+          server_count: "9741",
+          user_count: "8515020",
+          active_user_count: "984913",
+        },
+        {
+          period: "2024-03-02",
+          server_count: "9713",
+          user_count: "8486879",
+          active_user_count: "979565",
+        },
+        {
+          period: "2024-03-03",
+          server_count: "9706",
+          user_count: "8487394",
+          active_user_count: "976858",
+        },
+        {
+          period: "2024-03-04",
+          server_count: "9702",
+          user_count: "8584565",
+          active_user_count: "978213",
+        },
+        {
+          period: "2024-03-05",
+          server_count: "9686",
+          user_count: "8589173",
+          active_user_count: "971228",
+        },
+        {
+          period: "2024-03-06",
+          server_count: "9676",
+          user_count: "8590862",
+          active_user_count: "975052",
+        },
+        {
+          period: "2024-03-07",
+          server_count: "9666",
+          user_count: "8593365",
+          active_user_count: "972095",
+        },
+        {
+          period: "2024-03-08",
+          server_count: "9656",
+          user_count: "8595742",
+          active_user_count: "969967",
+        },
+        {
+          period: "2024-03-09",
+          server_count: "9640",
+          user_count: "8571374",
+          active_user_count: "967259",
+        },
+        {
+          period: "2024-03-10",
+          server_count: "9636",
+          user_count: "8473724",
+          active_user_count: "963332",
+        },
+        {
+          period: "2024-03-11",
+          server_count: "9635",
+          user_count: "8502222",
+          active_user_count: "964238",
+        },
+        {
+          period: "2024-03-12",
+          server_count: "9620",
+          user_count: "8504420",
+          active_user_count: "963935",
+        },
+        {
+          period: "2024-03-13",
+          server_count: "9647",
+          user_count: "8506601",
+          active_user_count: "962184",
+        },
+        {
+          period: "2024-03-14",
+          server_count: "9641",
+          user_count: "8608761",
+          active_user_count: "963856",
+        },
+        {
+          period: "2024-03-15",
+          server_count: "9625",
+          user_count: "8609227",
+          active_user_count: "961515",
+        },
+        {
+          period: "2024-03-16",
+          server_count: "9616",
+          user_count: "8610516",
+          active_user_count: "957194",
+        },
+        {
+          period: "2024-03-17",
+          server_count: "9609",
+          user_count: "8612556",
+          active_user_count: "952604",
+        },
+        {
+          period: "2024-03-18",
+          server_count: "9599",
+          user_count: "8614700",
+          active_user_count: "947504",
+        },
+        {
+          period: "2024-03-19",
+          server_count: "9598",
+          user_count: "8616336",
+          active_user_count: "945216",
+        },
+        {
+          period: "2024-03-20",
+          server_count: "9609",
+          user_count: "8613081",
+          active_user_count: "942404",
+        },
+        {
+          period: "2024-03-21",
+          server_count: "9600",
+          user_count: "8613935",
+          active_user_count: "938533",
+        },
+        {
+          period: "2024-03-22",
+          server_count: "9597",
+          user_count: "8514644",
+          active_user_count: "933832",
+        },
+        {
+          period: "2024-03-23",
+          server_count: "9583",
+          user_count: "8517031",
+          active_user_count: "933445",
+        },
+        {
+          period: "2024-03-24",
+          server_count: "9576",
+          user_count: "8519654",
+          active_user_count: "932822",
+        },
+        {
+          period: "2024-03-25",
+          server_count: "9717",
+          user_count: "8523058",
+          active_user_count: "932429",
+        },
+        {
+          period: "2024-03-26",
+          server_count: "9707",
+          user_count: "8524208",
+          active_user_count: "931757",
+        },
+        {
+          period: "2024-03-27",
+          server_count: "9699",
+          user_count: "8527196",
+          active_user_count: "931526",
+        },
+        {
+          period: "2024-03-28",
+          server_count: "9693",
+          user_count: "8530150",
+          active_user_count: "931468",
+        },
+        {
+          period: "2024-03-29",
+          server_count: "9680",
+          user_count: "8531346",
+          active_user_count: "930584",
+        },
+        {
+          period: "2024-03-30",
+          server_count: "9664",
+          user_count: "8533155",
+          active_user_count: "929906",
+        },
+        {
+          period: "2024-03-31",
+          server_count: "9655",
+          user_count: "8536133",
+          active_user_count: "930289",
+        },
+        {
+          period: "2024-04-01",
+          server_count: "9634",
+          user_count: "8526266",
+          active_user_count: "929039",
+        },
+        {
+          period: "2024-04-02",
+          server_count: "9623",
+          user_count: "8527815",
+          active_user_count: "928471",
+        },
+        {
+          period: "2024-04-03",
+          server_count: "9591",
+          user_count: "8529268",
+          active_user_count: "927209",
+        },
+        {
+          period: "2024-04-07",
+          server_count: "9646",
+          user_count: "8538773",
+          active_user_count: "925310",
+        },
+        {
+          period: "2024-04-08",
+          server_count: "9636",
+          user_count: "8540655",
+          active_user_count: "923879",
+        },
+        {
+          period: "2024-04-09",
+          server_count: "9635",
+          user_count: "8541597",
+          active_user_count: "923245",
+        },
+        {
+          period: "2024-04-10",
+          server_count: "9627",
+          user_count: "8644752",
+          active_user_count: "924063",
+        },
+        {
+          period: "2024-04-11",
+          server_count: "9623",
+          user_count: "8649960",
+          active_user_count: "925201",
+        },
+        {
+          period: "2024-04-12",
+          server_count: "9627",
+          user_count: "8653157",
+          active_user_count: "925711",
+        },
+        {
+          period: "2024-04-13",
+          server_count: "9626",
+          user_count: "8655503",
+          active_user_count: "925339",
+        },
+        {
+          period: "2024-04-14",
+          server_count: "9613",
+          user_count: "8657742",
+          active_user_count: "923570",
+        },
+        {
+          period: "2024-04-15",
+          server_count: "9617",
+          user_count: "8657344",
+          active_user_count: "921115",
+        },
+        {
+          period: "2024-04-16",
+          server_count: "9608",
+          user_count: "8657770",
+          active_user_count: "919304",
+        },
+        {
+          period: "2024-04-17",
+          server_count: "9598",
+          user_count: "8660452",
+          active_user_count: "919358",
+        },
+        {
+          period: "2024-04-18",
+          server_count: "9590",
+          user_count: "8662605",
+          active_user_count: "919028",
+        },
+        {
+          period: "2024-04-19",
+          server_count: "9584",
+          user_count: "8663097",
+          active_user_count: "918167",
+        },
+        {
+          period: "2024-04-20",
+          server_count: "9606",
+          user_count: "8665013",
+          active_user_count: "917554",
+        },
+        {
+          period: "2024-04-21",
+          server_count: "9594",
+          user_count: "8667768",
+          active_user_count: "916309",
+        },
+        {
+          period: "2024-04-22",
+          server_count: "9589",
+          user_count: "8669275",
+          active_user_count: "913349",
+        },
+        {
+          period: "2024-04-23",
+          server_count: "9583",
+          user_count: "8671163",
+          active_user_count: "911593",
+        },
+        {
+          period: "2024-04-24",
+          server_count: "9570",
+          user_count: "8667561",
+          active_user_count: "910197",
+        },
+        {
+          period: "2024-04-25",
+          server_count: "9573",
+          user_count: "8673155",
+          active_user_count: "909645",
+        },
+        {
+          period: "2024-04-26",
+          server_count: "9547",
+          user_count: "8675422",
+          active_user_count: "907856",
+        },
+        {
+          period: "2024-04-27",
+          server_count: "9553",
+          user_count: "8681154",
+          active_user_count: "910535",
+        },
+        {
+          period: "2024-04-28",
+          server_count: "9612",
+          user_count: "8682657",
+          active_user_count: "909543",
+        },
+        {
+          period: "2024-04-29",
+          server_count: "9615",
+          user_count: "8684573",
+          active_user_count: "907580",
+        },
+        {
+          period: "2024-04-30",
+          server_count: "9593",
+          user_count: "8686929",
+          active_user_count: "905837",
+        },
+        {
+          period: "2024-05-01",
+          server_count: "9582",
+          user_count: "8689016",
+          active_user_count: "905243",
+        },
+        {
+          period: "2024-05-02",
+          server_count: "9577",
+          user_count: "8691091",
+          active_user_count: "904132",
+        },
+        {
+          period: "2024-05-03",
+          server_count: "9563",
+          user_count: "8692813",
+          active_user_count: "904230",
+        },
+        {
+          period: "2024-05-04",
+          server_count: "9556",
+          user_count: "8694406",
+          active_user_count: "903601",
+        },
+        {
+          period: "2024-05-05",
+          server_count: "9554",
+          user_count: "8697486",
+          active_user_count: "899812",
+        },
+        {
+          period: "2024-05-06",
+          server_count: "9601",
+          user_count: "8700573",
+          active_user_count: "897979",
+        },
+        {
+          period: "2024-05-07",
+          server_count: "9607",
+          user_count: "8697687",
+          active_user_count: "896702",
+        },
+        {
+          period: "2024-05-08",
+          server_count: "9591",
+          user_count: "8599780",
+          active_user_count: "892074",
+        },
+        {
+          period: "2024-05-09",
+          server_count: "9578",
+          user_count: "8598365",
+          active_user_count: "890086",
+        },
+        {
+          period: "2024-05-10",
+          server_count: "9572",
+          user_count: "8699172",
+          active_user_count: "891805",
+        },
+        {
+          period: "2024-05-11",
+          server_count: "9559",
+          user_count: "8692464",
+          active_user_count: "890486",
+        },
+        {
+          period: "2024-05-12",
+          server_count: "9601",
+          user_count: "8706281",
+          active_user_count: "885385",
+        },
+        {
+          period: "2024-05-13",
+          server_count: "9597",
+          user_count: "8607667",
+          active_user_count: "878777",
+        },
+        {
+          period: "2024-05-14",
+          server_count: "9594",
+          user_count: "8609661",
+          active_user_count: "878831",
+        },
+        {
+          period: "2024-05-15",
+          server_count: "9593",
+          user_count: "8611409",
+          active_user_count: "877303",
+        },
+        {
+          period: "2024-05-16",
+          server_count: "9587",
+          user_count: "8613923",
+          active_user_count: "877056",
+        },
+        {
+          period: "2024-05-17",
+          server_count: "9571",
+          user_count: "8615030",
+          active_user_count: "875160",
+        },
+        {
+          period: "2024-05-18",
+          server_count: "9574",
+          user_count: "8615935",
+          active_user_count: "874808",
+        },
+        {
+          period: "2024-05-19",
+          server_count: "9578",
+          user_count: "8617358",
+          active_user_count: "853769",
+        },
+        {
+          period: "2024-05-20",
+          server_count: "9580",
+          user_count: "8618683",
+          active_user_count: "857701",
+        },
+        {
+          period: "2024-05-21",
+          server_count: "9574",
+          user_count: "8623054",
+          active_user_count: "859153",
+        },
+        {
+          period: "2024-05-22",
+          server_count: "9567",
+          user_count: "8624576",
+          active_user_count: "861146",
+        },
+        {
+          period: "2024-05-23",
+          server_count: "9559",
+          user_count: "8626875",
+          active_user_count: "862428",
+        },
+        {
+          period: "2024-05-24",
+          server_count: "9553",
+          user_count: "8625824",
+          active_user_count: "863230",
+        },
+        {
+          period: "2024-05-25",
+          server_count: "9547",
+          user_count: "8622525",
+          active_user_count: "863380",
+        },
+        {
+          period: "2024-05-26",
+          server_count: "9545",
+          user_count: "8624365",
+          active_user_count: "864099",
+        },
+        {
+          period: "2024-05-27",
+          server_count: "9536",
+          user_count: "8626550",
+          active_user_count: "862971",
+        },
+        {
+          period: "2024-05-28",
+          server_count: "9531",
+          user_count: "8631523",
+          active_user_count: "863245",
+        },
+        {
+          period: "2024-05-29",
+          server_count: "9520",
+          user_count: "8633732",
+          active_user_count: "862826",
+        },
+        {
+          period: "2024-05-30",
+          server_count: "9512",
+          user_count: "8632794",
+          active_user_count: "862332",
+        },
+        {
+          period: "2024-05-31",
+          server_count: "9494",
+          user_count: "8637588",
+          active_user_count: "863539",
+        },
+        {
+          period: "2024-06-01",
+          server_count: "9487",
+          user_count: "8638403",
+          active_user_count: "863534",
+        },
+        {
+          period: "2024-06-02",
+          server_count: "9468",
+          user_count: "8640383",
+          active_user_count: "864509",
+        },
+        {
+          period: "2024-06-03",
+          server_count: "9471",
+          user_count: "8643140",
+          active_user_count: "862577",
+        },
+        {
+          period: "2024-06-04",
+          server_count: "9467",
+          user_count: "8645758",
+          active_user_count: "863299",
+        },
+        {
+          period: "2024-06-05",
+          server_count: "9449",
+          user_count: "8645377",
+          active_user_count: "862854",
+        },
+        {
+          period: "2024-06-06",
+          server_count: "9436",
+          user_count: "8647057",
+          active_user_count: "865232",
+        },
+        {
+          period: "2024-06-07",
+          server_count: "9435",
+          user_count: "8648643",
+          active_user_count: "866038",
+        },
+        {
+          period: "2024-06-08",
+          server_count: "9434",
+          user_count: "8652708",
+          active_user_count: "865991",
+        },
+        {
+          period: "2024-06-09",
+          server_count: "9428",
+          user_count: "8652337",
+          active_user_count: "866161",
+        },
+        {
+          period: "2024-06-10",
+          server_count: "9430",
+          user_count: "8654838",
+          active_user_count: "865532",
+        },
+        {
+          period: "2024-06-11",
+          server_count: "9431",
+          user_count: "8653929",
+          active_user_count: "866904",
+        },
+        {
+          period: "2024-06-12",
+          server_count: "9420",
+          user_count: "8652292",
+          active_user_count: "867164",
+        },
+        {
+          period: "2024-06-13",
+          server_count: "9409",
+          user_count: "8654288",
+          active_user_count: "868026",
+        },
+        {
+          period: "2024-06-14",
+          server_count: "9405",
+          user_count: "8656431",
+          active_user_count: "868147",
+        },
+        {
+          period: "2024-06-15",
+          server_count: "9393",
+          user_count: "8689830",
+          active_user_count: "873732",
+        },
+        {
+          period: "2024-06-16",
+          server_count: "9378",
+          user_count: "8693504",
+          active_user_count: "873692",
+        },
+        {
+          period: "2024-06-17",
+          server_count: "9369",
+          user_count: "8694945",
+          active_user_count: "872815",
+        },
+        {
+          period: "2024-06-18",
+          server_count: "9371",
+          user_count: "8696996",
+          active_user_count: "873282",
+        },
+        {
+          period: "2024-06-19",
+          server_count: "9360",
+          user_count: "8699280",
+          active_user_count: "873277",
+        },
+        {
+          period: "2024-06-20",
+          server_count: "9357",
+          user_count: "8697862",
+          active_user_count: "873309",
+        },
+        {
+          period: "2024-06-21",
+          server_count: "9339",
+          user_count: "8701334",
+          active_user_count: "872576",
+        },
+        {
+          period: "2024-06-22",
+          server_count: "9328",
+          user_count: "8705094",
+          active_user_count: "873086",
+        },
+        {
+          period: "2024-06-23",
+          server_count: "9329",
+          user_count: "8711084",
+          active_user_count: "872999",
+        },
+        {
+          period: "2024-06-24",
+          server_count: "9333",
+          user_count: "8711443",
+          active_user_count: "871846",
+        },
+        {
+          period: "2024-06-25",
+          server_count: "9307",
+          user_count: "8713821",
+          active_user_count: "871123",
+        },
+        {
+          period: "2024-06-26",
+          server_count: "9292",
+          user_count: "8715109",
+          active_user_count: "870238",
+        },
+        {
+          period: "2024-06-27",
+          server_count: "9293",
+          user_count: "8717137",
+          active_user_count: "870310",
+        },
+        {
+          period: "2024-06-28",
+          server_count: "9290",
+          user_count: "8719398",
+          active_user_count: "870272",
+        },
+        {
+          period: "2024-06-29",
+          server_count: "9277",
+          user_count: "8721355",
+          active_user_count: "870943",
+        },
+        {
+          period: "2024-06-30",
+          server_count: "9275",
+          user_count: "8723097",
+          active_user_count: "870501",
+        },
+        {
+          period: "2024-07-01",
+          server_count: "9281",
+          user_count: "8725004",
+          active_user_count: "868668",
+        },
+        {
+          period: "2024-07-02",
+          server_count: "9274",
+          user_count: "8725273",
+          active_user_count: "867233",
+        },
+        {
+          period: "2024-07-03",
+          server_count: "9225",
+          user_count: "8721947",
+          active_user_count: "865542",
+        },
+        {
+          period: "2024-07-06",
+          server_count: "9245",
+          user_count: "8729019",
+          active_user_count: "864433",
+        },
+        {
+          period: "2024-07-07",
+          server_count: "9239",
+          user_count: "8729221",
+          active_user_count: "863143",
+        },
+        {
+          period: "2024-07-08",
+          server_count: "9219",
+          user_count: "8731222",
+          active_user_count: "861074",
+        },
+        {
+          period: "2024-07-09",
+          server_count: "9212",
+          user_count: "8734488",
+          active_user_count: "860544",
+        },
+        {
+          period: "2024-07-10",
+          server_count: "9219",
+          user_count: "8737534",
+          active_user_count: "860015",
+        },
+        {
+          period: "2024-07-11",
+          server_count: "9201",
+          user_count: "8739026",
+          active_user_count: "857400",
+        },
+        {
+          period: "2024-07-12",
+          server_count: "9192",
+          user_count: "8741318",
+          active_user_count: "856602",
+        },
+        {
+          period: "2024-07-13",
+          server_count: "9170",
+          user_count: "8741805",
+          active_user_count: "854906",
+        },
+        {
+          period: "2024-07-14",
+          server_count: "9344",
+          user_count: "8747678",
+          active_user_count: "856338",
+        },
+        {
+          period: "2024-07-15",
+          server_count: "9333",
+          user_count: "8747551",
+          active_user_count: "855448",
+        },
+        {
+          period: "2024-07-16",
+          server_count: "9356",
+          user_count: "8748408",
+          active_user_count: "853309",
+        },
+        {
+          period: "2024-07-17",
+          server_count: "9344",
+          user_count: "8750359",
+          active_user_count: "854487",
+        },
+        {
+          period: "2024-07-18",
+          server_count: "9353",
+          user_count: "8752779",
+          active_user_count: "854964",
+        },
+        {
+          period: "2024-07-19",
+          server_count: "9351",
+          user_count: "8754774",
+          active_user_count: "854442",
+        },
+        {
+          period: "2024-07-20",
+          server_count: "9337",
+          user_count: "8755305",
+          active_user_count: "855130",
+        },
+        {
+          period: "2024-07-21",
+          server_count: "9342",
+          user_count: "8758528",
+          active_user_count: "855453",
+        },
+        {
+          period: "2024-07-22",
+          server_count: "9348",
+          user_count: "8760932",
+          active_user_count: "855672",
+        },
+        {
+          period: "2024-07-23",
+          server_count: "9340",
+          user_count: "8762300",
+          active_user_count: "855169",
+        },
+        {
+          period: "2024-07-24",
+          server_count: "9327",
+          user_count: "8764415",
+          active_user_count: "853966",
+        },
+        {
+          period: "2024-07-25",
+          server_count: "9319",
+          user_count: "8764984",
+          active_user_count: "853102",
+        },
+        {
+          period: "2024-07-26",
+          server_count: "9331",
+          user_count: "8767731",
+          active_user_count: "853849",
+        },
+        {
+          period: "2024-07-27",
+          server_count: "9323",
+          user_count: "8768956",
+          active_user_count: "853064",
+        },
+        {
+          period: "2024-07-28",
+          server_count: "9313",
+          user_count: "8772466",
+          active_user_count: "852234",
+        },
+        {
+          period: "2024-07-29",
+          server_count: "9305",
+          user_count: "8774303",
+          active_user_count: "851537",
+        },
+        {
+          period: "2024-07-30",
+          server_count: "9295",
+          user_count: "8776430",
+          active_user_count: "851514",
+        },
+        {
+          period: "2024-07-31",
+          server_count: "9281",
+          user_count: "8778498",
+          active_user_count: "850601",
+        },
+        {
+          period: "2024-08-01",
+          server_count: "9283",
+          user_count: "8778754",
+          active_user_count: "849639",
+        },
+        {
+          period: "2024-08-02",
+          server_count: "9274",
+          user_count: "8779049",
+          active_user_count: "848749",
+        },
+        {
+          period: "2024-08-03",
+          server_count: "9273",
+          user_count: "8781002",
+          active_user_count: "843316",
+        },
+        {
+          period: "2024-08-04",
+          server_count: "9260",
+          user_count: "8782925",
+          active_user_count: "842553",
+        },
+        {
+          period: "2024-08-05",
+          server_count: "9284",
+          user_count: "8784931",
+          active_user_count: "841133",
+        },
+        {
+          period: "2024-08-06",
+          server_count: "9274",
+          user_count: "8786442",
+          active_user_count: "840070",
+        },
+        {
+          period: "2024-08-07",
+          server_count: "9251",
+          user_count: "8788446",
+          active_user_count: "840695",
+        },
+        {
+          period: "2024-08-08",
+          server_count: "9231",
+          user_count: "8791553",
+          active_user_count: "841105",
+        },
+        {
+          period: "2024-08-09",
+          server_count: "9250",
+          user_count: "8793420",
+          active_user_count: "842774",
+        },
+        {
+          period: "2024-08-10",
+          server_count: "9245",
+          user_count: "8795682",
+          active_user_count: "843794",
+        },
+        {
+          period: "2024-08-11",
+          server_count: "9268",
+          user_count: "8797804",
+          active_user_count: "844660",
+        },
+        {
+          period: "2024-08-12",
+          server_count: "9258",
+          user_count: "8799680",
+          active_user_count: "841589",
+        },
+        {
+          period: "2024-08-13",
+          server_count: "9256",
+          user_count: "8800786",
+          active_user_count: "840831",
+        },
+        {
+          period: "2024-08-14",
+          server_count: "9254",
+          user_count: "8804741",
+          active_user_count: "841917",
+        },
+        {
+          period: "2024-08-15",
+          server_count: "9315",
+          user_count: "8807729",
+          active_user_count: "844064",
+        },
+        {
+          period: "2024-08-16",
+          server_count: "9312",
+          user_count: "8808898",
+          active_user_count: "844556",
+        },
+        {
+          period: "2024-08-17",
+          server_count: "9304",
+          user_count: "8815418",
+          active_user_count: "844269",
+        },
+        {
+          period: "2024-08-18",
+          server_count: "9323",
+          user_count: "8819116",
+          active_user_count: "845322",
+        },
+        {
+          period: "2024-08-19",
+          server_count: "9326",
+          user_count: "8817388",
+          active_user_count: "842636",
+        },
+        {
+          period: "2024-08-20",
+          server_count: "9317",
+          user_count: "8817908",
+          active_user_count: "842950",
+        },
+        {
+          period: "2024-08-21",
+          server_count: "9307",
+          user_count: "8819837",
+          active_user_count: "841942",
+        },
+        {
+          period: "2024-08-22",
+          server_count: "9295",
+          user_count: "8822493",
+          active_user_count: "843845",
+        },
+        {
+          period: "2024-08-23",
+          server_count: "9290",
+          user_count: "8823519",
+          active_user_count: "842941",
+        },
+        {
+          period: "2024-08-24",
+          server_count: "9291",
+          user_count: "8827070",
+          active_user_count: "844173",
+        },
+        {
+          period: "2024-08-25",
+          server_count: "9283",
+          user_count: "8824529",
+          active_user_count: "842719",
+        },
+        {
+          period: "2024-08-26",
+          server_count: "9269",
+          user_count: "8806274",
+          active_user_count: "844041",
+        },
+        {
+          period: "2024-08-27",
+          server_count: "9265",
+          user_count: "8837343",
+          active_user_count: "847363",
+        },
+        {
+          period: "2024-08-28",
+          server_count: "9260",
+          user_count: "8838240",
+          active_user_count: "849575",
+        },
+        {
+          period: "2024-08-29",
+          server_count: "9256",
+          user_count: "8836561",
+          active_user_count: "850523",
+        },
+        {
+          period: "2024-08-30",
+          server_count: "9251",
+          user_count: "8837477",
+          active_user_count: "853752",
+        },
+        {
+          period: "2024-08-31",
+          server_count: "9257",
+          user_count: "8840254",
+          active_user_count: "857124",
+        },
+        {
+          period: "2024-09-01",
+          server_count: "9234",
+          user_count: "8548931",
+          active_user_count: "818596",
+        },
+        {
+          period: "2024-09-02",
+          server_count: "9237",
+          user_count: "8846912",
+          active_user_count: "862646",
+        },
+        {
+          period: "2024-09-03",
+          server_count: "9221",
+          user_count: "8849596",
+          active_user_count: "863771",
+        },
+        {
+          period: "2024-09-04",
+          server_count: "9251",
+          user_count: "9767031",
+          active_user_count: "865983",
+        },
+        {
+          period: "2024-09-05",
+          server_count: "9230",
+          user_count: "9770279",
+          active_user_count: "868289",
+        },
+        {
+          period: "2024-09-06",
+          server_count: "9234",
+          user_count: "9773086",
+          active_user_count: "868827",
+        },
+        {
+          period: "2024-09-07",
+          server_count: "9234",
+          user_count: "9773853",
+          active_user_count: "869173",
+        },
+        {
+          period: "2024-09-08",
+          server_count: "9276",
+          user_count: "9777704",
+          active_user_count: "871278",
+        },
+        {
+          period: "2024-09-09",
+          server_count: "9266",
+          user_count: "9780439",
+          active_user_count: "871478",
+        },
+        {
+          period: "2024-09-10",
+          server_count: "9267",
+          user_count: "9782900",
+          active_user_count: "871947",
+        },
+        {
+          period: "2024-09-11",
+          server_count: "9284",
+          user_count: "9784561",
+          active_user_count: "867622",
+        },
+        {
+          period: "2024-09-12",
+          server_count: "9292",
+          user_count: "9787576",
+          active_user_count: "869546",
+        },
+        {
+          period: "2024-09-13",
+          server_count: "9306",
+          user_count: "9788808",
+          active_user_count: "869313",
+        },
+        {
+          period: "2024-09-14",
+          server_count: "9293",
+          user_count: "9793293",
+          active_user_count: "868961",
+        },
+        {
+          period: "2024-09-15",
+          server_count: "9298",
+          user_count: "9796426",
+          active_user_count: "869116",
+        },
+        {
+          period: "2024-09-16",
+          server_count: "9291",
+          user_count: "9800378",
+          active_user_count: "868735",
+        },
+        {
+          period: "2024-09-17",
+          server_count: "9286",
+          user_count: "9801784",
+          active_user_count: "869725",
+        },
+        {
+          period: "2024-09-18",
+          server_count: "9278",
+          user_count: "9807147",
+          active_user_count: "871888",
+        },
+        {
+          period: "2024-09-19",
+          server_count: "9272",
+          user_count: "9808737",
+          active_user_count: "872742",
+        },
+        {
+          period: "2024-09-20",
+          server_count: "9263",
+          user_count: "9793832",
+          active_user_count: "874458",
+        },
+        {
+          period: "2024-09-21",
+          server_count: "9254",
+          user_count: "9793835",
+          active_user_count: "875674",
+        },
+        {
+          period: "2024-09-22",
+          server_count: "9249",
+          user_count: "9797560",
+          active_user_count: "876896",
+        },
+        {
+          period: "2024-09-23",
+          server_count: "9272",
+          user_count: "9798762",
+          active_user_count: "875251",
+        },
+        {
+          period: "2024-09-24",
+          server_count: "9261",
+          user_count: "9801393",
+          active_user_count: "874882",
+        },
+        {
+          period: "2024-09-25",
+          server_count: "9251",
+          user_count: "9803876",
+          active_user_count: "875907",
+        },
+        {
+          period: "2024-09-26",
+          server_count: "9241",
+          user_count: "9806958",
+          active_user_count: "877096",
+        },
+        {
+          period: "2024-09-27",
+          server_count: "9233",
+          user_count: "9809314",
+          active_user_count: "876793",
+        },
+        {
+          period: "2024-09-28",
+          server_count: "9201",
+          user_count: "9811099",
+          active_user_count: "874707",
+        },
+        {
+          period: "2024-09-29",
+          server_count: "9197",
+          user_count: "9786177",
+          active_user_count: "872075",
+        },
+        {
+          period: "2024-09-30",
+          server_count: "9201",
+          user_count: "9788438",
+          active_user_count: "870169",
+        },
+        {
+          period: "2024-10-01",
+          server_count: "9190",
+          user_count: "9790800",
+          active_user_count: "867181",
+        },
+        {
+          period: "2024-10-02",
+          server_count: "9176",
+          user_count: "9793140",
+          active_user_count: "866891",
+        },
+        {
+          period: "2024-10-03",
+          server_count: "9172",
+          user_count: "9795630",
+          active_user_count: "863843",
+        },
+        {
+          period: "2024-10-04",
+          server_count: "9215",
+          user_count: "9802017",
+          active_user_count: "861214",
+        },
+        {
+          period: "2024-10-05",
+          server_count: "9203",
+          user_count: "9804069",
+          active_user_count: "860961",
+        },
+        {
+          period: "2024-10-06",
+          server_count: "9197",
+          user_count: "9806631",
+          active_user_count: "860285",
+        },
+        {
+          period: "2024-10-07",
+          server_count: "9188",
+          user_count: "9809030",
+          active_user_count: "858638",
+        },
+        {
+          period: "2024-10-08",
+          server_count: "9199",
+          user_count: "9839326",
+          active_user_count: "856824",
+        },
+        {
+          period: "2024-10-09",
+          server_count: "9158",
+          user_count: "9840647",
+          active_user_count: "853700",
+        },
+        {
+          period: "2024-10-10",
+          server_count: "9143",
+          user_count: "9843782",
+          active_user_count: "852136",
+        },
+        {
+          period: "2024-10-11",
+          server_count: "9146",
+          user_count: "9847720",
+          active_user_count: "854598",
+        },
+        {
+          period: "2024-10-12",
+          server_count: "9146",
+          user_count: "9851931",
+          active_user_count: "857349",
+        },
+        {
+          period: "2024-10-13",
+          server_count: "9139",
+          user_count: "8944513",
+          active_user_count: "860299",
+        },
+        {
+          period: "2024-10-14",
+          server_count: "9137",
+          user_count: "8950307",
+          active_user_count: "862242",
+        },
+        {
+          period: "2024-10-15",
+          server_count: "9131",
+          user_count: "8955036",
+          active_user_count: "862894",
+        },
+        {
+          period: "2024-10-16",
+          server_count: "9159",
+          user_count: "8955850",
+          active_user_count: "858478",
+        },
+        {
+          period: "2024-10-17",
+          server_count: "9160",
+          user_count: "8969575",
+          active_user_count: "856760",
+        },
+        {
+          period: "2024-10-18",
+          server_count: "9171",
+          user_count: "8950200",
+          active_user_count: "865879",
+        },
+        {
+          period: "2024-10-19",
+          server_count: "9171",
+          user_count: "8954778",
+          active_user_count: "868555",
+        },
+        {
+          period: "2024-10-20",
+          server_count: "9163",
+          user_count: "8979546",
+          active_user_count: "872165",
+        },
+        {
+          period: "2024-10-21",
+          server_count: "9151",
+          user_count: "8980413",
+          active_user_count: "872461",
+        },
+        {
+          period: "2024-10-22",
+          server_count: "9106",
+          user_count: "8979611",
+          active_user_count: "873877",
+        },
+        {
+          period: "2024-10-23",
+          server_count: "9081",
+          user_count: "8983031",
+          active_user_count: "875603",
+        },
+        {
+          period: "2024-10-24",
+          server_count: "9086",
+          user_count: "8986915",
+          active_user_count: "876582",
+        },
+        {
+          period: "2024-10-25",
+          server_count: "9078",
+          user_count: "8989388",
+          active_user_count: "877478",
+        },
+        {
+          period: "2024-10-26",
+          server_count: "9081",
+          user_count: "8991432",
+          active_user_count: "878000",
+        },
+        {
+          period: "2024-10-27",
+          server_count: "9100",
+          user_count: "8993882",
+          active_user_count: "878972",
+        },
+        {
+          period: "2024-10-28",
+          server_count: "9102",
+          user_count: "8996503",
+          active_user_count: "878881",
+        },
+        {
+          period: "2024-10-29",
+          server_count: "9138",
+          user_count: "8997198",
+          active_user_count: "880196",
+        },
+        {
+          period: "2024-10-30",
+          server_count: "9131",
+          user_count: "9000917",
+          active_user_count: "881445",
+        },
+        {
+          period: "2024-10-31",
+          server_count: "9124",
+          user_count: "9004224",
+          active_user_count: "881992",
+        },
+        {
+          period: "2024-11-01",
+          server_count: "9121",
+          user_count: "9005746",
+          active_user_count: "883092",
+        },
+        {
+          period: "2024-11-02",
+          server_count: "9105",
+          user_count: "9001769",
+          active_user_count: "883153",
+        },
+        {
+          period: "2024-11-03",
+          server_count: "9091",
+          user_count: "9003811",
+          active_user_count: "883164",
+        },
+        {
+          period: "2024-11-04",
+          server_count: "9117",
+          user_count: "9005720",
+          active_user_count: "882838",
+        },
+        {
+          period: "2024-11-05",
+          server_count: "9110",
+          user_count: "9008228",
+          active_user_count: "882806",
+        },
+        {
+          period: "2024-11-06",
+          server_count: "9111",
+          user_count: "9003997",
+          active_user_count: "883425",
+        },
+        {
+          period: "2024-11-07",
+          server_count: "9099",
+          user_count: "9014981",
+          active_user_count: "888999",
+        },
+        {
+          period: "2024-11-08",
+          server_count: "9066",
+          user_count: "8788724",
+          active_user_count: "889060",
+        },
+        {
+          period: "2024-11-09",
+          server_count: "9071",
+          user_count: "9020383",
+          active_user_count: "886461",
+        },
+        {
+          period: "2024-11-10",
+          server_count: "9043",
+          user_count: "9023349",
+          active_user_count: "885855",
+        },
+        {
+          period: "2024-11-11",
+          server_count: "9056",
+          user_count: "9027828",
+          active_user_count: "882375",
+        },
+        {
+          period: "2024-11-12",
+          server_count: "9044",
+          user_count: "9031300",
+          active_user_count: "885470",
+        },
+        {
+          period: "2024-11-13",
+          server_count: "9059",
+          user_count: "9035061",
+          active_user_count: "886764",
+        },
+        {
+          period: "2024-11-14",
+          server_count: "9022",
+          user_count: "9039098",
+          active_user_count: "889006",
+        },
+        {
+          period: "2024-11-15",
+          server_count: "9022",
+          user_count: "9045238",
+          active_user_count: "894476",
+        },
+        {
+          period: "2024-11-16",
+          server_count: "9021",
+          user_count: "9051033",
+          active_user_count: "903521",
+        },
+        {
+          period: "2024-11-17",
+          server_count: "9015",
+          user_count: "9055283",
+          active_user_count: "909403",
+        },
+        {
+          period: "2024-11-18",
+          server_count: "9012",
+          user_count: "9063138",
+          active_user_count: "913953",
+        },
+        {
+          period: "2024-11-19",
+          server_count: "9007",
+          user_count: "9066677",
+          active_user_count: "919004",
+        },
+        {
+          period: "2024-11-20",
+          server_count: "8990",
+          user_count: "9070649",
+          active_user_count: "922196",
+        },
+        {
+          period: "2024-11-21",
+          server_count: "8942",
+          user_count: "9074678",
+          active_user_count: "925547",
+        },
+        {
+          period: "2024-11-22",
+          server_count: "8947",
+          user_count: "9078692",
+          active_user_count: "927646",
+        },
+        {
+          period: "2024-11-23",
+          server_count: "8927",
+          user_count: "9081728",
+          active_user_count: "931047",
+        },
+        {
+          period: "2024-11-24",
+          server_count: "8930",
+          user_count: "9084311",
+          active_user_count: "934715",
+        },
+        {
+          period: "2024-11-25",
+          server_count: "8917",
+          user_count: "9087143",
+          active_user_count: "936870",
+        },
+        {
+          period: "2024-11-26",
+          server_count: "8905",
+          user_count: "9090559",
+          active_user_count: "936698",
+        },
+        {
+          period: "2024-11-27",
+          server_count: "8905",
+          user_count: "9093223",
+          active_user_count: "938736",
+        },
+        {
+          period: "2024-11-28",
+          server_count: "8884",
+          user_count: "9093080",
+          active_user_count: "932014",
+        },
+        {
+          period: "2024-11-29",
+          server_count: "8883",
+          user_count: "9095274",
+          active_user_count: "935525",
+        },
+        {
+          period: "2024-11-30",
+          server_count: "8871",
+          user_count: "9098068",
+          active_user_count: "936727",
+        },
+        {
+          period: "2024-12-01",
+          server_count: "8851",
+          user_count: "9100211",
+          active_user_count: "938304",
+        },
+        {
+          period: "2024-12-02",
+          server_count: "8827",
+          user_count: "9076259",
+          active_user_count: "934063",
+        },
+        {
+          period: "2024-12-03",
+          server_count: "8841",
+          user_count: "9104585",
+          active_user_count: "937091",
+        },
+        {
+          period: "2024-12-04",
+          server_count: "8838",
+          user_count: "9107442",
+          active_user_count: "936465",
+        },
+        {
+          period: "2024-12-05",
+          server_count: "8834",
+          user_count: "9100475",
+          active_user_count: "933835",
+        },
+        {
+          period: "2024-12-06",
+          server_count: "8815",
+          user_count: "9102036",
+          active_user_count: "931734",
+        },
+        {
+          period: "2024-12-07",
+          server_count: "8810",
+          user_count: "9102638",
+          active_user_count: "929962",
+        },
+        {
+          period: "2024-12-08",
+          server_count: "8781",
+          user_count: "9103699",
+          active_user_count: "927568",
+        },
+        {
+          period: "2024-12-09",
+          server_count: "8756",
+          user_count: "9104419",
+          active_user_count: "924538",
+        },
+        {
+          period: "2024-12-10",
+          server_count: "8761",
+          user_count: "9118129",
+          active_user_count: "922403",
+        },
+        {
+          period: "2024-12-11",
+          server_count: "8744",
+          user_count: "10080308",
+          active_user_count: "919514",
+        },
+        {
+          period: "2024-12-11",
+          server_count: "8744",
+          user_count: "10080308",
+          active_user_count: "919514",
+        },
+        {
+          period: "2024-12-12",
+          server_count: "8742",
+          user_count: "10070931",
+          active_user_count: "914574",
+        },
+        {
+          period: "2024-12-13",
+          server_count: "8723",
+          user_count: "10074102",
+          active_user_count: "907536",
+        },
+        {
+          period: "2024-12-14",
+          server_count: "8704",
+          user_count: "10070956",
+          active_user_count: "900347",
+        },
+        {
+          period: "2024-12-15",
+          server_count: "8696",
+          user_count: "10073346",
+          active_user_count: "893363",
+        },
+        {
+          period: "2024-12-16",
+          server_count: "8695",
+          user_count: "10073964",
+          active_user_count: "886779",
+        },
+        {
+          period: "2024-12-17",
+          server_count: "8689",
+          user_count: "10075985",
+          active_user_count: "882206",
+        },
+        {
+          period: "2024-12-18",
+          server_count: "7937",
+          user_count: "9110156",
+          active_user_count: "874574",
+        },
+        {
+          period: "2024-12-19",
+          server_count: "8673",
+          user_count: "10080257",
+          active_user_count: "872830",
+        },
+        {
+          period: "2024-12-20",
+          server_count: "8658",
+          user_count: "10093450",
+          active_user_count: "868877",
+        },
+        {
+          period: "2024-12-21",
+          server_count: "8672",
+          user_count: "10095172",
+          active_user_count: "865405",
+        },
+        {
+          period: "2024-12-22",
+          server_count: "8651",
+          user_count: "9138379",
+          active_user_count: "860307",
+        },
+        {
+          period: "2024-12-23",
+          server_count: "8641",
+          user_count: "9138703",
+          active_user_count: "852891",
+        },
+        {
+          period: "2024-12-24",
+          server_count: "8622",
+          user_count: "9140044",
+          active_user_count: "849564",
+        },
+        {
+          period: "2024-12-25",
+          server_count: "8611",
+          user_count: "9133460",
+          active_user_count: "843753",
+        },
+        {
+          period: "2024-12-26",
+          server_count: "8617",
+          user_count: "9150562",
+          active_user_count: "842013",
+        },
+        {
+          period: "2024-12-27",
+          server_count: "8609",
+          user_count: "9149348",
+          active_user_count: "837068",
+        },
+        {
+          period: "2024-12-28",
+          server_count: "8594",
+          user_count: "9152343",
+          active_user_count: "835953",
+        },
+        {
+          period: "2024-12-29",
+          server_count: "8591",
+          user_count: "9152777",
+          active_user_count: "835016",
+        },
+        {
+          period: "2024-12-30",
+          server_count: "8563",
+          user_count: "9158759",
+          active_user_count: "834126",
+        },
+        {
+          period: "2024-12-31",
+          server_count: "8590",
+          user_count: "9161596",
+          active_user_count: "832186",
+        },
+        {
+          period: "2025-01-01",
+          server_count: "8554",
+          user_count: "9161217",
+          active_user_count: "828321",
+        },
+        {
+          period: "2025-01-02",
+          server_count: "8552",
+          user_count: "9162436",
+          active_user_count: "817828",
+        },
+        {
+          period: "2025-01-03",
+          server_count: "8576",
+          user_count: "9161638",
+          active_user_count: "816419",
+        },
+        {
+          period: "2025-01-04",
+          server_count: "8566",
+          user_count: "9163227",
+          active_user_count: "816097",
+        },
+        {
+          period: "2025-01-05",
+          server_count: "8538",
+          user_count: "9165529",
+          active_user_count: "817663",
+        },
+        {
+          period: "2025-01-06",
+          server_count: "8541",
+          user_count: "9166690",
+          active_user_count: "816511",
+        },
+        {
+          period: "2025-01-07",
+          server_count: "8533",
+          user_count: "9168562",
+          active_user_count: "815395",
+        },
+        {
+          period: "2025-01-08",
+          server_count: "8547",
+          user_count: "9171719",
+          active_user_count: "815812",
+        },
+        {
+          period: "2025-01-09",
+          server_count: "8532",
+          user_count: "9176475",
+          active_user_count: "821385",
+        },
+        {
+          period: "2025-01-10",
+          server_count: "8512",
+          user_count: "9182139",
+          active_user_count: "825959",
+        },
+        {
+          period: "2025-01-11",
+          server_count: "8511",
+          user_count: "9187000",
+          active_user_count: "829733",
+        },
+        {
+          period: "2025-01-12",
+          server_count: "8511",
+          user_count: "9192580",
+          active_user_count: "835283",
+        },
+        {
+          period: "2025-01-13",
+          server_count: "8509",
+          user_count: "9196297",
+          active_user_count: "838278",
+        },
+        {
+          period: "2025-01-14",
+          server_count: "8511",
+          user_count: "9205738",
+          active_user_count: "844106",
+        },
+        {
+          period: "2025-01-15",
+          server_count: "8515",
+          user_count: "9215936",
+          active_user_count: "854417",
+        },
+        {
+          period: "2025-01-16",
+          server_count: "8510",
+          user_count: "9226694",
+          active_user_count: "864008",
+        },
+        {
+          period: "2025-01-17",
+          server_count: "8520",
+          user_count: "9235014",
+          active_user_count: "872182",
+        },
+        {
+          period: "2025-01-18",
+          server_count: "8618",
+          user_count: "9240838",
+          active_user_count: "878930",
+        },
+        {
+          period: "2025-01-19",
+          server_count: "8591",
+          user_count: "9250397",
+          active_user_count: "884669",
+        },
+        {
+          period: "2025-01-20",
+          server_count: "8599",
+          user_count: "9261534",
+          active_user_count: "896634",
+        },
+        {
+          period: "2025-01-21",
+          server_count: "8590",
+          user_count: "9275161",
+          active_user_count: "906124",
+        },
+        {
+          period: "2025-01-22",
+          server_count: "8578",
+          user_count: "9289884",
+          active_user_count: "908208",
+        },
+        {
+          period: "2025-01-23",
+          server_count: "8574",
+          user_count: "9306666",
+          active_user_count: "928976",
+        },
+        {
+          period: "2025-01-24",
+          server_count: "8566",
+          user_count: "9320002",
+          active_user_count: "949304",
+        },
+        {
+          period: "2025-01-25",
+          server_count: "8547",
+          user_count: "9332650",
+          active_user_count: "974881",
+        },
+        {
+          period: "2025-01-26",
+          server_count: "8552",
+          user_count: "9343879",
+          active_user_count: "985131",
+        },
+        {
+          period: "2025-01-27",
+          server_count: "8549",
+          user_count: "9353900",
+          active_user_count: "995158",
+        },
+        {
+          period: "2025-01-28",
+          server_count: "8545",
+          user_count: "9358120",
+          active_user_count: "1003299",
+        },
+        {
+          period: "2025-01-29",
+          server_count: "8535",
+          user_count: "9365786",
+          active_user_count: "1010915",
+        },
+        {
+          period: "2025-01-30",
+          server_count: "8529",
+          user_count: "9376774",
+          active_user_count: "655784",
+        }, {"period":"2025-02-08","server_count":"8793","user_count":"9427536","active_user_count":"871399"},
+        {"period":"2025-02-09","server_count":"8789","user_count":"9432155","active_user_count":"880611"},{"period":"2025-02-10","server_count":"8775","user_count":"9411783","active_user_count":"885852"},{"period":"2025-02-11","server_count":"8774","user_count":"9440018","active_user_count":"886653"},{"period":"2025-02-12","server_count":"8768","user_count":"9443635","active_user_count":"904998"},{"period":"2025-02-13","server_count":"8758","user_count":"9449090","active_user_count":"913902"},{"period":"2025-02-14","server_count":"8762","user_count":"9452796","active_user_count":"920083"},{"period":"2025-02-15","server_count":"8769","user_count":"9456644","active_user_count":"926404"},{"period":"2025-02-16","server_count":"8769","user_count":"9460539","active_user_count":"932297"},{"period":"2025-02-17","server_count":"8765","user_count":"9464385","active_user_count":"937037"},{"period":"2025-02-18","server_count":"8767","user_count":"9468000","active_user_count":"940096"},{"period":"2025-02-19","server_count":"8750","user_count":"9471990","active_user_count":"945198"},{"period":"2025-02-20","server_count":"8742","user_count":"9180236","active_user_count":"905319"},{"period":"2025-02-21","server_count":"8737","user_count":"9184065","active_user_count":"910259"},{"period":"2025-02-22","server_count":"8732","user_count":"9187568","active_user_count":"917057"},{"period":"2025-02-23","server_count":"8721","user_count":"9189065","active_user_count":"922565"},{"period":"2025-02-24","server_count":"8713","user_count":"9466779","active_user_count":"968264"},{"period":"2025-02-25","server_count":"8708","user_count":"9473694","active_user_count":"974008"},{"period":"2025-02-26","server_count":"8708","user_count":"9477585","active_user_count":"981089"},{"period":"2025-02-27","server_count":"8688","user_count":"9503064","active_user_count":"983651"},{"period":"2025-02-28","server_count":"8696","user_count":"9506194","active_user_count":"980277"},{"period":"2025-03-01","server_count":"8674","user_count":"9498667","active_user_count":"979439"},{"period":"2025-03-02","server_count":"8671","user_count":"9489728","active_user_count":"980319"},{"period":"2025-03-03","server_count":"8663","user_count":"9495539","active_user_count":"972604"},{"period":"2025-03-04","server_count":"8657","user_count":"9499963","active_user_count":"970379"},{"period":"2025-03-05","server_count":"8640","user_count":"9504962","active_user_count":"968235"},{"period":"2025-03-06","server_count":"8628","user_count":"9515616","active_user_count":"974541"},
+        {"period":"2025-03-07","server_count":"8612","user_count":"9520728","active_user_count":"974332"},
+        {"period":"2025-03-14","server_count":"8561","user_count":"9529184","active_user_count":"960629"},{"period":"2025-03-15","server_count":"8539","user_count":"9535988","active_user_count":"959689"},{"period":"2025-03-16","server_count":"8542","user_count":"9540198","active_user_count":"957263"},{"period":"2025-03-17","server_count":"8529","user_count":"9548962","active_user_count":"953808"},{"period":"2025-03-18","server_count":"8538","user_count":"9553738","active_user_count":"952299"},{"period":"2025-03-19","server_count":"8536","user_count":"9545785","active_user_count":"951043"},{"period":"2025-03-20","server_count":"8517","user_count":"9560830","active_user_count":"949526"},{"period":"2025-03-21","server_count":"8524","user_count":"9562378","active_user_count":"948754"},{"period":"2025-03-22","server_count":"8494","user_count":"9565254","active_user_count":"947935"},{"period":"2025-03-23","server_count":"8499","user_count":"9565383","active_user_count":"947062"},{"period":"2025-03-24","server_count":"4905","user_count":"9193724","active_user_count":"903817"},{"period":"2025-03-25","server_count":"8696","user_count":"9577025","active_user_count":"949821"},{"period":"2025-03-26","server_count":"8695","user_count":"9580659","active_user_count":"948908"},{"period":"2025-03-27","server_count":"8674","user_count":"9584210","active_user_count":"946921"},{"period":"2025-03-28","server_count":"8665","user_count":"9591648","active_user_count":"951827"},{"period":"2025-03-29","server_count":"8646","user_count":"9588980","active_user_count":"950243"},{"period":"2025-03-30","server_count":"8650","user_count":"9594188","active_user_count":"950841"},{"period":"2025-03-31","server_count":"8644","user_count":"9568484","active_user_count":"942351"},{"period":"2025-04-01","server_count":"8762","user_count":"9590865","active_user_count":"941212"},{"period":"2025-04-02","server_count":"8749","user_count":"9597651","active_user_count":"940163"},{"period":"2025-04-03","server_count":"8734","user_count":"9599713","active_user_count":"935420"},{"period":"2025-04-04","server_count":"8739","user_count":"9597866","active_user_count":"933675"},{"period":"2025-04-05","server_count":"8725","user_count":"9601667","active_user_count":"931493"},{"period":"2025-04-06","server_count":"8720","user_count":"9604265","active_user_count":"930665"},{"period":"2025-04-07","server_count":"8735","user_count":"9595605","active_user_count":"927665"},{"period":"2025-04-08","server_count":"8734","user_count":"9602980","active_user_count":"924044"},{"period":"2025-04-09","server_count":"8718","user_count":"9604480","active_user_count":"920583"},{"period":"2025-04-10","server_count":"8712","user_count":"9606171","active_user_count":"918201"},{"period":"2025-04-11","server_count":"8738","user_count":"9609099","active_user_count":"915777"},
+        {"period":"2025-04-12","server_count":"8726","user_count":"9611622","active_user_count":"914802"},{"period":"2025-04-13","server_count":"8719","user_count":"9614066","active_user_count":"913443"},{"period":"2025-04-14","server_count":"8725","user_count":"9591345","active_user_count":"905768"},{"period":"2025-04-15","server_count":"8725","user_count":"9618553","active_user_count":"904867"},{"period":"2025-04-16","server_count":"8710","user_count":"9634146","active_user_count":"913773"},{"period":"2025-04-17","server_count":"8741","user_count":"9640684","active_user_count":"915060"},{"period":"2025-04-18","server_count":"8746","user_count":"9645440","active_user_count":"912728"},{"period":"2025-04-19","server_count":"8747","user_count":"9648535","active_user_count":"911910"},{"period":"2025-04-20","server_count":"8739","user_count":"9651558","active_user_count":"908979"},{"period":"2025-04-21","server_count":"8739","user_count":"9652938","active_user_count":"902230"},{"period":"2025-04-22","server_count":"8731","user_count":"9657807","active_user_count":"902719"},{"period":"2025-04-23","server_count":"8740","user_count":"9660256","active_user_count":"901048"},{"period":"2025-04-24","server_count":"8728","user_count":"9662355","active_user_count":"901263"},{"period":"2025-04-25","server_count":"8718","user_count":"9664614","active_user_count":"898305"},{"period":"2025-04-26","server_count":"8721","user_count":"9666925","active_user_count":"892294"},{"period":"2025-04-27","server_count":"8713","user_count":"9669481","active_user_count":"889372"},{"period":"2025-04-28","server_count":"8716","user_count":"9672411","active_user_count":"887020"},{"period":"2025-04-29","server_count":"8698","user_count":"9676092","active_user_count":"884893"},{"period":"2025-04-30","server_count":"8692","user_count":"9675099","active_user_count":"882480"},{"period":"2025-05-01","server_count":"8684","user_count":"9674481","active_user_count":"879730"},{"period":"2025-05-02","server_count":"8669","user_count":"9678330","active_user_count":"877746"},{"period":"2025-05-03","server_count":"8657","user_count":"9679174","active_user_count":"875062"},{"period":"2025-05-04","server_count":"8700","user_count":"9681826","active_user_count":"873959"},{"period":"2025-05-05","server_count":"8691","user_count":"9683312","active_user_count":"871514"},{"period":"2025-05-06","server_count":"8690","user_count":"9685789","active_user_count":"868915"},{"period":"2025-05-07","server_count":"8692","user_count":"9686264","active_user_count":"868672"},{"period":"2025-05-08","server_count":"8682","user_count":"9711892","active_user_count":"864441"},{"period":"2025-05-09","server_count":"8679","user_count":"9714002","active_user_count":"862425"},{"period":"2025-05-10","server_count":"8690","user_count":"9684344","active_user_count":"860576"},{"period":"2025-05-11","server_count":"8682","user_count":"9707273","active_user_count":"861860"},
+        {"period":"2025-05-11","server_count":"8682","user_count":"9707273","active_user_count":"861860"},{"period":"2025-05-12","server_count":"8690","user_count":"9718774","active_user_count":"855290"},{"period":"2025-05-13","server_count":"8682","user_count":"9720390","active_user_count":"853705"},{"period":"2025-05-14","server_count":"8720","user_count":"9723605","active_user_count":"851190"},{"period":"2025-05-15","server_count":"8716","user_count":"9695349","active_user_count":"844540"},{"period":"2025-05-16","server_count":"8717","user_count":"9696973","active_user_count":"843572"},{"period":"2025-05-17","server_count":"8715","user_count":"9729635","active_user_count":"843607"},{"period":"2025-05-18","server_count":"8724","user_count":"9707600","active_user_count":"841433"},{"period":"2025-05-19","server_count":"8720","user_count":"9710027","active_user_count":"837187"},{"period":"2025-05-20","server_count":"8715","user_count":"9737882","active_user_count":"833472"},{"period":"2025-05-21","server_count":"8700","user_count":"9728925","active_user_count":"831404"},{"period":"2025-05-22","server_count":"8702","user_count":"9700436","active_user_count":"830159"},{"period":"2025-05-23","server_count":"8689","user_count":"9732645","active_user_count":"828327"},{"period":"2025-05-24","server_count":"8669","user_count":"9734994","active_user_count":"826861"},{"period":"2025-05-25","server_count":"8671","user_count":"9728727","active_user_count":"828040"},{"period":"2025-05-26","server_count":"8675","user_count":"9709319","active_user_count":"824561"},{"period":"2025-05-27","server_count":"8667","user_count":"9718981","active_user_count":"823147"},{"period":"2025-05-28","server_count":"8668","user_count":"9718107","active_user_count":"820778"},{"period":"2025-05-29","server_count":"8665","user_count":"9720406","active_user_count":"819965"},{"period":"2025-05-30","server_count":"8661","user_count":"9725471","active_user_count":"818161"},{"period":"2025-05-31","server_count":"8642","user_count":"9727215","active_user_count":"815675"},{"period":"2025-06-01","server_count":"8631","user_count":"9726070","active_user_count":"813879"},{"period":"2025-06-02","server_count":"8641","user_count":"9728781","active_user_count":"811452"},{"period":"2025-06-03","server_count":"8633","user_count":"9731223","active_user_count":"810343"},{"period":"2025-06-04","server_count":"8624","user_count":"9733134","active_user_count":"808708"},{"period":"2025-06-05","server_count":"8627","user_count":"9728623","active_user_count":"807330"},{"period":"2025-06-06","server_count":"8614","user_count":"9729972","active_user_count":"806069"},{"period":"2025-06-07","server_count":"8614","user_count":"9726289","active_user_count":"804845"},{"period":"2025-06-08","server_count":"8600","user_count":"9733209","active_user_count":"805361"},{"period":"2025-06-09","server_count":"8671","user_count":"9737348","active_user_count":"804494"},{"period":"2025-06-10","server_count":"8660","user_count":"9679479","active_user_count":"801333"},
+        {"period":"2025-06-08","server_count":"8600","user_count":"9733209","active_user_count":"805361"},{"period":"2025-06-09","server_count":"8671","user_count":"9737348","active_user_count":"804494"},{"period":"2025-06-10","server_count":"8660","user_count":"9679479","active_user_count":"801333"},{"period":"2025-06-11","server_count":"8658","user_count":"9681632","active_user_count":"801512"},{"period":"2025-06-12","server_count":"8654","user_count":"9709375","active_user_count":"804907"},{"period":"2025-06-13","server_count":"8642","user_count":"9711433","active_user_count":"804497"},{"period":"2025-06-14","server_count":"8631","user_count":"9713172","active_user_count":"802277"},{"period":"2025-06-15","server_count":"8628","user_count":"9713927","active_user_count":"801952"},{"period":"2025-06-16","server_count":"8620","user_count":"9715271","active_user_count":"799469"},{"period":"2025-06-17","server_count":"8613","user_count":"9714509","active_user_count":"799493"},{"period":"2025-06-18","server_count":"8611","user_count":"9715718","active_user_count":"798627"},{"period":"2025-06-19","server_count":"8602","user_count":"9715838","active_user_count":"800419"},{"period":"2025-06-20","server_count":"8604","user_count":"9717925","active_user_count":"802959"},{"period":"2025-06-21","server_count":"8587","user_count":"9718669","active_user_count":"802709"},{"period":"2025-06-22","server_count":"8574","user_count":"9719951","active_user_count":"801027"},{"period":"2025-06-23","server_count":"8558","user_count":"9721304","active_user_count":"800871"},{"period":"2025-06-24","server_count":"8548","user_count":"9723105","active_user_count":"800352"},{"period":"2025-06-25","server_count":"8548","user_count":"9750890","active_user_count":"800370"},{"period":"2025-06-26","server_count":"8546","user_count":"9727367","active_user_count":"797067"},{"period":"2025-06-27","server_count":"8540","user_count":"9755013","active_user_count":"799055"},{"period":"2025-06-28","server_count":"8534","user_count":"9756597","active_user_count":"799685"},{"period":"2025-06-29","server_count":"8521","user_count":"9759265","active_user_count":"799720"},{"period":"2025-06-30","server_count":"8507","user_count":"9760492","active_user_count":"796768"},{"period":"2025-07-01","server_count":"8532","user_count":"9762545","active_user_count":"795449"},{"period":"2025-07-02","server_count":"8522","user_count":"9764542","active_user_count":"796435"},{"period":"2025-07-03","server_count":"8513","user_count":"9739048","active_user_count":"793966"},{"period":"2025-07-04","server_count":"8514","user_count":"9766461","active_user_count":"796316"},{"period":"2025-07-05","server_count":"8502","user_count":"9767671","active_user_count":"795507"},{"period":"2025-07-06","server_count":"8509","user_count":"9743953","active_user_count":"792471"},{"period":"2025-07-07","server_count":"8509","user_count":"9744920","active_user_count":"791380"},{"period":"2025-07-08","server_count":"8480","user_count":"9746645","active_user_count":"789464"},
+        {"period":"2025-07-09","server_count":"8473","user_count":"9748706","active_user_count":"787348"},{"period":"2025-07-10","server_count":"8457","user_count":"9748194","active_user_count":"788016"},{"period":"2025-07-11","server_count":"8452","user_count":"9750419","active_user_count":"775355"},{"period":"2025-07-12","server_count":"8439","user_count":"9749655","active_user_count":"779372"},{"period":"2025-07-13","server_count":"8429","user_count":"9751484","active_user_count":"779430"},{"period":"2025-07-14","server_count":"8436","user_count":"9756219","active_user_count":"778276"},{"period":"2025-07-15","server_count":"8446","user_count":"9769403","active_user_count":"778994"},{"period":"2025-07-16","server_count":"8441","user_count":"9771680","active_user_count":"778678"},{"period":"2025-07-17","server_count":"8433","user_count":"9772375","active_user_count":"776271"},{"period":"2025-07-18","server_count":"8421","user_count":"9545033","active_user_count":"773858"},{"period":"2025-07-19","server_count":"8423","user_count":"9775293","active_user_count":"772915"},{"period":"2025-07-20","server_count":"8421","user_count":"9775614","active_user_count":"772384"},{"period":"2025-07-21","server_count":"8421","user_count":"9778216","active_user_count":"770431"},{"period":"2025-07-22","server_count":"8419","user_count":"9780308","active_user_count":"769510"},{"period":"2025-07-23","server_count":"8415","user_count":"9782962","active_user_count":"769852"},{"period":"2025-07-24","server_count":"8388","user_count":"9784997","active_user_count":"769763"},{"period":"2025-07-25","server_count":"8391","user_count":"9761697","active_user_count":"767651"},{"period":"2025-07-26","server_count":"8382","user_count":"9788320","active_user_count":"768725"},{"period":"2025-07-27","server_count":"8375","user_count":"9788161","active_user_count":"768072"},{"period":"2025-07-28","server_count":"8370","user_count":"9798783","active_user_count":"766340"},{"period":"2025-07-29","server_count":"8373","user_count":"9830574","active_user_count":"766969"},{"period":"2025-07-30","server_count":"8355","user_count":"9805748","active_user_count":"766709"},{"period":"2025-07-31","server_count":"8352","user_count":"9807061","active_user_count":"765714"},{"period":"2025-08-01","server_count":"8352","user_count":"9795191","active_user_count":"766709"},{"period":"2025-08-02","server_count":"8333","user_count":"9786039","active_user_count":"765667"},{"period":"2025-08-03","server_count":"8344","user_count":"9783480","active_user_count":"766244"},{"period":"2025-08-04","server_count":"8336","user_count":"9783017","active_user_count":"764456"},{"period":"2025-08-05","server_count":"8332","user_count":"9785589","active_user_count":"764386"},{"period":"2025-08-06","server_count":"8317","user_count":"9788075","active_user_count":"764951"},{"period":"2025-08-07","server_count":"8315","user_count":"9801283","active_user_count":"765300"},{"period":"2025-08-08","server_count":"8305","user_count":"9803724","active_user_count":"766243"},
+        {"period":"2025-08-11","server_count":"8293","user_count":"9781703","active_user_count":"764792"},{"period":"2025-08-12","server_count":"8289","user_count":"9784243","active_user_count":"766068"},{"period":"2025-08-13","server_count":"8279","user_count":"9785446","active_user_count":"766546"},{"period":"2025-08-14","server_count":"8275","user_count":"9787678","active_user_count":"766952"},{"period":"2025-08-15","server_count":"8261","user_count":"9812634","active_user_count":"770059"},{"period":"2025-08-16","server_count":"8253","user_count":"9817110","active_user_count":"770680"},{"period":"2025-08-17","server_count":"8261","user_count":"9820212","active_user_count":"770518"},{"period":"2025-08-18","server_count":"8260","user_count":"9822689","active_user_count":"769604"},{"period":"2025-08-19","server_count":"8255","user_count":"9825849","active_user_count":"770830"},{"period":"2025-08-20","server_count":"8243","user_count":"9827589","active_user_count":"770593"},{"period":"2025-08-21","server_count":"8239","user_count":"9829424","active_user_count":"770684"},{"period":"2025-08-22","server_count":"8237","user_count":"9819949","active_user_count":"771123"},{"period":"2025-08-23","server_count":"8225","user_count":"9821143","active_user_count":"769609"},{"period":"2025-08-24","server_count":"8232","user_count":"9823365","active_user_count":"768201"},{"period":"2025-08-25","server_count":"8226","user_count":"9825458","active_user_count":"766861"},{"period":"2025-08-26","server_count":"8206","user_count":"9827415","active_user_count":"766127"},{"period":"2025-08-27","server_count":"8202","user_count":"9826097","active_user_count":"763989"},{"period":"2025-08-28","server_count":"8199","user_count":"9827867","active_user_count":"763037"},{"period":"2025-08-29","server_count":"8185","user_count":"9829989","active_user_count":"760344"},{"period":"2025-08-30","server_count":"8178","user_count":"9830769","active_user_count":"760520"},{"period":"2025-08-31","server_count":"8178","user_count":"9833065","active_user_count":"760551"},{"period":"2025-09-01","server_count":"8178","user_count":"9837336","active_user_count":"753296"},{"period":"2025-09-02","server_count":"8173","user_count":"9833089","active_user_count":"757730"},{"period":"2025-09-03","server_count":"8164","user_count":"9835420","active_user_count":"758957"},{"period":"2025-09-04","server_count":"8155","user_count":"9842965","active_user_count":"759782"},{"period":"2025-09-05","server_count":"8155","user_count":"9844734","active_user_count":"759531"},{"period":"2025-09-06","server_count":"8151","user_count":"9838502","active_user_count":"758807"},{"period":"2025-09-07","server_count":"8156","user_count":"9848420","active_user_count":"758450"},{"period":"2025-09-08","server_count":"8141","user_count":"9850082","active_user_count":"756506"},{"period":"2025-09-09","server_count":"8144","user_count":"9852006","active_user_count":"755653"},{"period":"2025-09-10","server_count":"8142","user_count":"9854074","active_user_count":"754797"},
+        {"period":"2025-09-15","server_count":"8123","user_count":"9863262","active_user_count":"757958"},{"period":"2025-09-16","server_count":"8120","user_count":"9864902","active_user_count":"758630"},{"period":"2025-09-17","server_count":"8122","user_count":"9859026","active_user_count":"759583"},{"period":"2025-09-18","server_count":"8112","user_count":"9853987","active_user_count":"763171"},{"period":"2025-09-19","server_count":"8098","user_count":"9846609","active_user_count":"762229"},{"period":"2025-09-20","server_count":"8092","user_count":"9848511","active_user_count":"763052"},{"period":"2025-09-21","server_count":"8092","user_count":"9845326","active_user_count":"764923"},{"period":"2025-09-22","server_count":"8085","user_count":"9834138","active_user_count":"765012"},{"period":"2025-09-23","server_count":"8094","user_count":"9836295","active_user_count":"766285"},{"period":"2025-09-24","server_count":"8088","user_count":"9837482","active_user_count":"766397"},{"period":"2025-09-25","server_count":"8089","user_count":"9838956","active_user_count":"766025"},{"period":"2025-09-26","server_count":"8084","user_count":"9841160","active_user_count":"765753"},{"period":"2025-09-27","server_count":"8074","user_count":"9843837","active_user_count":"764188"},{"period":"2025-09-28","server_count":"8071","user_count":"9842973","active_user_count":"763658"},{"period":"2025-09-29","server_count":"8071","user_count":"9844969","active_user_count":"760526"},{"period":"2025-09-30","server_count":"8060","user_count":"9845524","active_user_count":"759239"},{"period":"2025-10-01","server_count":"8050","user_count":"9846573","active_user_count":"759429"},{"period":"2025-10-02","server_count":"8044","user_count":"9848140","active_user_count":"757636"},{"period":"2025-10-03","server_count":"8041","user_count":"9849816","active_user_count":"758078"},{"period":"2025-10-04","server_count":"8029","user_count":"9852145","active_user_count":"758957"},{"period":"2025-10-05","server_count":"8021","user_count":"9826842","active_user_count":"758305"},{"period":"2025-10-06","server_count":"8025","user_count":"9827881","active_user_count":"758501"},{"period":"2025-10-07","server_count":"8022","user_count":"9820747","active_user_count":"758476"},{"period":"2025-10-08","server_count":"8020","user_count":"9849396","active_user_count":"759672"},{"period":"2025-10-09","server_count":"8012","user_count":"9851071","active_user_count":"758859"},{"period":"2025-10-10","server_count":"8001","user_count":"9878040","active_user_count":"760260"},{"period":"2025-10-11","server_count":"7997","user_count":"9879724","active_user_count":"759984"},{"period":"2025-10-12","server_count":"7995","user_count":"9881552","active_user_count":"759603"},{"period":"2025-10-13","server_count":"8000","user_count":"9884647","active_user_count":"758433"},{"period":"2025-10-14","server_count":"7991","user_count":"9868361","active_user_count":"755968"}
+
+
+      ];
+
+      let totalServerCount = 0;
+      period = [];
+      server_count = [];
+      user_count = [];
+      active_user_count = [];
+
+      for (const data of analytics) {
+        period.push(data.period);
+        server_count.push(data.server_count);
+        user_count.push(data.user_count);
+        active_user_count.push(data.active_user_count);
+      }
+    </script>
+  </head>
+  <body>
+    <div class="page">
+      <!-- Navbar -->
+      <header
+        class="navbar navbar-expand-md navbar-dark navbar-overlap d-print-none"
+      >
+        <div class="container-xl">
+          <button
+            class="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbar-menu"
+            aria-controls="navbar-menu"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+          >
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <h1
+            class="navbar-brand navbar-brand-autodark d-none-navbar-horizontal pe-0 pe-md-3"
+          >
+            <a href="/"> Mastodon Analytics </a>
+          </h1>
+          <div class="navbar-nav flex-row order-md-last">
+            <div class="d-none d-md-flex">
+              <a
+                href="https://mastodon.social/@erickhun/109801430396716608"
+                class="nav-link px-0 hide-theme-dark"
+                title="About Mastodon Analytics"
+                data-bs-toggle="tooltip"
+                data-bs-placement="bottom"
+              >
+                <!-- Download SVG icon from http://tabler-icons.io/i/moon -->
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="icon icon-tabler icon-tabler-question-circle"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  stroke-width="2"
+                  stroke="currentColor"
+                  fill="none"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                  <path d="M12 16v.01"></path>
+                  <path
+                    d="M12 13a2 2 0 0 0 .914 -3.782a1.98 1.98 0 0 0 -2.414 .483"
+                  ></path>
+                  <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"></path>
+                </svg>
+              </a>
+            </div>
+          </div>
+          <div class="collapse navbar-collapse" id="navbar-menu">
+            <div
+              class="d-flex flex-column flex-md-row flex-fill align-items-stretch align-items-md-center"
+            >
+              <ul class="navbar-nav">
+                <li class="nav-item">
+                  <a
+                    class="nav-link"
+                    href="https://mastodon.social/@erickhun/109801430396716608"
+                  >
+                    <span class="nav-link-icon d-md-none d-lg-inline-block"
+                      ><!-- Download SVG icon from http://tabler-icons.io/i/home -->
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="icon"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        stroke-width="2"
+                        stroke="currentColor"
+                        fill="none"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                        <path d="M5 12l-2 0l9 -9l9 9l-2 0" />
+                        <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+                        <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+                      </svg>
+                    </span>
+                    <span class="nav-link-title"> About </span>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a
+                    class="nav-link"
+                    href="https://twitter.com/intent/tweet?in_reply_to=1621435553722892288&text=Hi%20Eric%2C%20regarding%20mastodon-analytics.com%2C%20can%20you%20please%20provide%20this%20analytics%20for%20me%3A%20"
+                  >
+                    <span class="nav-link-icon d-md-none d-lg-inline-block"
+                      ><!-- Download SVG icon from http://tabler-icons.io/i/checkbox -->
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="icon icon-tabler icon-tabler-chart-histogram"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        stroke-width="2"
+                        stroke="currentColor"
+                        fill="none"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      >
+                        <path
+                          stroke="none"
+                          d="M0 0h24v24H0z"
+                          fill="none"
+                        ></path>
+                        <path d="M3 3v18h18"></path>
+                        <path d="M20 18v3"></path>
+                        <path d="M16 16v5"></path>
+                        <path d="M12 13v8"></path>
+                        <path d="M8 16v5"></path>
+                        <path d="M3 11c6 0 5 -5 9 -5s3 5 9 5"></path>
+                      </svg>
+                    </span>
+                    <span class="nav-link-title"> More Analytics </span>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </header>
+      <div class="page-wrapper">
+        <!-- Page header -->
+        <div class="page-header d-print-none text-white">
+          <div class="container-xl">
+            <div class="row g-2 align-items-center">
+              <div class="col">
+                <!-- Page pre-title -->
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Page body -->
+        <div class="page-body">
+          <div class="container-xl">
+            <div class="row row-deck row-cards">
+              <div class="col-md-12 col-lg-8">
+                <div class="card">
+                  <div class="card-body">
+                    <h2 class="card-title number-users">
+                      Current Mastodon Number of Users:
+                    </h2>
+                    <div id="chart-users" class="chart-lg"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-12 col-lg-4">
+                <div class="card">
+                  <div class="card-body">
+                    <h2 class="card-title">About</h2>
+                    <div>
+                      <ul style="list-style: none; padding: 0; margin: 0;">
+                        <li style="padding: 8px 0; border-bottom: 1px solid #f0f0f0;">
+                          📊 Data from the official
+                          <a href="https://api.joinmastodon.org/statistics"
+                            >statistics API</a
+                          >
+                        </li>
+                        <li style="padding: 8px 0; border-bottom: 1px solid #f0f0f0;">🔄 Refreshed once a day</li>
+
+                        <li style="padding: 8px 0; border-bottom: 1px solid #f0f0f0;">
+                          💬 Reach me out on <a
+                            href="https://twitter.com/intent/tweet?in_reply_to=1621435553722892288&text=Hi%2C%20regarding%20mastodon-analytics%2C%20can%20you%20please%20provide%20this%20analytics%20for%20me%3A%20"
+                            >twitter</a
+                          > or <a href="https://mastodon.social/@erickhun"
+                            >mastodon</a
+                          > for more data
+                        </li>
+                        <li style="margin-top: 16px; padding: 12px; background: linear-gradient(135deg, #6366f1, #8b5cf6); border-radius: 8px; text-align: center; cursor: pointer;" onmouseover="this.style.boxShadow='0 8px 25px rgba(99, 102, 241, 0.4)'" onmouseout="this.style.boxShadow='none'">
+                          <span style="color: white; font-weight: 500;">📈 Looking to grow your social media following?</span><br>
+                          <a href="https://craftmygame.com" target="_blank" style="color: #fff; text-decoration: none; font-weight: bold; font-size: 1.1em;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Create Marketing Games for your Brand</a> 
+                          <span style="color: white; font-weight: 500;">in seconds</span>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-12 col-lg-8">
+                <div class="card">
+                  <div class="card-body">
+                    <h2 class="card-title">Mastodon Active Users</h2>
+                    <div id="chart-active-users" class="chart-lg"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-12 col-lg-4">
+                <div class="card">
+                  <div class="card-body">
+                    <h2 class="card-title">Mastodon Servers Count</h2>
+                    <div id="server-count" class="chart-lg"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <footer class="footer footer-transparent d-print-none">
+          <div class="container-xl">
+            <div class="row text-center align-items-center flex-row-reverse">
+              <div class="col-lg-auto ms-lg-auto"></div>
+              <div class="col-12 col-lg-auto mt-3 mt-lg-0">
+                <ul class="list-inline list-inline-dots mb-0"></ul>
+              </div>
+            </div>
+          </div>
+        </footer>
+      </div>
+    </div>
+    <div
+      class="modal modal-blur fade"
+      id="modal-report"
+      tabindex="-1"
+      role="dialog"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">New report</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label">Name</label>
+              <input
+                type="text"
+                class="form-control"
+                name="example-text-input"
+                placeholder="Your report name"
+              />
+            </div>
+            <label class="form-label">Report type</label>
+            <div class="form-selectgroup-boxes row mb-3">
+              <div class="col-lg-6">
+                <label class="form-selectgroup-item">
+                  <input
+                    type="radio"
+                    name="report-type"
+                    value="1"
+                    class="form-selectgroup-input"
+                    checked
+                  />
+                  <span
+                    class="form-selectgroup-label d-flex align-items-center p-3"
+                  >
+                    <span class="me-3">
+                      <span class="form-selectgroup-check"></span>
+                    </span>
+                    <span class="form-selectgroup-label-content">
+                      <span class="form-selectgroup-title strong mb-1"
+                        >Simple</span
+                      >
+                      <span class="d-block text-muted"
+                        >Provide only basic data needed for the report</span
+                      >
+                    </span>
+                  </span>
+                </label>
+              </div>
+              <div class="col-lg-6">
+                <label class="form-selectgroup-item">
+                  <input
+                    type="radio"
+                    name="report-type"
+                    value="1"
+                    class="form-selectgroup-input"
+                  />
+                  <span
+                    class="form-selectgroup-label d-flex align-items-center p-3"
+                  >
+                    <span class="me-3">
+                      <span class="form-selectgroup-check"></span>
+                    </span>
+                    <span class="form-selectgroup-label-content">
+                      <span class="form-selectgroup-title strong mb-1"
+                        >Advanced</span
+                      >
+                      <span class="d-block text-muted"
+                        >Insert charts and additional advanced analyses to be
+                        inserted in the report</span
+                      >
+                    </span>
+                  </span>
+                </label>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-lg-8">
+                <div class="mb-3">
+                  <label class="form-label">Report url</label>
+                  <div class="input-group input-group-flat">
+                    <span class="input-group-text">
+                      https://tabler.io/reports/
+                    </span>
+                    <input
+                      type="text"
+                      class="form-control ps-0"
+                      value="report-01"
+                      autocomplete="off"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-4">
+                <div class="mb-3">
+                  <label class="form-label">Visibility</label>
+                  <select class="form-select">
+                    <option value="1" selected>Private</option>
+                    <option value="2">Public</option>
+                    <option value="3">Hidden</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-lg-6">
+                <div class="mb-3">
+                  <label class="form-label">Client name</label>
+                  <input type="text" class="form-control" />
+                </div>
+              </div>
+              <div class="col-lg-6">
+                <div class="mb-3">
+                  <label class="form-label">Reporting period</label>
+                  <input type="date" class="form-control" />
+                </div>
+              </div>
+              <div class="col-lg-12">
+                <div>
+                  <label class="form-label">Additional information</label>
+                  <textarea class="form-control" rows="3"></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <a
+              href="#"
+              class="btn btn-link link-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cancel
+            </a>
+            <a href="#" class="btn btn-primary ms-auto" data-bs-dismiss="modal">
+              <!-- Download SVG icon from http://tabler-icons.io/i/plus -->
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="icon"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                stroke-width="2"
+                stroke="currentColor"
+                fill="none"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                <path d="M12 5l0 14" />
+                <path d="M5 12l14 0" />
+              </svg>
+              Create new report
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Libs JS -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+    <!-- Tabler Core -->
+    <script src="https://cdn.jsdelivr.net/npm/@tabler/core@latest/dist/js/tabler.min.js"></script>
+
+    <script>
+      // @formatter:off
+      document.addEventListener("DOMContentLoaded", function () {
+        window.ApexCharts &&
+          new ApexCharts(document.getElementById("chart-users"), {
+            chart: {
+              type: "line",
+              fontFamily: "inherit",
+              height: 320,
+              parentHeightOffset: 0,
+              toolbar: {
+                show: false,
+              },
+              animations: {
+                enabled: false,
+              },
+            },
+            plotOptions: {
+              bar: {
+                columnWidth: "50%",
+              },
+            },
+            dataLabels: {
+              enabled: false,
+            },
+            fill: {
+              opacity: 1,
+            },
+            series: [
+              {
+                name: "Users",
+                data: user_count,
+              },
+            ],
+            tooltip: {
+              theme: "dark",
+            },
+            grid: {
+              padding: {
+                top: -20,
+                right: 0,
+                left: -4,
+                bottom: -4,
+              },
+              strokeDashArray: 4,
+            },
+            xaxis: {
+              labels: {
+                padding: 0,
+              },
+              tooltip: {
+                enabled: false,
+              },
+              axisBorder: {
+                show: false,
+              },
+              type: "datetime",
+            },
+            yaxis: {
+              labels: {
+                padding: 4,
+                formatter: function (value) {
+                  return value.toLocaleString();
+                },
+              },
+            },
+            labels: period,
+            colors: ["#206bc4"],
+            legend: {
+              show: false,
+            },
+            annotations: {
+              points: [
+                // {
+                //   x: new Date("27 Oct 2022").getTime(),
+                //   y: 3598722,
+                //   marker: {
+                //     size: 3,
+                //     fillColor: "#fff",
+                //     strokeColor: "red",
+                //     radius: 1,
+                //     cssClass: "apexcharts-custom-class",
+                //   },
+                //   label: {
+                //     borderColor: "#FF4560",
+                //     offsetY: 0,
+                //     style: {
+                //       color: "#fff",
+                //       background: "#FF4560",
+                //     },
+                //     text: "Elon Musk buys Twitter",
+                //   },
+                // },
+                // {
+                //     x: new Date('04 Nov 2022').getTime(),
+                //     y: 3812125,
+                //     marker: {
+                //         size: 3,
+                //         fillColor: '#fff',
+                //         strokeColor: 'red',
+                //         radius: 1,
+                //         cssClass: 'apexcharts-custom-class'
+                //     },
+                //     label: {
+                //         borderColor: '#FF4560',
+                //         offsetY: 0,
+                //         style: {
+                //             color: '#fff',
+                //             background: '#FF4560',
+                //             fontSize: '13px',
+                //             fontWeight: 300,
+                //         },
+                //         text: 'Twitter Layoffs',
+                //     }
+                // },
+              ],
+            },
+          }).render();
+      });
+
+      document.addEventListener("DOMContentLoaded", function () {
+        window.ApexCharts &&
+          new ApexCharts(document.getElementById("chart-active-users"), {
+            chart: {
+              type: "line",
+              fontFamily: "inherit",
+              height: 320,
+              parentHeightOffset: 0,
+              toolbar: {
+                show: false,
+              },
+              animations: {
+                enabled: false,
+              },
+            },
+            plotOptions: {
+              bar: {
+                columnWidth: "50%",
+              },
+            },
+            dataLabels: {
+              enabled: false,
+            },
+            fill: {
+              opacity: 1,
+            },
+            series: [
+              {
+                name: "Users",
+                data: active_user_count,
+              },
+            ],
+            tooltip: {
+              theme: "dark",
+            },
+            grid: {
+              padding: {
+                top: -20,
+                right: 0,
+                left: -4,
+                bottom: -4,
+              },
+              strokeDashArray: 4,
+            },
+            xaxis: {
+              labels: {
+                padding: 0,
+              },
+              tooltip: {
+                enabled: false,
+              },
+              axisBorder: {
+                show: false,
+              },
+              type: "datetime",
+            },
+            yaxis: {
+              labels: {
+                padding: 4,
+                formatter: function (value) {
+                  return value.toLocaleString();
+                },
+              },
+            },
+            labels: period,
+            colors: ["#206bc4"],
+            legend: {
+              show: false,
+            },
+          }).render();
+      });
+
+      document.addEventListener("DOMContentLoaded", function () {
+        window.ApexCharts &&
+          new ApexCharts(document.getElementById("server-count"), {
+            chart: {
+              type: "line",
+              fontFamily: "inherit",
+              height: 320,
+              parentHeightOffset: 0,
+              toolbar: {
+                show: false,
+              },
+              animations: {
+                enabled: false,
+              },
+            },
+            plotOptions: {
+              bar: {
+                columnWidth: "50%",
+              },
+            },
+            dataLabels: {
+              enabled: false,
+            },
+            fill: {
+              opacity: 1,
+            },
+            series: [
+              {
+                name: "Number of Servers",
+                data: server_count,
+              },
+            ],
+            tooltip: {
+              theme: "dark",
+            },
+            grid: {
+              padding: {
+                top: -20,
+                right: 0,
+                left: -4,
+                bottom: -4,
+              },
+              strokeDashArray: 4,
+            },
+            xaxis: {
+              labels: {
+                padding: 0,
+              },
+              tooltip: {
+                enabled: false,
+              },
+              axisBorder: {
+                show: false,
+              },
+              type: "datetime",
+            },
+            yaxis: {
+              labels: {
+                padding: 4,
+              },
+            },
+            labels: period,
+            colors: ["#206bc4"],
+            legend: {
+              show: false,
+            },
+          }).render();
+      });
+
+      // @formatter:on
+    </script>
+
+    <!-- Google tag (gtag.js) -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-LE1T60009K"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+
+      gtag("config", "G-LE1T60009K");
+    </script>
+  </body>
+</html>
