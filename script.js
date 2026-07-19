@@ -6,6 +6,7 @@ let totalChartInstance = null;
 let activeChartInstance = null;
 let lastDataLoadTime = null;
 let showMovingAverage = false;
+let showComparison = false;
 
 // Format numbers
 const formatNumber = (num) => {
@@ -502,6 +503,15 @@ const initDashboard = () => {
                 applyFilter(activeRange);
             });
         });
+
+        // Setup comparison toggle
+        const compareBtn = document.querySelector('.compare-toggle-btn');
+        if (compareBtn) {
+            compareBtn.addEventListener('click', () => {
+                showComparison = !showComparison;
+                compareBtn.classList.toggle('active', showComparison);
+            });
+        }
 
         // Setup Event Listeners for Time Scale Buttons
         document.querySelectorAll('.time-btn').forEach(btn => {
