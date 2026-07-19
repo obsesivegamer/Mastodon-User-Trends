@@ -5,12 +5,24 @@ const API_URL = "https://api.joinmastodon.org/statistics";
 let totalChartInstance = null;
 let activeChartInstance = null;
 let lastDataLoadTime = null;
+let showMovingAverage = false;
 
 // Format numbers
 const formatNumber = (num) => {
     if (num >= 1000000) return (num / 1000000).toFixed(2) + 'M';
     if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
     return num.toLocaleString();
+};
+
+// Calculate 7-day moving average
+const calculateMovingAverage = (dataArray, key, window = 7) => {
+    return dataArray.map((_, index) => {
+        const start = Math.max(0, index - Math.floor(window / 2));
+        const end = Math.min(dataArray.length, start + window);
+        const slice = dataArray.slice(start, end);
+        const sum = slice.reduce((acc, item) => acc + item[key], 0);
+        return Math.round(sum / slice.length);
+    });
 };
 
 // Process Data
@@ -24,8 +36,12 @@ const processData = (dataArray) => {
     });
     const totalUsers = sortedData.map(d => d.total);
     const activeUsers = sortedData.map(d => d.active);
+    
+    // Calculate 7-day moving averages
+    const totalMA = calculateMovingAverage(sortedData, 'total');
+    const activeMA = calculateMovingAverage(sortedData, 'active');
 
-    return { labels, totalUsers, activeUsers, raw: sortedData };
+    return { labels, totalUsers, activeUsers, totalMA, activeMA, raw: sortedData };
 };
 
 // Update DOM Metrics
@@ -148,20 +164,34 @@ const renderChart = (data) => {
         type: 'line',
         data: {
             labels: data.labels,
-            datasets: [{
-                label: 'Total Users',
-                data: data.totalUsers,
-                borderColor: colorPrimary,
-                backgroundColor: gradientTotal,
-                borderWidth: 3,
-                pointBackgroundColor: '#121420',
-                pointBorderColor: colorPrimary,
-                pointBorderWidth: 2,
-                pointRadius: 4,
-                pointHoverRadius: 6,
-                fill: true,
-                tension: 0.4
-            }]
+            datasets: [
+                {
+                    label: 'Total Users',
+                    data: data.totalUsers,
+                    borderColor: colorPrimary,
+                    backgroundColor: gradientTotal,
+                    borderWidth: 3,
+                    pointBackgroundColor: '#121420',
+                    pointBorderColor: colorPrimary,
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    fill: true,
+                    tension: 0.4
+                },
+                ...(showMovingAverage ? [{
+                    label: '7-Day Moving Average',
+                    data: data.totalMA,
+                    borderColor: 'rgba(178, 102, 255, 0.5)',
+                    backgroundColor: 'transparent',
+                    borderWidth: 2,
+                    borderDash: [5, 5],
+                    pointRadius: 0,
+                    pointHoverRadius: 0,
+                    fill: false,
+                    tension: 0.4
+                }] : [])
+            ]
         },
         options: commonOptions
     });
@@ -170,20 +200,34 @@ const renderChart = (data) => {
         type: 'line',
         data: {
             labels: data.labels,
-            datasets: [{
-                label: 'Active Users',
-                data: data.activeUsers,
-                borderColor: colorSecondary,
-                backgroundColor: gradientActive,
-                borderWidth: 3,
-                pointBackgroundColor: '#121420',
-                pointBorderColor: colorSecondary,
-                pointBorderWidth: 2,
-                pointRadius: 4,
-                pointHoverRadius: 6,
-                fill: true,
-                tension: 0.4
-            }]
+            datasets: [
+                {
+                    label: 'Active Users',
+                    data: data.activeUsers,
+                    borderColor: colorSecondary,
+                    backgroundColor: gradientActive,
+                    borderWidth: 3,
+                    pointBackgroundColor: '#121420',
+                    pointBorderColor: colorSecondary,
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    fill: true,
+                    tension: 0.4
+                },
+                ...(showMovingAverage ? [{
+                    label: '7-Day Moving Average',
+                    data: data.activeMA,
+                    borderColor: 'rgba(51, 204, 255, 0.5)',
+                    backgroundColor: 'transparent',
+                    borderWidth: 2,
+                    borderDash: [5, 5],
+                    pointRadius: 0,
+                    pointHoverRadius: 0,
+                    fill: false,
+                    tension: 0.4
+                }] : [])
+            ]
         },
         options: commonOptions
     });
@@ -431,6 +475,18 @@ const initDashboard = () => {
                 const chartName = chartId === 'totalChart' ? 'total-users' : 'active-users';
                 const isTotal = chartId === 'totalChart';
                 exportChartAsCSV(chartName, isTotal);
+            });
+        });
+
+        // Setup moving average toggle
+        document.querySelectorAll('.toggle-ma-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                showMovingAverage = !showMovingAverage;
+                btn.classList.toggle('active', showMovingAverage);
+                
+                // Re-render charts with current filter
+                const activeRange = document.querySelector('.time-btn.active')?.dataset.range || 'ALL';
+                applyFilter(activeRange);
             });
         });
 
