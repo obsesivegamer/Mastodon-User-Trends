@@ -240,6 +240,21 @@ const exportFilteredDataAsCSV = () => {
     downloadCSV(csv, `mastodon-dashboard-${selectedRange.toLowerCase()}.csv`);
 };
 
+const exportChartAsPNG = (chartInstance) => {
+    if (!chartInstance || !chartInstance.canvas) return;
+
+    const imageUrl = chartInstance.toBase64Image('image/png', 1);
+    const canvasId = chartInstance.canvas.id || 'chart';
+    const filename = `${canvasId}-${selectedRange.toLowerCase()}.png`;
+
+    const link = document.createElement('a');
+    link.href = imageUrl;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+};
+
 const MAX_YEAR_BUTTONS = 6;
 
 const buildYearRangeButtons = () => {
@@ -359,6 +374,14 @@ const initDashboard = () => {
         if (exportCsvBtn) {
             exportCsvBtn.addEventListener('click', exportFilteredDataAsCSV);
         }
+
+        document.querySelectorAll('.export-png-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const target = e.currentTarget.dataset.target;
+                const chartInstance = target === 'totalChart' ? totalChartInstance : activeChartInstance;
+                exportChartAsPNG(chartInstance);
+            });
+        });
 
         // Setup Event Listeners for Time Scale Buttons
         document.querySelectorAll('.time-btn').forEach(btn => {
