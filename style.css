@@ -206,13 +206,49 @@ body {
 .time-scale-selector {
     display: flex;
     justify-content: center;
-    gap: 0.5rem;
-    padding: 0.5rem;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1rem;
     margin: 0 auto 2rem auto;
     border-radius: 30px;
     width: 100%;
     max-width: 100%;
     flex-wrap: wrap;
+}
+
+.selector-content {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.buttons-group {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+}
+
+.range-label-container {
+    display: flex;
+    align-items: center;
+    min-height: 40px;
+}
+
+.range-label {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+}
+
+#selected-range-label {
+    color: var(--accent-secondary);
+    font-weight: 700;
 }
 
 .year-range-container {

@@ -34,12 +34,19 @@
         <main class="dashboard-grid">
             <!-- Time Scale Selector -->
             <div class="time-scale-selector glass-panel">
-                <button class="time-btn" data-range="1W">1W</button>
-                <button class="time-btn" data-range="1M">1M</button>
-                <button class="time-btn" data-range="6M">6M</button>
-                <button class="time-btn" data-range="YTD">YTD</button>
-                <div id="year-range-container" class="year-range-container"></div>
-                <button class="time-btn active" data-range="ALL">ALL</button>
+                <div class="selector-content">
+                    <div class="buttons-group">
+                        <button class="time-btn" data-range="1W">1W</button>
+                        <button class="time-btn" data-range="1M">1M</button>
+                        <button class="time-btn" data-range="6M">6M</button>
+                        <button class="time-btn" data-range="YTD">YTD</button>
+                        <div id="year-range-container" class="year-range-container"></div>
+                        <button class="time-btn active" data-range="ALL">ALL</button>
+                    </div>
+                    <div class="range-label-container">
+                        <span class="range-label">Viewing: <span id="selected-range-label">All Time</span></span>
+                    </div>
+                </div>
             </div>
 
             <!-- Key Metrics Cards -->

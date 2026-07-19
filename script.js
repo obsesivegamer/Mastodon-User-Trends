@@ -305,12 +305,21 @@ const getRangeLabel = (range) => {
     return labels[range] || 'All Time';
 };
 
+const updateRangeLabel = (label) => {
+    const labelEl = document.getElementById('selected-range-label');
+    if (labelEl) {
+        labelEl.textContent = label;
+    }
+};
+
 const applyFilter = (range) => {
     const filtered = filterDataByRange(range, historicalData);
     const processed = processData(filtered);
+    const rangeLabel = getRangeLabel(range);
     
-    updateMetrics(processed, getRangeLabel(range));
+    updateMetrics(processed, rangeLabel);
     renderChart(processed);
+    updateRangeLabel(rangeLabel);
 };
 
 // Main Init Function
