@@ -213,6 +213,7 @@ body {
     width: 100%;
     max-width: 100%;
     flex-wrap: wrap;
+    align-items: center;
 }
 
 .year-range-container {

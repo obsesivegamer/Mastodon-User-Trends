@@ -4,6 +4,7 @@
 const API_URL = "https://api.joinmastodon.org/statistics";
 let totalChartInstance = null;
 let activeChartInstance = null;
+let selectedRange = 'ALL';
 
 // Format numbers
 const formatNumber = (num) => {
@@ -214,6 +215,31 @@ const resetChartZoom = () => {
     }
 };
 
+const downloadCSV = (csvContent, filename) => {
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+};
+
+const exportFilteredDataAsCSV = () => {
+    const filtered = filterDataByRange(selectedRange, historicalData);
+    if (!filtered || filtered.length === 0) return;
+
+    const rows = [
+        'date,total,active',
+        ...filtered.map((entry) => `${entry.date},${entry.total},${entry.active}`)
+    ];
+
+    const csv = rows.join('\n');
+    downloadCSV(csv, `mastodon-dashboard-${selectedRange.toLowerCase()}.csv`);
+};
+
 const MAX_YEAR_BUTTONS = 6;
 
 const buildYearRangeButtons = () => {
@@ -306,6 +332,7 @@ const getRangeLabel = (range) => {
 };
 
 const applyFilter = (range) => {
+    selectedRange = range;
     const filtered = filterDataByRange(range, historicalData);
     const processed = processData(filtered);
     
@@ -327,6 +354,11 @@ const initDashboard = () => {
         document.querySelectorAll('.reset-zoom-btn').forEach(btn => {
             btn.addEventListener('click', resetChartZoom);
         });
+
+        const exportCsvBtn = document.getElementById('exportCsvBtn');
+        if (exportCsvBtn) {
+            exportCsvBtn.addEventListener('click', exportFilteredDataAsCSV);
+        }
 
         // Setup Event Listeners for Time Scale Buttons
         document.querySelectorAll('.time-btn').forEach(btn => {
