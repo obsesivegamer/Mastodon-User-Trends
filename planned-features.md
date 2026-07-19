@@ -34,8 +34,8 @@ Define the dashboard improvement roadmap, turn the ideas into actionable work it
 - [ ] Verify the selector works on desktop and mobile.
 
 ### 2. Last Updated Timestamp
-- [ ] Add a visible `Last updated` timestamp to the dashboard header or footer.
-- [ ] Update the timestamp when the page is loaded from `historicalData.js`.
+- [x] Add a visible `Last updated` timestamp to the dashboard header or footer.
+- [ ] Derive the timestamp from the newest archive record or persisted updater metadata in `historicalData.js`.
 - [ ] Add a manual refresh button or indicator for data staleness.
 - [ ] Test with updated local data and confirm the timestamp changes.
 
@@ -46,14 +46,14 @@ Define the dashboard improvement roadmap, turn the ideas into actionable work it
 - [ ] Verify chart controls are accessible and responsive.
 
 ### 4. Metrics & Analysis Enhancements
-- [ ] Add a "New Users" metric card showing daily net growth.
+- [ ] Add a "Net User Growth" metric card showing daily net change in total users.
 - [ ] Add a two-period comparison mode (current range vs previous same range).
 - [ ] Add a trend summary line describing the selected range.
 - [ ] Test metrics calculations with sample data.
 
 ### 5. Data Refresh Automation
 - [ ] Document daily updater scripts for macOS and Windows.
-- [ ] Add a simple one-command refresh helper for both platforms.
+- [x] Add a simple one-command refresh helper for both platforms (`updateDaily.sh` and `updateDaily.ps1`).
 - [ ] Add a note to the README describing how to use automated update scripts.
 - [ ] Confirm scripts work when run locally.
 
@@ -64,7 +64,8 @@ Define the dashboard improvement roadmap, turn the ideas into actionable work it
   - Add UI polish and selection state management.
 
 - `feature/last-updated-badge`
-  - Add timestamp UI and data load time.
+  - Derive the archive freshness timestamp from the newest data record or persisted updater metadata.
+  - If page-load time is shown, label it separately from `Last updated`.
   - Ensure no network dependency on static archive mode.
 
 - `feature/reset-zoom-button`
