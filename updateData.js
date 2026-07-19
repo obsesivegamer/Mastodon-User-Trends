@@ -26,8 +26,7 @@ async function updateData() {
         }
 
         if (mappedData.length === 0) {
-            console.error("No valid data received from API.");
-            return;
+            throw new Error("No valid data received from API.");
         }
 
         console.log(`Received ${mappedData.length} records from the live API.`);
@@ -66,6 +65,7 @@ async function updateData() {
 
     } catch (error) {
         console.error("Error updating data:", error);
+        process.exitCode = 1;
     }
 }
 

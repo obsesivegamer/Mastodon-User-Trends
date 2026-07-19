@@ -7,11 +7,15 @@ A sleek, premium, financial-style dashboard to track Mastodon's total user growt
 ### 📈 Financial-Style Analytics
 - **Time Scale Selector:** Filter the data seamlessly using an interactive toggle to view trends over specific timeframes (**1W, 1M, 6M, YTD, 1Y, and ALL**).
 - **Dynamic Portfolio Metrics:** The metric cards act like a stock portfolio. When a timeframe is selected, they instantly calculate the exact **percentage change** (e.g., `+15.2%`) and the raw numerical difference between the start and end of that period.
+- **Period Comparison:** Compare the selected range with the immediately preceding period of the same number of observations.
+- **Net User Growth:** See net change in total users for the selected period without presenting it as registrations.
 - **Auto-Cropping Charts:** Filtering the time scale automatically crops the X-axis of both charts, allowing you to clearly see recent micro-trends without them being compressed by the massive multi-year dataset.
 
 ### 🎨 Premium UI & Interactive Layout
 - **Full-Width Vertical Stacking:** Both the "Total Users" and "Active Users" charts span 100% of the screen width, maximizing the X-axis for viewing years of dense historical data.
 - **Interactive Zoom & Pan:** Integrated with `chartjs-plugin-zoom`. Use your mouse wheel (or pinch gesture) to zoom deep into specific months or days, and click-and-drag to pan across the timeline.
+- **Exports and Trend Smoothing:** Export the selected chart range as CSV or PNG and optionally show a trailing seven-day moving average.
+- **Archive Freshness:** The header reports the newest date stored in `historicalData.js`; its reload button reloads the local archive without pretending to fetch live data.
 - **Aesthetics:** A stunning dark-mode layout with a deep background (`#121420`), glassmorphism effects (`backdrop-filter: blur`), and glowing gradient chart lines.
 
 ### ⚙️ Architecture & Permanent Data Archival
@@ -23,9 +27,9 @@ To ensure maximum speed and resilience against API outages, this dashboard does 
 
 Since this is built with Vanilla HTML/JS/CSS, no complex build steps (like Webpack or Vite) are required!
 
-1. Open your terminal and navigate to the directory:
+1. Open your terminal and navigate to your repository checkout:
    ```bash
-   cd /Users/jeremylichtman/Documents/antigravity/eager-bardeen
+   cd /path/to/eager-bardeen
    ```
 2. Start a simple local HTTP server:
    ```bash
@@ -34,6 +38,20 @@ Since this is built with Vanilla HTML/JS/CSS, no complex build steps (like Webpa
 3. Open your browser and navigate to [http://localhost:8000](http://localhost:8000).
 
 *(Alternatively, you can just double-click `index.html` in your file explorer to open it directly in a browser, though running a local server is recommended to prevent strict CORS/file protocol restrictions in some browsers).*
+
+---
+
+## ✅ How to Test
+
+Run syntax validation and the regression suite:
+
+```bash
+node --check script.js
+node --check updateData.js
+node --test script.test.js
+```
+
+The regression suite covers date-only timezone handling, trailing moving averages, range filtering, previous-period selection, and CSV generation.
 
 ---
 

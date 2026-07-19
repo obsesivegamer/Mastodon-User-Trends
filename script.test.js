@@ -1,0 +1,71 @@
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const { spawnSync } = require('node:child_process');
+
+const {
+    buildChartCSV,
+    calculateMovingAverage,
+    calculatePeriodComparison,
+    filterDataByRange,
+    parseArchiveDate,
+    processData
+} = require('./script.js');
+
+test('date-only archive values remain on the same local calendar date', () => {
+    const date = parseArchiveDate('2026-07-19');
+    assert.equal(date.getFullYear(), 2026);
+    assert.equal(date.getMonth(), 6);
+    assert.equal(date.getDate(), 19);
+});
+
+test('moving average is trailing and starts after seven records', () => {
+    const data = Array.from({ length: 8 }, (_, index) => ({ total: index + 1 }));
+    assert.deepEqual(
+        calculateMovingAverage(data, 'total'),
+        [null, null, null, null, null, null, 4, 5]
+    );
+});
+
+test('range filtering returns only the selected period', () => {
+    const data = [
+        { date: '2025-01-01', total: 1, active: 1 },
+        { date: '2026-06-20', total: 2, active: 2 },
+        { date: '2026-07-19', total: 3, active: 3 }
+    ];
+    assert.deepEqual(filterDataByRange('1M', data), data.slice(1));
+});
+
+test('period comparison uses observations immediately before the current range', () => {
+    const data = Array.from({ length: 22 }, (_, index) => ({
+        date: `2026-07-${String(index + 1).padStart(2, '0')}`,
+        total: 100 + index,
+        active: 50 + index
+    }));
+    const comparison = calculatePeriodComparison('1W', data);
+    assert.ok(comparison);
+    assert.equal(comparison.raw.at(-1).date, '2026-07-14');
+    assert.equal(processData(filterDataByRange('1W', data)).raw[0].date, '2026-07-15');
+});
+
+test('CSV generation contains only the supplied filtered rows', () => {
+    const csv = buildChartCSV([
+        { date: '2026-07-18', total: 100, active: 50 },
+        { date: '2026-07-19', total: 110, active: 55 }
+    ], true);
+    assert.equal(
+        csv,
+        'Date,Total Users\n2026-07-18,100\n2026-07-19,110'
+    );
+});
+
+test('data updater exits unsuccessfully when the API returns no usable records', () => {
+    const result = spawnSync(process.execPath, [
+        '-e',
+        "global.fetch=async()=>({ok:true,json:async()=>[]});require('./updateData.js')"
+    ], {
+        cwd: __dirname,
+        encoding: 'utf8'
+    });
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /No valid data received from API/);
+});

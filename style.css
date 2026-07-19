@@ -267,6 +267,12 @@ body {
 .trend.up { color: #50fa7b; }
 .trend.down { color: #ff5555; }
 
+.comparison {
+    color: var(--accent-secondary);
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+}
+
 /* Time Scale Selector */
 .time-scale-selector {
     display: flex;
