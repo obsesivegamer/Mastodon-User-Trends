@@ -205,6 +205,21 @@ const setStatus = (mode) => {
     }
 };
 
+const setLastUpdated = (dataArray) => {
+    const lastUpdatedEl = document.getElementById('last-updated');
+    if (!lastUpdatedEl || dataArray.length === 0) return;
+
+    const latest = dataArray[dataArray.length - 1];
+    const latestDate = new Date(latest.date);
+    const formatted = latestDate.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+    });
+
+    lastUpdatedEl.textContent = `Last updated: ${formatted}`;
+};
+
 const MAX_YEAR_BUTTONS = 6;
 
 const buildYearRangeButtons = () => {
@@ -314,6 +329,7 @@ const initDashboard = () => {
         buildYearRangeButtons();
         applyFilter('ALL');
         setStatus('archive');
+        setLastUpdated(historicalData);
         
         // Setup Event Listeners for Time Scale Buttons
         document.querySelectorAll('.time-btn').forEach(btn => {
