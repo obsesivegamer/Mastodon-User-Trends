@@ -66,6 +66,11 @@ const updateMetrics = (data, periodLabel = 'All Time') => {
     const totalTrend = calcTrend(latest.total, previous.total);
     const activeTrend = calcTrend(latest.active, previous.active);
 
+    // Calculate net new users (total growth in selected period)
+    const newUsersDiff = latest.total - previous.total;
+    const newUsersPct = previous.total > 0 ? (newUsersDiff / previous.total) * 100 : 0;
+    const newUsersTrend = { diff: newUsersDiff, pct: newUsersPct };
+
     const formatTrendText = (trend) => {
         const sign = trend.diff >= 0 ? '+' : '';
         const arrow = trend.diff >= 0 ? '▲' : '▼';
@@ -79,6 +84,14 @@ const updateMetrics = (data, periodLabel = 'All Time') => {
     const activeTrendEl = document.getElementById('trend-active');
     activeTrendEl.textContent = formatTrendText(activeTrend);
     activeTrendEl.className = activeTrend.diff >= 0 ? 'trend up' : 'trend down';
+
+    // Update net new users metric
+    const newUsersEl = document.getElementById('val-new-users');
+    newUsersEl.textContent = formatNumber(newUsersDiff);
+    
+    const newUsersTrendEl = document.getElementById('trend-new-users');
+    newUsersTrendEl.textContent = formatTrendText(newUsersTrend);
+    newUsersTrendEl.className = newUsersTrend.diff >= 0 ? 'trend up' : 'trend down';
 };
 
 // Render Chart
