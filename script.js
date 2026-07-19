@@ -324,10 +324,9 @@ const initDashboard = () => {
         applyFilter('ALL');
         setStatus('archive');
         
-        const resetZoomBtn = document.getElementById('resetZoomBtn');
-        if (resetZoomBtn) {
-            resetZoomBtn.addEventListener('click', resetChartZoom);
-        }
+        document.querySelectorAll('.reset-zoom-btn').forEach(btn => {
+            btn.addEventListener('click', resetChartZoom);
+        });
 
         // Setup Event Listeners for Time Scale Buttons
         document.querySelectorAll('.time-btn').forEach(btn => {
