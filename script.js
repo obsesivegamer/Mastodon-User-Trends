@@ -4,6 +4,18 @@
 const API_URL = "https://api.joinmastodon.org/statistics";
 let totalChartInstance = null;
 let activeChartInstance = null;
+let showMovingAverage = false;
+let showComparison = false;
+let selectedRange = 'ALL';
+
+const parseArchiveDate = (value) => {
+    const dateOnlyMatch = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+    if (dateOnlyMatch) {
+        const [, year, month, day] = dateOnlyMatch;
+        return new Date(Number(year), Number(month) - 1, Number(day));
+    }
+    return new Date(value);
+};
 
 // Format numbers
 const formatNumber = (num) => {
@@ -12,25 +24,55 @@ const formatNumber = (num) => {
     return num.toLocaleString();
 };
 
+// Calculate 7-day moving average
+const calculateMovingAverage = (dataArray, key, window = 7) => {
+    return dataArray.map((_, index) => {
+        if (index < window - 1) return null;
+        const slice = dataArray.slice(index - window + 1, index + 1);
+        const sum = slice.reduce((acc, item) => acc + item[key], 0);
+        return Math.round(sum / window);
+    });
+};
+
 // Process Data
 const processData = (dataArray) => {
     // Sort chronologically
-    const sortedData = [...dataArray].sort((a, b) => new Date(a.date) - new Date(b.date));
-    
+    const sortedData = [...dataArray].sort((a, b) => parseArchiveDate(a.date) - parseArchiveDate(b.date));
+
     const labels = sortedData.map(d => {
-        const dateObj = new Date(d.date);
+        const dateObj = parseArchiveDate(d.date);
         return dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' });
     });
     const totalUsers = sortedData.map(d => d.total);
     const activeUsers = sortedData.map(d => d.active);
 
-    return { labels, totalUsers, activeUsers, raw: sortedData };
+    // Calculate 7-day moving averages
+    const totalMA = calculateMovingAverage(sortedData, 'total');
+    const activeMA = calculateMovingAverage(sortedData, 'active');
+
+    return { labels, totalUsers, activeUsers, totalMA, activeMA, raw: sortedData };
 };
 
 // Update DOM Metrics
-const updateMetrics = (data, periodLabel = 'All Time') => {
+const calculatePeriodComparison = (range, dataArray) => {
+    if (range === 'ALL') return null;
+
+    const current = filterDataByRange(range, dataArray);
+    if (current.length < 2) return null;
+
+    const currentStartIndex = dataArray.findIndex(item => item === current[0]);
+    if (currentStartIndex <= 0) return null;
+
+    const previous = dataArray.slice(
+        Math.max(0, currentStartIndex - current.length),
+        currentStartIndex
+    );
+    return previous.length >= 2 ? processData(previous) : null;
+};
+
+const updateMetrics = (data, periodLabel = 'All Time', comparisonData = null) => {
     if (data.raw.length === 0) return;
-    
+
     const latest = data.raw[data.raw.length - 1];
     const previous = data.raw[0]; // Compare against the start of the selected period
 
@@ -49,6 +91,11 @@ const updateMetrics = (data, periodLabel = 'All Time') => {
     const totalTrend = calcTrend(latest.total, previous.total);
     const activeTrend = calcTrend(latest.active, previous.active);
 
+    // Net user growth is the change in total users, including additions and removals.
+    const netGrowthDiff = latest.total - previous.total;
+    const netGrowthPct = previous.total > 0 ? (netGrowthDiff / previous.total) * 100 : 0;
+    const netGrowthTrend = { diff: netGrowthDiff, pct: netGrowthPct };
+
     const formatTrendText = (trend) => {
         const sign = trend.diff >= 0 ? '+' : '';
         const arrow = trend.diff >= 0 ? '▲' : '▼';
@@ -62,13 +109,47 @@ const updateMetrics = (data, periodLabel = 'All Time') => {
     const activeTrendEl = document.getElementById('trend-active');
     activeTrendEl.textContent = formatTrendText(activeTrend);
     activeTrendEl.className = activeTrend.diff >= 0 ? 'trend up' : 'trend down';
+
+    const netGrowthEl = document.getElementById('val-net-growth');
+    netGrowthEl.textContent = formatNumber(netGrowthDiff);
+
+    const netGrowthTrendEl = document.getElementById('trend-net-growth');
+    netGrowthTrendEl.textContent = formatTrendText(netGrowthTrend);
+    netGrowthTrendEl.className = netGrowthTrend.diff >= 0 ? 'trend up' : 'trend down';
+
+    const comparisonElements = {
+        total: document.getElementById('comparison-total'),
+        active: document.getElementById('comparison-active'),
+        net: document.getElementById('comparison-net-growth')
+    };
+
+    Object.values(comparisonElements).forEach(element => {
+        if (element) element.hidden = !showComparison;
+    });
+
+    if (!showComparison) return;
+    if (!comparisonData || comparisonData.raw.length < 2) {
+        Object.values(comparisonElements).forEach(element => {
+            if (element) element.textContent = 'Previous period unavailable';
+        });
+        return;
+    }
+
+    const priorFirst = comparisonData.raw[0];
+    const priorLast = comparisonData.raw[comparisonData.raw.length - 1];
+    const priorTotalTrend = calcTrend(priorLast.total, priorFirst.total);
+    const priorActiveTrend = calcTrend(priorLast.active, priorFirst.active);
+
+    comparisonElements.total.textContent = `Previous period: ${formatTrendText(priorTotalTrend)}`;
+    comparisonElements.active.textContent = `Previous period: ${formatTrendText(priorActiveTrend)}`;
+    comparisonElements.net.textContent = `Previous period net growth: ${formatNumber(priorTotalTrend.diff)}`;
 };
 
 // Render Chart
 const renderChart = (data) => {
     const ctxTotal = document.getElementById('totalChart').getContext('2d');
     const ctxActive = document.getElementById('activeChart').getContext('2d');
-    
+
     // Destroy existing charts if updating
     if (totalChartInstance) totalChartInstance.destroy();
     if (activeChartInstance) activeChartInstance.destroy();
@@ -147,20 +228,34 @@ const renderChart = (data) => {
         type: 'line',
         data: {
             labels: data.labels,
-            datasets: [{
-                label: 'Total Users',
-                data: data.totalUsers,
-                borderColor: colorPrimary,
-                backgroundColor: gradientTotal,
-                borderWidth: 3,
-                pointBackgroundColor: '#121420',
-                pointBorderColor: colorPrimary,
-                pointBorderWidth: 2,
-                pointRadius: 4,
-                pointHoverRadius: 6,
-                fill: true,
-                tension: 0.4
-            }]
+            datasets: [
+                {
+                    label: 'Total Users',
+                    data: data.totalUsers,
+                    borderColor: colorPrimary,
+                    backgroundColor: gradientTotal,
+                    borderWidth: 3,
+                    pointBackgroundColor: '#121420',
+                    pointBorderColor: colorPrimary,
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    fill: true,
+                    tension: 0.4
+                },
+                ...(showMovingAverage ? [{
+                    label: '7-Day Moving Average',
+                    data: data.totalMA,
+                    borderColor: 'rgba(178, 102, 255, 0.5)',
+                    backgroundColor: 'transparent',
+                    borderWidth: 2,
+                    borderDash: [5, 5],
+                    pointRadius: 0,
+                    pointHoverRadius: 0,
+                    fill: false,
+                    tension: 0.4
+                }] : [])
+            ]
         },
         options: commonOptions
     });
@@ -169,20 +264,34 @@ const renderChart = (data) => {
         type: 'line',
         data: {
             labels: data.labels,
-            datasets: [{
-                label: 'Active Users',
-                data: data.activeUsers,
-                borderColor: colorSecondary,
-                backgroundColor: gradientActive,
-                borderWidth: 3,
-                pointBackgroundColor: '#121420',
-                pointBorderColor: colorSecondary,
-                pointBorderWidth: 2,
-                pointRadius: 4,
-                pointHoverRadius: 6,
-                fill: true,
-                tension: 0.4
-            }]
+            datasets: [
+                {
+                    label: 'Active Users',
+                    data: data.activeUsers,
+                    borderColor: colorSecondary,
+                    backgroundColor: gradientActive,
+                    borderWidth: 3,
+                    pointBackgroundColor: '#121420',
+                    pointBorderColor: colorSecondary,
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    fill: true,
+                    tension: 0.4
+                },
+                ...(showMovingAverage ? [{
+                    label: '7-Day Moving Average',
+                    data: data.activeMA,
+                    borderColor: 'rgba(51, 204, 255, 0.5)',
+                    backgroundColor: 'transparent',
+                    borderWidth: 2,
+                    borderDash: [5, 5],
+                    pointRadius: 0,
+                    pointHoverRadius: 0,
+                    fill: false,
+                    tension: 0.4
+                }] : [])
+            ]
         },
         options: commonOptions
     });
@@ -192,7 +301,7 @@ const renderChart = (data) => {
 const setStatus = (mode) => {
     const statusEl = document.getElementById('data-status');
     const container = statusEl.parentElement;
-    
+
     if (mode === 'live') {
         statusEl.textContent = 'Live Data Connected';
         container.className = 'status-indicator live';
@@ -203,6 +312,34 @@ const setStatus = (mode) => {
         statusEl.textContent = 'Archived Data Loaded';
         container.className = 'status-indicator archive';
     }
+};
+
+const formatTimestamp = (date) => {
+    const now = new Date();
+    const diffMs = now - date;
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMins < 1) return 'just now';
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    if (diffDays < 30) return `${diffDays}d ago`;
+
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+};
+
+const updateLastUpdatedDisplay = () => {
+    const timeEl = document.getElementById('last-updated-time');
+    if (!timeEl || !historicalData || historicalData.length === 0) return;
+
+    const newestRecord = [...historicalData]
+        .sort((a, b) => parseArchiveDate(a.date) - parseArchiveDate(b.date))
+        .at(-1);
+    const archiveTimestamp = parseArchiveDate(newestRecord.date);
+
+    timeEl.textContent = formatTimestamp(archiveTimestamp);
+    timeEl.title = `Newest archive record: ${archiveTimestamp.toLocaleDateString()}`;
 };
 
 const resetChartZoom = () => {
@@ -221,8 +358,8 @@ const buildYearRangeButtons = () => {
     if (!container || !historicalData || historicalData.length === 0) return;
     container.innerHTML = '';
 
-    const earliest = new Date(historicalData[0].date);
-    const latest = new Date(historicalData[historicalData.length - 1].date);
+    const earliest = parseArchiveDate(historicalData[0].date);
+    const latest = parseArchiveDate(historicalData[historicalData.length - 1].date);
     const yearRanges = [];
     let year = 1;
 
@@ -273,7 +410,7 @@ const buildYearRangeButtons = () => {
 const filterDataByRange = (range, dataArray) => {
     if (range === 'ALL' || dataArray.length === 0) return dataArray;
 
-    const latest = new Date(dataArray[dataArray.length - 1].date);
+    const latest = parseArchiveDate(dataArray[dataArray.length - 1].date);
     let cutoff = new Date(latest);
 
     if (range === '1W') cutoff.setDate(cutoff.getDate() - 7);
@@ -286,7 +423,7 @@ const filterDataByRange = (range, dataArray) => {
         cutoff.setFullYear(cutoff.getFullYear() - years);
     }
 
-    return dataArray.filter(d => new Date(d.date) >= cutoff);
+    return dataArray.filter(d => parseArchiveDate(d.date) >= cutoff);
 };
 
 const getRangeLabel = (range) => {
@@ -305,12 +442,66 @@ const getRangeLabel = (range) => {
     return labels[range] || 'All Time';
 };
 
+const updateRangeLabel = (label) => {
+    const labelEl = document.getElementById('selected-range-label');
+    if (labelEl) {
+        labelEl.textContent = label;
+    }
+};
+
+const exportChartAsPNG = (canvasId, chartName) => {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) {
+        console.error('Canvas not found:', canvasId);
+        return;
+    }
+
+    const link = document.createElement('a');
+    link.href = canvas.toDataURL('image/png');
+    link.download = `${chartName}-${new Date().toISOString().split('T')[0]}.png`;
+    link.click();
+};
+
+const buildChartCSV = (dataArray, isTotal) => {
+    const dataType = isTotal ? 'total' : 'active';
+    const header = `Date,${isTotal ? 'Total Users' : 'Active Users'}\n`;
+    const rows = dataArray
+        .map(d => `${d.date},${d[dataType]}`)
+        .join('\n');
+    return header + rows;
+};
+
+const exportChartAsCSV = (chartName, isTotal) => {
+    if (!historicalData || historicalData.length === 0) {
+        console.error('No data to export');
+        return;
+    }
+
+    const filteredData = filterDataByRange(selectedRange, historicalData);
+    const csv = buildChartCSV(filteredData, isTotal);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${chartName}-${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+};
+
 const applyFilter = (range) => {
+    selectedRange = range;
     const filtered = filterDataByRange(range, historicalData);
     const processed = processData(filtered);
+    const rangeLabel = getRangeLabel(range);
+    const comparisonData = showComparison
+        ? calculatePeriodComparison(range, historicalData)
+        : null;
     
-    updateMetrics(processed, getRangeLabel(range));
+    updateMetrics(processed, rangeLabel, comparisonData);
     renderChart(processed);
+    updateRangeLabel(rangeLabel);
 };
 
 // Main Init Function
@@ -320,6 +511,7 @@ const initDashboard = () => {
             throw new Error("No historical data found.");
         }
         
+        updateLastUpdatedDisplay();
         buildYearRangeButtons();
         applyFilter('ALL');
         setStatus('archive');
@@ -328,11 +520,65 @@ const initDashboard = () => {
             btn.addEventListener('click', resetChartZoom);
         });
 
+        // Setup refresh button
+        const refreshBtn = document.getElementById('refresh-data-btn');
+        if (refreshBtn) {
+            refreshBtn.addEventListener('click', () => {
+                refreshBtn.classList.add('refreshing');
+                refreshBtn.disabled = true;
+                window.location.reload();
+            });
+        }
+
+        // Setup export buttons
+        document.querySelectorAll('.export-png-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const chartId = e.target.dataset.chart;
+                const chartName = chartId === 'totalChart' ? 'total-users' : 'active-users';
+                exportChartAsPNG(chartId, chartName);
+            });
+        });
+
+        document.querySelectorAll('.export-csv-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const chartId = e.target.dataset.chart;
+                const chartName = chartId === 'totalChart' ? 'total-users' : 'active-users';
+                const isTotal = chartId === 'totalChart';
+                exportChartAsCSV(chartName, isTotal);
+            });
+        });
+
+        // Setup moving average toggle
+        document.querySelectorAll('.toggle-ma-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                showMovingAverage = !showMovingAverage;
+                document.querySelectorAll('.toggle-ma-btn').forEach(toggle => {
+                    toggle.classList.toggle('active', showMovingAverage);
+                    toggle.setAttribute('aria-pressed', String(showMovingAverage));
+                });
+
+                applyFilter(selectedRange);
+            });
+        });
+
+        // Setup comparison toggle
+        const compareBtn = document.querySelector('.compare-toggle-btn');
+        if (compareBtn) {
+            compareBtn.addEventListener('click', () => {
+                showComparison = !showComparison;
+                compareBtn.classList.toggle('active', showComparison);
+                compareBtn.setAttribute('aria-pressed', String(showComparison));
+                applyFilter(selectedRange);
+            });
+        }
+
         // Setup Event Listeners for Time Scale Buttons
         document.querySelectorAll('.time-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
                 e.target.classList.add('active');
+                const yearSelect = document.querySelector('.year-range-select');
+                if (yearSelect) yearSelect.selectedIndex = 0;
                 applyFilter(e.target.dataset.range);
             });
         });
@@ -353,4 +599,19 @@ const initDashboard = () => {
 };
 
 // Start
-document.addEventListener('DOMContentLoaded', initDashboard);
+if (typeof document !== 'undefined') {
+    document.addEventListener('DOMContentLoaded', initDashboard);
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        buildChartCSV,
+        calculateMovingAverage,
+        calculatePeriodComparison,
+        filterDataByRange,
+        formatTimestamp,
+        getRangeLabel,
+        parseArchiveDate,
+        processData
+    };
+}

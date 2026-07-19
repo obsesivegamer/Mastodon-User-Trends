@@ -25,21 +25,36 @@
                 <h1>Mastodon <span>Network Pulse</span></h1>
                 <p>Tracking the growth of the decentralized web.</p>
             </div>
-            <div class="status-indicator">
-                <div class="status-dot"></div>
-                <span id="data-status">Connecting...</span>
+            <div class="header-right">
+                <div class="status-indicator">
+                    <div class="status-dot"></div>
+                    <span id="data-status">Connecting...</span>
+                </div>
+                <div class="last-updated-badge">
+                    <span class="update-label">Last Updated:</span>
+                    <span id="last-updated-time">--</span>
+                    <button id="refresh-data-btn" class="refresh-btn" title="Reload the latest local archive" aria-label="Reload the latest local archive">↻</button>
+                </div>
             </div>
         </header>
 
         <main class="dashboard-grid">
             <!-- Time Scale Selector -->
             <div class="time-scale-selector glass-panel">
-                <button class="time-btn" data-range="1W">1W</button>
-                <button class="time-btn" data-range="1M">1M</button>
-                <button class="time-btn" data-range="6M">6M</button>
-                <button class="time-btn" data-range="YTD">YTD</button>
-                <div id="year-range-container" class="year-range-container"></div>
-                <button class="time-btn active" data-range="ALL">ALL</button>
+                <div class="selector-content">
+                    <div class="buttons-group">
+                        <button class="time-btn" data-range="1W">1W</button>
+                        <button class="time-btn" data-range="1M">1M</button>
+                        <button class="time-btn" data-range="6M">6M</button>
+                        <button class="time-btn" data-range="YTD">YTD</button>
+                        <div id="year-range-container" class="year-range-container"></div>
+                        <button class="time-btn active" data-range="ALL">ALL</button>
+                    </div>
+                    <div class="range-label-container">
+                        <span class="range-label">Viewing: <span id="selected-range-label">All Time</span></span>
+                        <button class="control-btn compare-toggle-btn" title="Toggle period comparison" aria-pressed="false">🔄 Compare</button>
+                    </div>
+                </div>
             </div>
 
             <!-- Key Metrics Cards -->
@@ -48,11 +63,19 @@
                     <h3>Total Users</h3>
                     <div class="value" id="val-total-users">--</div>
                     <div class="trend" id="trend-total">--</div>
+                    <div class="comparison" id="comparison-total" hidden></div>
                 </div>
                 <div class="metric-card glass-panel" id="card-active">
                     <h3>Active Users</h3>
                     <div class="value" id="val-active-users">--</div>
                     <div class="trend" id="trend-active">--</div>
+                    <div class="comparison" id="comparison-active" hidden></div>
+                </div>
+                <div class="metric-card glass-panel" id="card-net-growth">
+                    <h3>Net User Growth</h3>
+                    <div class="value" id="val-net-growth">--</div>
+                    <div class="trend" id="trend-net-growth">--</div>
+                    <div class="comparison" id="comparison-net-growth" hidden></div>
                 </div>
             </section>
 
@@ -62,6 +85,9 @@
                     <div class="chart-header">
                         <h2>Total Users Over Time</h2>
                         <div class="chart-actions">
+                            <button class="control-btn toggle-ma-btn" title="Toggle trailing 7-day moving average" aria-pressed="false">📈 MA</button>
+                            <button class="control-btn export-png-btn" data-chart="totalChart" title="Export as PNG">📥 PNG</button>
+                            <button class="control-btn export-csv-btn" data-chart="totalChart" title="Export data as CSV">📥 CSV</button>
                             <button class="control-btn reset-zoom-btn">Reset Zoom</button>
                         </div>
                     </div>
@@ -73,6 +99,9 @@
                     <div class="chart-header">
                         <h2>Active Users Over Time</h2>
                         <div class="chart-actions">
+                            <button class="control-btn toggle-ma-btn" title="Toggle trailing 7-day moving average" aria-pressed="false">📈 MA</button>
+                            <button class="control-btn export-png-btn" data-chart="activeChart" title="Export as PNG">📥 PNG</button>
+                            <button class="control-btn export-csv-btn" data-chart="activeChart" title="Export data as CSV">📥 CSV</button>
                             <button class="control-btn reset-zoom-btn">Reset Zoom</button>
                         </div>
                     </div>

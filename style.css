@@ -161,10 +161,75 @@ body {
     100% { box-shadow: 0 0 0 0 rgba(80, 250, 123, 0); }
 }
 
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+/* Last Updated Badge */
+.last-updated-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 0.75rem 1.5rem;
+    border-radius: 30px;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.update-label {
+    color: var(--text-muted);
+}
+
+#last-updated-time {
+    color: var(--accent-secondary);
+    font-weight: 700;
+    min-width: 150px;
+}
+
+.refresh-btn {
+    background: transparent;
+    border: 1px solid var(--accent-secondary);
+    color: var(--accent-secondary);
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    margin-left: 0.5rem;
+}
+
+.refresh-btn:hover {
+    background: rgba(51, 204, 255, 0.15);
+    transform: scale(1.1);
+}
+
+.refresh-btn:active {
+    transform: scale(0.95);
+}
+
+.refresh-btn.refreshing {
+    animation: spin 1s linear infinite;
+}
+
 /* Metrics Row */
 .metrics-row {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
     gap: 2rem;
 }
 
@@ -202,17 +267,59 @@ body {
 .trend.up { color: #50fa7b; }
 .trend.down { color: #ff5555; }
 
+.comparison {
+    color: var(--accent-secondary);
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+}
+
 /* Time Scale Selector */
 .time-scale-selector {
     display: flex;
     justify-content: center;
-    gap: 0.5rem;
-    padding: 0.5rem;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1rem;
     margin: 0 auto 2rem auto;
     border-radius: 30px;
     width: 100%;
     max-width: 100%;
     flex-wrap: wrap;
+}
+
+.selector-content {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.buttons-group {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+}
+
+.range-label-container {
+    display: flex;
+    align-items: center;
+    min-height: 40px;
+}
+
+.range-label {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+}
+
+#selected-range-label {
+    color: var(--accent-secondary);
+    font-weight: 700;
 }
 
 .year-range-container {
