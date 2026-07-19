@@ -205,6 +205,15 @@ const setStatus = (mode) => {
     }
 };
 
+const resetChartZoom = () => {
+    if (totalChartInstance && typeof totalChartInstance.resetZoom === 'function') {
+        totalChartInstance.resetZoom();
+    }
+    if (activeChartInstance && typeof activeChartInstance.resetZoom === 'function') {
+        activeChartInstance.resetZoom();
+    }
+};
+
 const MAX_YEAR_BUTTONS = 6;
 
 const buildYearRangeButtons = () => {
@@ -315,6 +324,10 @@ const initDashboard = () => {
         applyFilter('ALL');
         setStatus('archive');
         
+        document.querySelectorAll('.reset-zoom-btn').forEach(btn => {
+            btn.addEventListener('click', resetChartZoom);
+        });
+
         // Setup Event Listeners for Time Scale Buttons
         document.querySelectorAll('.time-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
