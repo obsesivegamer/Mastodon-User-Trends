@@ -341,6 +341,39 @@ const updateRangeLabel = (label) => {
     }
 };
 
+const exportChartAsPNG = (canvasId, chartName) => {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) {
+        console.error('Canvas not found:', canvasId);
+        return;
+    }
+    
+    const link = document.createElement('a');
+    link.href = canvas.toDataURL('image/png');
+    link.download = `${chartName}-${new Date().toISOString().split('T')[0]}.png`;
+    link.click();
+};
+
+const exportChartAsCSV = (chartName, isTotal) => {
+    if (!historicalData || historicalData.length === 0) {
+        console.error('No data to export');
+        return;
+    }
+    
+    const dataType = isTotal ? 'total' : 'active';
+    const header = `Date,${isTotal ? 'Total Users' : 'Active Users'}\n`;
+    const rows = historicalData
+        .map(d => `${d.date},${d[dataType]}`)
+        .join('\n');
+    
+    const csv = header + rows;
+    
+    const link = document.createElement('a');
+    link.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+    link.download = `${chartName}-${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+};
+
 const applyFilter = (range) => {
     const filtered = filterDataByRange(range, historicalData);
     const processed = processData(filtered);
@@ -382,6 +415,24 @@ const initDashboard = () => {
                 }, 500);
             });
         }
+
+        // Setup export buttons
+        document.querySelectorAll('.export-png-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const chartId = e.target.dataset.chart;
+                const chartName = chartId === 'totalChart' ? 'total-users' : 'active-users';
+                exportChartAsPNG(chartId, chartName);
+            });
+        });
+
+        document.querySelectorAll('.export-csv-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const chartId = e.target.dataset.chart;
+                const chartName = chartId === 'totalChart' ? 'total-users' : 'active-users';
+                const isTotal = chartId === 'totalChart';
+                exportChartAsCSV(chartName, isTotal);
+            });
+        });
 
         // Setup Event Listeners for Time Scale Buttons
         document.querySelectorAll('.time-btn').forEach(btn => {
