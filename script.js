@@ -45,11 +45,11 @@ const processData = (fullDataArray, range = 'ALL') => {
 
     // Filter to selected range
     const filteredData = filterDataByRange(range, sortedData);
-    
+
     // Slice the MAs to match the filtered range
     const startIndex = filteredData.length > 0 ? sortedData.indexOf(filteredData[0]) : 0;
     const endIndex = filteredData.length > 0 ? startIndex + filteredData.length : 0;
-    
+
     const filteredTotalMA = totalMA.slice(startIndex, endIndex);
     const filteredActiveMA = activeMA.slice(startIndex, endIndex);
 
@@ -60,13 +60,13 @@ const processData = (fullDataArray, range = 'ALL') => {
     const totalUsers = filteredData.map(d => d.total);
     const activeUsers = filteredData.map(d => d.active);
 
-    return { 
-        labels, 
-        totalUsers, 
-        activeUsers, 
-        totalMA: filteredTotalMA, 
-        activeMA: filteredActiveMA, 
-        raw: filteredData 
+    return {
+        labels,
+        totalUsers,
+        activeUsers,
+        totalMA: filteredTotalMA,
+        activeMA: filteredActiveMA,
+        raw: filteredData
     };
 };
 
@@ -227,7 +227,7 @@ const renderChart = (data) => {
         scales: {
             x: {
                 grid: { color: gridColor, drawBorder: false },
-                ticks: { 
+                ticks: {
                     maxTicksLimit: 10,
                     maxRotation: 45,
                     minRotation: 45,
@@ -334,7 +334,7 @@ const setStatus = (mode) => {
 const formatTimestamp = (dateStr) => {
     const isDateOnly = /^(\d{4})-(\d{2})-(\d{2})$/.test(dateStr);
     const date = parseArchiveDate(dateStr);
-    
+
     if (isDateOnly) {
         return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
     }
@@ -353,6 +353,15 @@ const formatTimestamp = (dateStr) => {
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 };
 
+const formatTooltip = (dateStr) => {
+    const isDateOnly = /^(\d{4})-(\d{2})-(\d{2})$/.test(dateStr);
+    const date = parseArchiveDate(dateStr);
+    if (isDateOnly) {
+        return `Newest archive record: ${date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+    }
+    return `Newest archive record: ${date.toLocaleString()}`;
+};
+
 const updateLastUpdatedDisplay = () => {
     const timeEl = document.getElementById('last-updated-time');
     if (!timeEl || !historicalData || historicalData.length === 0) return;
@@ -360,10 +369,9 @@ const updateLastUpdatedDisplay = () => {
     const newestRecord = [...historicalData]
         .sort((a, b) => parseArchiveDate(a.date) - parseArchiveDate(b.date))
         .at(-1);
-    const archiveTimestamp = parseArchiveDate(newestRecord.date);
 
     timeEl.textContent = formatTimestamp(newestRecord.date);
-    timeEl.title = `Newest archive record: ${archiveTimestamp.toLocaleString()}`;
+    timeEl.title = formatTooltip(newestRecord.date);
 };
 
 const resetChartZoom = () => {
@@ -521,7 +529,7 @@ const applyFilter = (range) => {
     const comparisonData = showComparison
         ? calculatePeriodComparison(range, historicalData)
         : null;
-    
+
     updateMetrics(processed, rangeLabel, comparisonData);
     renderChart(processed);
     updateRangeLabel(rangeLabel);
@@ -533,12 +541,12 @@ const initDashboard = () => {
         if (!historicalData || historicalData.length === 0) {
             throw new Error("No historical data found.");
         }
-        
+
         updateLastUpdatedDisplay();
         buildYearRangeButtons();
         applyFilter('ALL');
         setStatus('archive');
-        
+
         document.querySelectorAll('.reset-zoom-btn').forEach(btn => {
             btn.addEventListener('click', resetChartZoom);
         });
@@ -613,7 +621,7 @@ const initDashboard = () => {
                 applyFilter(e.target.value);
             });
         }
-        
+
     } catch (error) {
         console.error("Failed to load dashboard data.", error);
         document.getElementById('data-status').textContent = 'Data Error';
@@ -633,6 +641,7 @@ if (typeof module !== 'undefined' && module.exports) {
         calculatePeriodComparison,
         filterDataByRange,
         formatTimestamp,
+        formatTooltip,
         getRangeLabel,
         parseArchiveDate,
         processData

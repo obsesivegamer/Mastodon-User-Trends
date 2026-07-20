@@ -32,23 +32,25 @@ test('moving average retains context outside visual range when filtered', () => 
         total: 10,
         active: 10
     }));
-    
+
     // Test 1W filter (last 7 days of the 14). It should have MA context from the first 7.
     const processed = processData(data, '1W');
     assert.equal(processed.raw.length, 8);
-    
+
     // The MA for the first item in the filtered range should NOT be null, since it has 7 prior days in the full dataset
     assert.equal(processed.totalMA[0], 10);
 });
 
 test('formatTimestamp distinguishes date-only and relative phrasing', () => {
-    const { formatTimestamp } = require('./script.js');
+    const { formatTimestamp, formatTooltip } = require('./script.js');
     // Date only
     assert.match(formatTimestamp('2026-07-19'), /Jul 19, 2026/);
-    
+    assert.equal(formatTooltip('2026-07-19'), 'Newest archive record: Jul 19, 2026');
+
     // Relative (will be 'just now' since diff is ~0 ms)
     const nowStr = new Date().toISOString();
     assert.equal(formatTimestamp(nowStr), 'just now');
+    assert.match(formatTooltip(nowStr), /Newest archive record:.*(AM|PM|:\d{2})/); // Contains time components
 });
 
 test('range filtering returns only the selected period', () => {
