@@ -35,22 +35,39 @@ const calculateMovingAverage = (dataArray, key, window = 7) => {
 };
 
 // Process Data
-const processData = (dataArray) => {
+const processData = (fullDataArray, range = 'ALL') => {
     // Sort chronologically
-    const sortedData = [...dataArray].sort((a, b) => parseArchiveDate(a.date) - parseArchiveDate(b.date));
+    const sortedData = [...fullDataArray].sort((a, b) => parseArchiveDate(a.date) - parseArchiveDate(b.date));
 
-    const labels = sortedData.map(d => {
-        const dateObj = parseArchiveDate(d.date);
-        return dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' });
-    });
-    const totalUsers = sortedData.map(d => d.total);
-    const activeUsers = sortedData.map(d => d.active);
-
-    // Calculate 7-day moving averages
+    // Calculate 7-day moving averages on FULL dataset
     const totalMA = calculateMovingAverage(sortedData, 'total');
     const activeMA = calculateMovingAverage(sortedData, 'active');
 
-    return { labels, totalUsers, activeUsers, totalMA, activeMA, raw: sortedData };
+    // Filter to selected range
+    const filteredData = filterDataByRange(range, sortedData);
+
+    // Slice the MAs to match the filtered range
+    const startIndex = filteredData.length > 0 ? sortedData.indexOf(filteredData[0]) : 0;
+    const endIndex = filteredData.length > 0 ? startIndex + filteredData.length : 0;
+
+    const filteredTotalMA = totalMA.slice(startIndex, endIndex);
+    const filteredActiveMA = activeMA.slice(startIndex, endIndex);
+
+    const labels = filteredData.map(d => {
+        const dateObj = parseArchiveDate(d.date);
+        return dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: '2-digit' });
+    });
+    const totalUsers = filteredData.map(d => d.total);
+    const activeUsers = filteredData.map(d => d.active);
+
+    return {
+        labels,
+        totalUsers,
+        activeUsers,
+        totalMA: filteredTotalMA,
+        activeMA: filteredActiveMA,
+        raw: filteredData
+    };
 };
 
 // Update DOM Metrics
@@ -210,7 +227,7 @@ const renderChart = (data) => {
         scales: {
             x: {
                 grid: { color: gridColor, drawBorder: false },
-                ticks: { 
+                ticks: {
                     maxTicksLimit: 10,
                     maxRotation: 45,
                     minRotation: 45,
@@ -314,7 +331,14 @@ const setStatus = (mode) => {
     }
 };
 
-const formatTimestamp = (date) => {
+const formatTimestamp = (dateStr) => {
+    const isDateOnly = /^(\d{4})-(\d{2})-(\d{2})$/.test(dateStr);
+    const date = parseArchiveDate(dateStr);
+
+    if (isDateOnly) {
+        return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
     const now = new Date();
     const diffMs = now - date;
     const diffMins = Math.floor(diffMs / 60000);
@@ -329,6 +353,15 @@ const formatTimestamp = (date) => {
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 };
 
+const formatTooltip = (dateStr) => {
+    const isDateOnly = /^(\d{4})-(\d{2})-(\d{2})$/.test(dateStr);
+    const date = parseArchiveDate(dateStr);
+    if (isDateOnly) {
+        return `Newest archive record: ${date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+    }
+    return `Newest archive record: ${date.toLocaleString()}`;
+};
+
 const updateLastUpdatedDisplay = () => {
     const timeEl = document.getElementById('last-updated-time');
     if (!timeEl || !historicalData || historicalData.length === 0) return;
@@ -336,10 +369,9 @@ const updateLastUpdatedDisplay = () => {
     const newestRecord = [...historicalData]
         .sort((a, b) => parseArchiveDate(a.date) - parseArchiveDate(b.date))
         .at(-1);
-    const archiveTimestamp = parseArchiveDate(newestRecord.date);
 
-    timeEl.textContent = formatTimestamp(archiveTimestamp);
-    timeEl.title = `Newest archive record: ${archiveTimestamp.toLocaleDateString()}`;
+    timeEl.textContent = formatTimestamp(newestRecord.date);
+    timeEl.title = formatTooltip(newestRecord.date);
 };
 
 const resetChartZoom = () => {
@@ -492,13 +524,12 @@ const exportChartAsCSV = (chartName, isTotal) => {
 
 const applyFilter = (range) => {
     selectedRange = range;
-    const filtered = filterDataByRange(range, historicalData);
-    const processed = processData(filtered);
+    const processed = processData(historicalData, range);
     const rangeLabel = getRangeLabel(range);
     const comparisonData = showComparison
         ? calculatePeriodComparison(range, historicalData)
         : null;
-    
+
     updateMetrics(processed, rangeLabel, comparisonData);
     renderChart(processed);
     updateRangeLabel(rangeLabel);
@@ -510,12 +541,12 @@ const initDashboard = () => {
         if (!historicalData || historicalData.length === 0) {
             throw new Error("No historical data found.");
         }
-        
+
         updateLastUpdatedDisplay();
         buildYearRangeButtons();
         applyFilter('ALL');
         setStatus('archive');
-        
+
         document.querySelectorAll('.reset-zoom-btn').forEach(btn => {
             btn.addEventListener('click', resetChartZoom);
         });
@@ -590,7 +621,7 @@ const initDashboard = () => {
                 applyFilter(e.target.value);
             });
         }
-        
+
     } catch (error) {
         console.error("Failed to load dashboard data.", error);
         document.getElementById('data-status').textContent = 'Data Error';
@@ -610,6 +641,7 @@ if (typeof module !== 'undefined' && module.exports) {
         calculatePeriodComparison,
         filterDataByRange,
         formatTimestamp,
+        formatTooltip,
         getRangeLabel,
         parseArchiveDate,
         processData
