@@ -12,4 +12,17 @@ fi
 echo "Updating Mastodon historical data..."
 node updateData.js
 
+if [[ -n $(git status -s historicalData.js) ]]; then
+  echo "Committing new data to Git..."
+  git add historicalData.js
+  git commit -m "chore: daily data update"
+  
+  echo "Pushing data to GitHub..."
+  # Safely pull any upstream changes first, then push
+  git pull --rebase --autostash || true
+  git push
+else
+  echo "No new data to commit."
+fi
+
 echo "Update complete."
