@@ -150,6 +150,8 @@ test('data updater rejects outlier records with >20% drop', () => {
             encoding: 'utf8'
         });
         assert.match(result.stderr, /Rejected outlier/);
+        assert.equal(result.status, 1, 'Should exit nonzero when all records are rejected');
+        assert.ok(!result.stdout.includes('Successfully merged'), 'Should not log success when all records are rejected');
         const content = fs.readFileSync(tmpFile, 'utf8');
         assert.ok(!content.includes(yesterday), 'Outlier data should have been rejected');
     } finally {

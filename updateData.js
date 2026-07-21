@@ -74,6 +74,15 @@ async function updateData() {
             mappedData = saneData;
         }
 
+        // Post-filter validation: if every API record was rejected by the
+        // today-skip or sanity guards, exit nonzero so updateDaily.sh
+        // (which uses set -e) does not silently commit unchanged data.
+        if (mappedData.length === 0) {
+            console.warn('No new records survived the today-skip and sanity filters. Skipping archive update.');
+            process.exitCode = 1;
+            return;
+        }
+
         // Guard 3: Reverse dedup priority — existing archived values take
         // precedence over newly fetched API values for the same date.
         // This prevents a partial re-fetch from overwriting a previously
