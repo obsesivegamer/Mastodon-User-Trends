@@ -1,6 +1,8 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const { spawnSync } = require('node:child_process');
+const fs = require('node:fs');
+const path = require('node:path');
 
 const {
     buildChartCSV,
@@ -96,6 +98,95 @@ test('data updater exits unsuccessfully when the API returns no usable records',
     });
     assert.equal(result.status, 1);
     assert.match(result.stderr, /No valid data received from API/);
+});
+
+test('data updater skips records matching today UTC date', () => {
+    const todayUTC = new Date().toISOString().split('T')[0];
+    const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+    const apiRecords = [
+        { period: yesterday, user_count: '10000000', active_user_count: '700000' },
+        { period: todayUTC, user_count: '50000', active_user_count: '1000' }
+    ];
+    const tmpFile = path.join(__dirname, '_test_hist_skip.js');
+    try {
+        fs.writeFileSync(tmpFile, 'const historicalData = [];');
+        const script = `
+            global.fetch = async () => ({ ok: true, json: async () => ${JSON.stringify(apiRecords)} });
+            process.env.HIST_FILE_OVERRIDE = ${JSON.stringify(tmpFile)};
+            require('./updateData.js');
+        `;
+        const result = spawnSync(process.execPath, ['-e', script], {
+            cwd: __dirname,
+            encoding: 'utf8'
+        });
+        assert.match(result.stdout, /Skipped 1 record/);
+        const content = fs.readFileSync(tmpFile, 'utf8');
+        assert.ok(!content.includes(todayUTC), 'Today\'s partial data should not be in the archive');
+        assert.ok(content.includes(yesterday), 'Yesterday\'s data should be in the archive');
+    } finally {
+        if (fs.existsSync(tmpFile)) fs.unlinkSync(tmpFile);
+    }
+});
+
+test('data updater rejects outlier records with >20% drop', () => {
+    const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+    const twoDaysAgo = new Date(Date.now() - 2 * 86400000).toISOString().split('T')[0];
+    const archive = [
+        { date: twoDaysAgo, total: 10000000, active: 700000 }
+    ];
+    const apiRecords = [
+        { period: yesterday, user_count: '100000', active_user_count: '5000' }
+    ];
+    const tmpFile = path.join(__dirname, '_test_hist_outlier.js');
+    try {
+        fs.writeFileSync(tmpFile, `const historicalData = ${JSON.stringify(archive)};`);
+        const script = `
+            global.fetch = async () => ({ ok: true, json: async () => ${JSON.stringify(apiRecords)} });
+            process.env.HIST_FILE_OVERRIDE = ${JSON.stringify(tmpFile)};
+            require('./updateData.js');
+        `;
+        const result = spawnSync(process.execPath, ['-e', script], {
+            cwd: __dirname,
+            encoding: 'utf8'
+        });
+        assert.match(result.stderr, /Rejected outlier/);
+        assert.equal(result.status, 1, 'Should exit nonzero when all records are rejected');
+        assert.ok(!result.stdout.includes('Successfully merged'), 'Should not log success when all records are rejected');
+        const content = fs.readFileSync(tmpFile, 'utf8');
+        assert.ok(!content.includes(yesterday), 'Outlier data should have been rejected');
+    } finally {
+        if (fs.existsSync(tmpFile)) fs.unlinkSync(tmpFile);
+    }
+});
+
+test('data updater preserves archived records over new API data for same date', () => {
+    const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+    const archive = [
+        { date: yesterday, total: 10000000, active: 700000 }
+    ];
+    // API returns slightly different (but valid) numbers for the same date
+    const apiRecords = [
+        { period: yesterday, user_count: '10000100', active_user_count: '700050' }
+    ];
+    const tmpFile = path.join(__dirname, '_test_hist_dedup.js');
+    try {
+        fs.writeFileSync(tmpFile, `const historicalData = ${JSON.stringify(archive)};`);
+        const script = `
+            global.fetch = async () => ({ ok: true, json: async () => ${JSON.stringify(apiRecords)} });
+            process.env.HIST_FILE_OVERRIDE = ${JSON.stringify(tmpFile)};
+            require('./updateData.js');
+        `;
+        spawnSync(process.execPath, ['-e', script], {
+            cwd: __dirname,
+            encoding: 'utf8'
+        });
+        const content = fs.readFileSync(tmpFile, 'utf8');
+        // Archive value (10000000) should win over the API value (10000100)
+        assert.ok(content.includes('10000000'), 'Archived total should be preserved');
+        assert.ok(!content.includes('10000100'), 'API total should not overwrite archive');
+    } finally {
+        if (fs.existsSync(tmpFile)) fs.unlinkSync(tmpFile);
+    }
 });
 
 test('resetChartZoom resets totalChart and never touches activeChart', () => {

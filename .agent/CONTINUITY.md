@@ -1,64 +1,24 @@
-# CONTINUITY — fix: reset only the selected chart
+# CONTINUITY — PR #9 review
 
-## Root Cause
+[PLANS]
 
-`resetChartZoom()` in `script.js` unconditionally called `resetZoom()` on **both**
-`totalChartInstance` and `activeChartInstance`. Every Reset Zoom button shared the
-same listener that invoked this function with no arguments, so clicking either button
-always reset both charts simultaneously, contradicting the "per-chart" intent of the
-feature.
+- 2026-07-21T16:11Z [USER] Review `obsesivegamer/Mastodon-User-Trends#9` without modifying the PR.
 
-Additionally, neither Reset Zoom `<button>` carried a `data-chart` attribute, making
-it impossible for the handler to identify which chart the button belonged to.
+[DECISIONS]
 
-## Implementation Decision
+- 2026-07-21T16:11Z [CODE] Treat the post-filter empty dataset as a blocking review finding because `updateDaily.sh` uses `set -e` and depends on `updateData.js` returning nonzero on failed updates.
 
-The minimal, safe fix avoids any change to the zoom/pan plugin configuration or the
-rendering pipeline:
+[PROGRESS]
 
-1. **HTML** — Added `data-chart="totalChart"` and `data-chart="activeChart"` to the
-   respective Reset Zoom buttons in `index.html`. This attribute naming follows the
-   existing pattern already used by the PNG/CSV export buttons (e.g.
-   `data-chart="totalChart"` on the export buttons).
+- 2026-07-21T16:11Z [TOOL] Inspected live PR head `94ead252e2d34df7088b15aa4a8f8cb0271d768c`; PR is open and mergeable with no configured commit statuses or prior reviews.
+- 2026-07-21T16:11Z [TOOL] `node --check` passed for `script.js` and `updateData.js`; all 14 Node tests passed; shell syntax and `git diff --check` passed.
 
-2. **script.js** — Refactored `resetChartZoom` from a zero-argument function that
-   always resets both charts to:
-   ```js
-   const resetChartZoom = (chartId, instances) => {
-       const map = instances || { totalChart: totalChartInstance, activeChart: activeChartInstance };
-       const chart = map[chartId];
-       if (chart && typeof chart.resetZoom === 'function') {
-           chart.resetZoom();
-       }
-   };
-   ```
-   - `chartId` — the canvas element ID (`"totalChart"` or `"activeChart"`).
-   - `instances` — optional override map; used only by unit tests to inject stubs.
-   - Unknown IDs or charts missing `resetZoom` are silently skipped.
+[DISCOVERIES]
 
-3. **Click listener** updated to `() => resetChartZoom(btn.dataset.chart)`, reading
-   the `data-chart` attribute added above.
+- 2026-07-21T16:11Z [TOOL] Reproduction with one rejected outlier exited 0 and logged `Successfully merged` after `mappedData` became empty. The only empty-input check occurs before the new today/outlier filters (`updateData.js:28-30`).
+- 2026-07-21T16:11Z [TOOL] The official API response observed on 2026-07-21 contained 31 daily records through 2026-07-21; current-day values had recovered from the partial values described in the PR.
 
-4. **Exported** `resetChartZoom` via `module.exports` so unit tests can import it
-   without altering the browser-facing API surface.
+[OUTCOMES]
 
-5. **Tests** — Three new cases added to `script.test.js`:
-   - `totalChart` resets exactly once and never touches active.
-   - `activeChart` resets exactly once and never touches total.
-   - Unknown IDs and missing `resetZoom` do not throw.
-
-## Validation
-
-- `node --check script.js script.test.js historicalData.js updateData.js` — all pass.
-- `node --test script.test.js` — all 11 tests pass (8 pre-existing + 3 new).
-- `bash -n *.sh` — all shell scripts are syntactically valid.
-- `git diff --check` — no trailing whitespace or conflict markers.
-- Browser smoke test: zoomed both charts to different ranges, confirmed Total Reset
-  only returns Total to full range, and Active Reset only returns Active to full range.
-  Zoom, pan, moving-average toggle, and export controls all remain functional.
-
-## Outcome
-
-Branch `agent/fix-per-chart-reset-zoom` opened as PR against
-`obsesivegamer/Mastodon-User-Trends` master. PR merged after clean validation.
-`master` confirmed to contain the merge commit with both targeted reset controls.
+- 2026-07-21T16:11Z [TOOL] Review result: request a fix that revalidates `mappedData.length` after all defensive filters and exits nonzero when no candidate record survives; add assertions for subprocess status and the absence of a success message.
+- 2026-07-21T16:11Z [MILESTONE] [CODE] Earlier per-chart Reset Zoom fix was merged and verified independently; it remains baseline behavior outside PR #9's updater changes.
