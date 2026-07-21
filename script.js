@@ -205,12 +205,13 @@ const setStatus = (mode) => {
     }
 };
 
-const resetChartZoom = () => {
-    if (totalChartInstance && typeof totalChartInstance.resetZoom === 'function') {
-        totalChartInstance.resetZoom();
-    }
-    if (activeChartInstance && typeof activeChartInstance.resetZoom === 'function') {
-        activeChartInstance.resetZoom();
+const resetChartZoom = (chartName) => {
+    const chartInstance = {
+        total: totalChartInstance,
+        active: activeChartInstance
+    }[chartName];
+    if (chartInstance && typeof chartInstance.resetZoom === 'function') {
+        chartInstance.resetZoom();
     }
 };
 
@@ -324,10 +325,9 @@ const initDashboard = () => {
         applyFilter('ALL');
         setStatus('archive');
         
-        const resetZoomBtn = document.getElementById('resetZoomBtn');
-        if (resetZoomBtn) {
-            resetZoomBtn.addEventListener('click', resetChartZoom);
-        }
+        document.querySelectorAll('.reset-zoom-btn').forEach(btn => {
+            btn.addEventListener('click', () => resetChartZoom(btn.dataset.chart));
+        });
 
         // Setup Event Listeners for Time Scale Buttons
         document.querySelectorAll('.time-btn').forEach(btn => {
