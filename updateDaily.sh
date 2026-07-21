@@ -25,4 +25,7 @@ else
   echo "No new data to commit."
 fi
 
+echo "Fixing web file permissions..."
+chmod 644 *.js *.html *.css || true
+
 echo "Update complete."
