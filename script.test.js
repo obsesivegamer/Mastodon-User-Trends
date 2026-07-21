@@ -8,7 +8,8 @@ const {
     calculatePeriodComparison,
     filterDataByRange,
     parseArchiveDate,
-    processData
+    processData,
+    resetChartZoom
 } = require('./script.js');
 
 test('date-only archive values remain on the same local calendar date', () => {
@@ -95,4 +96,34 @@ test('data updater exits unsuccessfully when the API returns no usable records',
     });
     assert.equal(result.status, 1);
     assert.match(result.stderr, /No valid data received from API/);
+});
+
+test('resetChartZoom resets totalChart and never touches activeChart', () => {
+    let totalResetCount = 0;
+    let activeResetCount = 0;
+    const instances = {
+        totalChart: { resetZoom: () => { totalResetCount += 1; } },
+        activeChart: { resetZoom: () => { activeResetCount += 1; } }
+    };
+    resetChartZoom('totalChart', instances);
+    assert.equal(totalResetCount, 1);
+    assert.equal(activeResetCount, 0);
+});
+
+test('resetChartZoom resets activeChart and never touches totalChart', () => {
+    let totalResetCount = 0;
+    let activeResetCount = 0;
+    const instances = {
+        totalChart: { resetZoom: () => { totalResetCount += 1; } },
+        activeChart: { resetZoom: () => { activeResetCount += 1; } }
+    };
+    resetChartZoom('activeChart', instances);
+    assert.equal(activeResetCount, 1);
+    assert.equal(totalResetCount, 0);
+});
+
+test('resetChartZoom does not throw for unknown chart ID or missing resetZoom', () => {
+    assert.doesNotThrow(() => resetChartZoom('unknownChart', {}));
+    assert.doesNotThrow(() => resetChartZoom('totalChart', { totalChart: {} }));
+    assert.doesNotThrow(() => resetChartZoom('totalChart', { totalChart: null }));
 });

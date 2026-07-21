@@ -374,12 +374,11 @@ const updateLastUpdatedDisplay = () => {
     timeEl.title = formatTooltip(newestRecord.date);
 };
 
-const resetChartZoom = () => {
-    if (totalChartInstance && typeof totalChartInstance.resetZoom === 'function') {
-        totalChartInstance.resetZoom();
-    }
-    if (activeChartInstance && typeof activeChartInstance.resetZoom === 'function') {
-        activeChartInstance.resetZoom();
+const resetChartZoom = (chartId, instances) => {
+    const map = instances || { totalChart: totalChartInstance, activeChart: activeChartInstance };
+    const chart = map[chartId];
+    if (chart && typeof chart.resetZoom === 'function') {
+        chart.resetZoom();
     }
 };
 
@@ -548,7 +547,7 @@ const initDashboard = () => {
         setStatus('archive');
 
         document.querySelectorAll('.reset-zoom-btn').forEach(btn => {
-            btn.addEventListener('click', resetChartZoom);
+            btn.addEventListener('click', () => resetChartZoom(btn.dataset.chart));
         });
 
         // Setup refresh button
@@ -644,6 +643,7 @@ if (typeof module !== 'undefined' && module.exports) {
         formatTooltip,
         getRangeLabel,
         parseArchiveDate,
-        processData
+        processData,
+        resetChartZoom
     };
 }
