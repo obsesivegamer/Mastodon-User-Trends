@@ -1,0 +1,37 @@
+name: Update Mastodon Data
+
+on:
+  schedule:
+    # Run daily at 06:00 UTC (after the previous day's data has fully settled)
+    - cron: '0 6 * * *'
+  workflow_dispatch: # Allow manual trigger from the Actions tab
+
+permissions:
+  contents: write
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Fetch latest Mastodon statistics
+        run: node updateData.js
+
+      - name: Commit and push if data changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add historicalData.js
+          if git diff --cached --quiet; then
+            echo "No new data to commit."
+          else
+            git commit -m "chore: daily data update (automated)"
+            git push
+          fi
