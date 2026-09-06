@@ -1,24 +1,30 @@
-# CONTINUITY — PR #9 review
+# CONTINUITY — Period Comparison Fix
 
 [PLANS]
 
-- 2026-07-21T16:11Z [USER] Review `obsesivegamer/Mastodon-User-Trends#9` without modifying the PR.
+- 2026-09-06T16:16Z [USER] Diagnose why the Compare button is broken on https://lichtman.synology.me/Mastodon/, decide how to fix it, and propose a work breakdown.
+- 2026-09-06T16:17Z [USER] Implementation plan approved via user review policy.
+- 2026-09-06T16:19Z [CODE] Completed all 4 implementation phases.
 
 [DECISIONS]
 
-- 2026-07-21T16:11Z [CODE] Treat the post-filter empty dataset as a blocking review finding because `updateDaily.sh` uses `set -e` and depends on `updateData.js` returning nonzero on failed updates.
+- 2026-09-06T16:16Z [CODE] Break implementation into 4 phases: (1) Data Pipeline & Alignment, (2) Chart Overlay Engine, (3) Range & Command Bar UX, (4) Automated Testing & Verification.
+- 2026-09-06T16:16Z [CODE] Overlay previous period as a dashed comparison line on Total and Active Users line charts, with tooltips comparing current vs. prior observations.
+- 2026-09-06T16:17Z [CODE] Auto-transition to 1Y when user clicks Compare while on ALL or unsupported ranges.
 
 [PROGRESS]
 
-- 2026-07-21T16:11Z [TOOL] Inspected live PR head `94ead252e2d34df7088b15aa4a8f8cb0271d768c`; PR is open and mergeable with no configured commit statuses or prior reviews.
-- 2026-07-21T16:11Z [TOOL] `node --check` passed for `script.js` and `updateData.js`; all 14 Node tests passed; shell syntax and `git diff --check` passed.
+- 2026-09-06T16:16Z [TOOL] Evaluated `historicalData.js` and confirmed all 19 tests in `script.test.js` pass.
+- 2026-09-06T16:16Z [TOOL] Created `implementation_plan.md` artifact detailing root causes and four-phase execution roadmap.
+- 2026-09-06T16:18Z [CODE] Updated `renderChart` to overlay prior period dashed lines and rich tooltips.
+- 2026-09-06T16:18Z [CODE] Updated `index.html` and `style.css` with chart legends and comparison status styling.
+- 2026-09-06T16:18Z [TOOL] Added 3 new unit tests to `script.test.js`; all 22 tests passing.
 
 [DISCOVERIES]
 
-- 2026-07-21T16:11Z [TOOL] Reproduction with one rejected outlier exited 0 and logged `Successfully merged` after `mappedData` became empty. The only empty-input check occurs before the new today/outlier filters (`updateData.js:28-30`).
-- 2026-07-21T16:11Z [TOOL] The official API response observed on 2026-07-21 contained 31 daily records through 2026-07-21; current-day values had recovered from the partial values described in the PR.
+- 2026-09-06T16:16Z [CODE] `renderChart()` previously had no comparison datasets; Compare toggle only unhid 4 metric card subtitles and never modified the charts.
+- 2026-09-06T16:16Z [CODE] `calculatePeriodComparison('ALL')` returns `null`; since `ALL` is the default page load range, clicking Compare previously activated the button but yielded "Previous period unavailable" on cards and zero chart feedback.
 
 [OUTCOMES]
 
-- 2026-07-21T16:11Z [TOOL] Review result: request a fix that revalidates `mappedData.length` after all defensive filters and exits nonzero when no candidate record survives; add assertions for subprocess status and the absence of a success message.
-- 2026-07-21T16:11Z [MILESTONE] [CODE] Earlier per-chart Reset Zoom fix was merged and verified independently; it remains baseline behavior outside PR #9's updater changes.
+- 2026-09-06T16:19Z [TOOL] Period comparison fix fully implemented and verified with 22/22 tests passing and clean `git diff --check`. Walkthrough documented in `walkthrough.md`.

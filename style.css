@@ -368,6 +368,11 @@ body {
     outline-offset: 1px;
 }
 
+.control-btn.range-unsupported {
+    opacity: 0.5;
+    cursor: pointer;
+}
+
 .year-range-container {
     display: inline-flex;
 }
@@ -543,6 +548,15 @@ body {
     line-height: 1.4;
     border-top: 1px dashed var(--border-subtle);
     padding-top: 0.35rem;
+    transition: color 0.2s ease;
+}
+
+.comparison.comp-up {
+    color: var(--color-gain);
+}
+
+.comparison.comp-down {
+    color: var(--color-loss);
 }
 
 .card-footer {
@@ -613,6 +627,43 @@ body {
 .chart-subtitle {
     font-size: 0.8rem;
     color: var(--text-muted);
+}
+
+.chart-comparison-legend {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    margin-top: 0.25rem;
+}
+
+.legend-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+}
+
+.legend-line {
+    display: inline-block;
+    width: 16px;
+    height: 3px;
+    border-radius: 1px;
+}
+
+.legend-line.line-violet {
+    background-color: var(--series-total);
+}
+
+.legend-line.line-cyan {
+    background-color: var(--series-active);
+}
+
+.legend-line.line-prior {
+    border-top: 2px dashed #F59E0B;
+    height: 0;
+    width: 16px;
 }
 
 .chart-actions {
