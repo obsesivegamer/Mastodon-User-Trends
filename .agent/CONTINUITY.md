@@ -24,10 +24,14 @@
 
 - 2026-09-06T16:16Z [CODE] `renderChart()` previously had no comparison datasets; Compare toggle only unhid 4 metric card subtitles and never modified the charts.
 - 2026-09-06T16:16Z [CODE] `calculatePeriodComparison('ALL')` returns `null`; since `ALL` is the default page load range, clicking Compare previously activated the button but yielded "Previous period unavailable" on cards and zero chart feedback.
+- 2026-09-06T16:43Z [TOOL] Discovered live site at https://lichtman.synology.me/Mastodon/ was still serving commit 2979033 (script.js?v=4) because the NAS git clone at /volume1/web/Mastodon has not pulled master since PR #10 was merged.
 
 [OUTCOMES]
 
 - 2026-09-06T16:19Z [TOOL] Period comparison fix fully implemented and verified with 22/22 tests passing and clean `git diff --check`. Walkthrough documented in `walkthrough.md`.
 - 2026-09-06T16:28Z [TOOL] Independent Principal Reviewer subagent completed code review of PR #10 with an APPROVE verdict.
 - 2026-09-06T16:32Z [TOOL] Merged PR #10 into master (commit f6b2576) and deleted feature branch fix/compare-period-chart-overlays.
+- 2026-09-06T16:48Z [TOOL] Generated and proved project-local verification skill `verify-mastodon-trends` with feature map (.cursor/skills/verify-mastodon-trends/) and executable test harness (scripts/control-dashboard.py). Captured visual proof to artifacts/verify-mastodon-trends/proof-compare.png.
+- 2026-09-06T16:56Z [TOOL] Synology Web Station clone at /volume1/web/Mastodon updated to latest master (063c29a). Executed live Playwright verification against https://lichtman.synology.me/Mastodon/ confirming comparison overlays render in production (captured live-proof-compare.png).
+
 
