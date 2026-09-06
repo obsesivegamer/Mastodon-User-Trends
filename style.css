@@ -634,6 +634,13 @@ body {
     align-items: center;
     gap: 0.85rem;
     margin-top: 0.25rem;
+    cursor: pointer;
+    user-select: none;
+    transition: opacity 0.15s ease;
+}
+
+.chart-comparison-legend:hover {
+    opacity: 0.8;
 }
 
 .legend-badge {
@@ -796,5 +803,351 @@ body {
 
     .chart-container {
         height: 280px;
+    }
+}
+
+/* ==========================================================================
+   Terminal Methodology & Reference Guide Dialog
+   ========================================================================== */
+
+dialog.guide-dialog {
+    border: 1px solid var(--border-strong);
+    border-radius: 12px;
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    padding: 0;
+    max-width: 680px;
+    width: calc(100% - 2rem);
+    margin: auto;
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.8), var(--shadow-glow);
+    overflow: hidden;
+}
+
+dialog.guide-dialog::backdrop {
+    background: rgba(7, 9, 14, 0.78);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+}
+
+dialog.guide-dialog[open] {
+    animation: guideModalFadeIn 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes guideModalFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.97) translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+.guide-dialog-container {
+    display: flex;
+    flex-direction: column;
+    max-height: 85vh;
+}
+
+.guide-dialog-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.2rem 1.5rem;
+    border-bottom: 1px solid var(--border-subtle);
+    background: var(--bg-surface-elevated);
+}
+
+.guide-header-tag {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--series-velocity);
+    margin-bottom: 0.25rem;
+}
+
+#guide-dialog-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+}
+
+.guide-close-btn {
+    background: transparent;
+    border: 1px solid var(--border-subtle);
+    border-radius: 6px;
+    color: var(--text-muted);
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.95rem;
+    transition: all 0.15s ease;
+}
+
+.guide-close-btn:hover {
+    color: var(--text-primary);
+    border-color: var(--border-strong);
+    background: var(--bg-surface-active);
+}
+
+.guide-dialog-body {
+    padding: 1.5rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.6rem;
+}
+
+.guide-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.guide-section-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.guide-section-icon {
+    font-size: 1.1rem;
+    line-height: 1;
+}
+
+.guide-section-header h3 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: -0.01em;
+}
+
+.guide-section-desc {
+    font-size: 0.825rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+.guide-section-desc strong {
+    color: var(--text-primary);
+}
+
+.guide-table-wrap {
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--bg-canvas);
+}
+
+.guide-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.775rem;
+    text-align: left;
+}
+
+.guide-table th {
+    padding: 0.55rem 0.85rem;
+    background: var(--bg-surface-elevated);
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.guide-table td {
+    padding: 0.55rem 0.85rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    vertical-align: middle;
+}
+
+.guide-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.guide-table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.range-chip {
+    display: inline-block;
+    padding: 0.15rem 0.45rem;
+    border-radius: 4px;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 0.7rem;
+    background: var(--bg-surface-active);
+    color: var(--text-primary);
+    border: 1px solid var(--border-strong);
+}
+
+.range-chip.disabled {
+    color: var(--text-muted);
+    border-style: dashed;
+    background: transparent;
+}
+
+.guide-tooltip-demo {
+    display: flex;
+    justify-content: center;
+    padding: 1rem;
+    background: var(--bg-canvas);
+    border: 1px dashed var(--border-strong);
+    border-radius: 8px;
+}
+
+.demo-tooltip-box {
+    background: rgba(15, 20, 31, 0.95);
+    border: 1px solid var(--border-strong);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    min-width: 270px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+}
+
+.demo-tooltip-title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.demo-tooltip-line {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    margin-bottom: 0.3rem;
+}
+
+.demo-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+.dot-curr {
+    background: var(--series-total);
+}
+
+.dot-comp {
+    background: #F59E0B;
+}
+
+.demo-label {
+    color: var(--text-secondary);
+    flex-grow: 1;
+}
+
+.demo-val {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.demo-tooltip-footer {
+    margin-top: 0.5rem;
+    padding-top: 0.4rem;
+    border-top: 1px solid var(--border-subtle);
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    font-style: italic;
+    font-family: var(--font-display);
+}
+
+.guide-feature-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    list-style: none;
+}
+
+.guide-feature-list li {
+    font-size: 0.8rem;
+    line-height: 1.45;
+    color: var(--text-secondary);
+    position: relative;
+    padding-left: 1.25rem;
+}
+
+.guide-feature-list li::before {
+    content: '›';
+    position: absolute;
+    left: 0;
+    color: var(--series-velocity);
+    font-weight: bold;
+    font-size: 0.95rem;
+    line-height: 1.2;
+}
+
+.guide-feature-list li strong {
+    color: var(--text-primary);
+}
+
+.guide-feature-list li code {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    background: var(--bg-canvas);
+    border: 1px solid var(--border-subtle);
+    padding: 0.1rem 0.3rem;
+    border-radius: 3px;
+    color: var(--series-active);
+}
+
+.guide-dialog-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--border-subtle);
+    background: var(--bg-surface-elevated);
+}
+
+.guide-shortcut-hint {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+}
+
+.guide-shortcut-hint kbd {
+    background: var(--bg-canvas);
+    border: 1px solid var(--border-strong);
+    border-radius: 3px;
+    padding: 0.1rem 0.35rem;
+    color: var(--text-primary);
+    font-size: 0.68rem;
+}
+
+@media (max-width: 600px) {
+    dialog.guide-dialog {
+        width: calc(100% - 1rem);
+    }
+
+    .guide-dialog-header,
+    .guide-dialog-body,
+    .guide-dialog-footer {
+        padding: 1rem;
+    }
+
+    .guide-table {
+        font-size: 0.72rem;
+    }
+
+    .guide-shortcut-hint {
+        display: none;
     }
 }

@@ -11,7 +11,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=6">
 </head>
 <body>
     <div class="background-effects">
@@ -64,6 +64,7 @@
                     <button class="control-btn toggle-ma-btn" title="Toggle trailing 7-day moving average" aria-pressed="false">📈 7D MA</button>
                     <button class="control-btn toggle-velocity-btn" id="toggle-velocity-btn" title="Toggle daily additions/losses velocity chart" aria-pressed="false">📊 Velocity</button>
                     <button class="control-btn compare-toggle-btn" title="Toggle period comparison" aria-pressed="false">🔄 Compare</button>
+                    <button class="control-btn guide-toggle-btn" id="open-guide-btn" title="View terminal methodology & tooltip guide" aria-haspopup="dialog">📖 Guide</button>
                 </div>
             </div>
 
@@ -247,7 +248,133 @@
         </footer>
     </div>
 
-    <script src="historicalData.js?v=5"></script>
-    <script src="script.js?v=5"></script>
+    <!-- Terminal Methodology & Tooltip Guide Modal -->
+    <dialog id="guide-dialog" class="guide-dialog" aria-labelledby="guide-dialog-title">
+        <div class="guide-dialog-container">
+            <div class="guide-dialog-header">
+                <div class="guide-header-title-wrap">
+                    <span class="guide-header-tag">METHODOLOGY &amp; REFERENCE</span>
+                    <h2 id="guide-dialog-title">Terminal Guide // Tooltips &amp; Prior Periods</h2>
+                </div>
+                <button class="guide-close-btn" id="close-guide-btn" aria-label="Close guide dialog">✕</button>
+            </div>
+
+            <div class="guide-dialog-body">
+                <!-- Section 1: Period Comparison -->
+                <section class="guide-section">
+                    <div class="guide-section-header">
+                        <span class="guide-section-icon">🔄</span>
+                        <h3>Period Comparison &amp; Prior Period</h3>
+                    </div>
+                    <p class="guide-section-desc">
+                        When you click <strong>🔄 Compare</strong>, the terminal overlays a dashed amber baseline showing the contiguous historical period immediately preceding your active time range.
+                    </p>
+                    <div class="guide-table-wrap">
+                        <table class="guide-table">
+                            <thead>
+                                <tr>
+                                    <th>Range</th>
+                                    <th>Current Window</th>
+                                    <th>Prior Period Baseline</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="range-chip">1W</span></td>
+                                    <td>Past 7 days</td>
+                                    <td>The 7 days immediately before the current week</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="range-chip">1M</span></td>
+                                    <td>Past 30 days</td>
+                                    <td>The 30 days immediately before the current month</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="range-chip">6M</span></td>
+                                    <td>Past 180 days</td>
+                                    <td>The 180 days immediately before the current 6 months</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="range-chip">YTD</span></td>
+                                    <td>Jan 1 to today</td>
+                                    <td>Same elapsed calendar span starting from Jan 1 of previous year</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="range-chip">1Y</span></td>
+                                    <td>Past 12 months</td>
+                                    <td>The 12 months prior (e.g. Sep 2024 to Sep 2025)</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="range-chip">2Y</span></td>
+                                    <td>Past 24 months</td>
+                                    <td>The 24 months prior (e.g. Sep 2022 to Sep 2024)</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="range-chip">3Y</span></td>
+                                    <td>Past 36 months</td>
+                                    <td>Padded from the Sep 30, 2022 public archive start date</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="range-chip disabled">ALL</span></td>
+                                    <td>Complete dataset</td>
+                                    <td>Unavailable (preceding data does not exist before Sep 2022)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Section 2: Chart Tooltips -->
+                <section class="guide-section">
+                    <div class="guide-section-header">
+                        <span class="guide-section-icon">🎯</span>
+                        <h3>Reading Interactive Chart Tooltips</h3>
+                    </div>
+                    <div class="guide-tooltip-demo">
+                        <div class="demo-tooltip-box">
+                            <div class="demo-tooltip-title">Current Date: Sep 5, 26</div>
+                            <div class="demo-tooltip-line line-curr">
+                                <span class="demo-dot dot-curr"></span>
+                                <span class="demo-label">Total Users:</span>
+                                <span class="demo-val">10,140,000</span>
+                            </div>
+                            <div class="demo-tooltip-line line-comp">
+                                <span class="demo-dot dot-comp"></span>
+                                <span class="demo-label">Prior Period (Sep 5, 25):</span>
+                                <span class="demo-val">9,842,965</span>
+                            </div>
+                            <div class="demo-tooltip-footer">Parentheses show equivalent historical date</div>
+                        </div>
+                    </div>
+                    <ul class="guide-feature-list">
+                        <li><strong>Solid Line (Violet / Cyan):</strong> Current observation date and recorded value for your selected timeframe.</li>
+                        <li><strong>Dashed Amber Line:</strong> Day-for-day historical observation from the prior period. The date in parentheses tells you the exact historical calendar day being compared.</li>
+                        <li><strong>Metric Card Chips:</strong> Green (▲) and red (▼) chips show percentage change and absolute count change across the entire prior period.</li>
+                    </ul>
+                </section>
+
+                <!-- Section 3: Technical Indicators -->
+                <section class="guide-section">
+                    <div class="guide-section-header">
+                        <span class="guide-section-icon">📈</span>
+                        <h3>Analytical Indicators &amp; Ratios</h3>
+                    </div>
+                    <ul class="guide-feature-list">
+                        <li><strong>7-Day Moving Average (📈 7D MA):</strong> Trailing 7-observation arithmetic mean that filters transient weekend fluctuations and API reporting anomalies.</li>
+                        <li><strong>Net Change Velocity (📊 Velocity):</strong> Daily addition or loss run rate calculated as the net change divided by elapsed days in the period.</li>
+                        <li><strong>Engagement Ratio:</strong> Percentage of cumulative registered users active within the trailing 30 days (<code>Active Users / Total Users</code>).</li>
+                    </ul>
+                </section>
+            </div>
+
+            <div class="guide-dialog-footer">
+                <span class="guide-shortcut-hint">Press <kbd>Esc</kbd> or click outside to dismiss</span>
+                <button class="control-btn" id="guide-dismiss-btn">Close Guide</button>
+            </div>
+        </div>
+    </dialog>
+
+    <script src="historicalData.js?v=6"></script>
+    <script src="script.js?v=6"></script>
 </body>
 </html>

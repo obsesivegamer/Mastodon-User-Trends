@@ -91,17 +91,24 @@ def cmd_doctor(args):
         print("\nDoctor checks failed.")
         sys.exit(1)
 
-def run_server(port, stop_event):
-    socketserver.TCPServer.allow_reuse_address = True
-    with socketserver.TCPServer(("127.0.0.1", port), QuietHandler) as httpd:
-        while not stop_event.is_set():
-            httpd.handle_request()
+class DashboardServer:
+    def __init__(self, port=DEFAULT_PORT):
+        self.port = port
+        self.server = None
+        self.thread = None
 
-def start_server_daemon(port):
-    stop_event = threading.Event()
-    t = threading.Thread(target=run_server, args=(port, stop_event), daemon=True)
-    t.start()
-    return stop_event
+    def __enter__(self):
+        socketserver.TCPServer.allow_reuse_address = True
+        self.server = socketserver.TCPServer(("127.0.0.1", self.port), QuietHandler)
+        self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
+        self.thread.start()
+        time.sleep(0.2)
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if self.server:
+            self.server.shutdown()
+            self.server.server_close()
 
 def cmd_verify_compare(args):
     port = args.port or DEFAULT_PORT
@@ -109,10 +116,7 @@ def cmd_verify_compare(args):
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     print(f"Starting verification for Period Comparison on port {port}...")
-    stop_event = start_server_daemon(port)
-    time.sleep(0.5)
-
-    try:
+    with DashboardServer(port):
         with sync_playwright() as p:
             browser = p.chromium.launch(headless=True)
             context = browser.new_context(viewport={"width": 1440, "height": 900})
@@ -177,13 +181,84 @@ def cmd_verify_compare(args):
             browser.close()
 
         print("\n[SUCCESS] Period Comparison feature fully verified end-to-end!")
-    finally:
-        stop_event.set()
+
+def cmd_verify_guide(args):
+    port = args.port or DEFAULT_PORT
+    output_path = Path(args.output) if args.output else (REPO_ROOT / "artifacts" / "verify-mastodon-trends" / "proof-guide.png")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    print(f"Starting verification for Guide & Tooltip Dialog on port {port}...")
+    with DashboardServer(port):
+        with sync_playwright() as p:
+            browser = p.chromium.launch(headless=True)
+            context = browser.new_context(viewport={"width": 1440, "height": 900})
+            page = context.new_page()
+
+            url = f"http://127.0.0.1:{port}/index.html"
+            page.goto(url, wait_until="networkidle")
+
+            guide_dialog = page.locator("#guide-dialog")
+            open_guide_btn = page.locator("#open-guide-btn")
+            close_guide_btn = page.locator("#close-guide-btn")
+
+            # 1. Dialog closed initially
+            assert not guide_dialog.is_visible(), "Expected guide dialog to be closed initially"
+
+            # 2. Click Guide button in command bar
+            print("Action: Opening guide modal via command bar button...")
+            open_guide_btn.click()
+            time.sleep(0.4)
+            assert guide_dialog.is_visible(), "Expected guide dialog to be visible after click"
+
+            # 3. Verify content
+            guide_title = page.locator("#guide-dialog-title").inner_text().strip()
+            print(f"Guide Title: '{guide_title}'")
+            assert "Terminal Guide" in guide_title, f"Unexpected title: {guide_title}"
+
+            chips = page.locator("#guide-dialog .range-chip").all_inner_texts()
+            print(f"Verified Range Chips in Guide: {chips}")
+            assert "1W" in chips and "1Y" in chips and "3Y" in chips and "ALL" in chips, f"Missing chips: {chips}"
+
+            demo_footer = page.locator("#guide-dialog .demo-tooltip-footer").inner_text().strip()
+            print(f"Verified Tooltip Demo Footer: '{demo_footer}'")
+            assert "Parentheses show equivalent historical date" in demo_footer
+
+            # 4. Capture screenshot of open dialog
+            page.screenshot(path=str(output_path), full_page=False)
+            print(f"Evidence captured and saved to: {output_path}")
+
+            # 5. Dismiss via Escape key
+            print("Action: Pressing Escape key...")
+            page.keyboard.press("Escape")
+            time.sleep(0.3)
+            assert not guide_dialog.is_visible(), "Expected dialog to close on Escape key"
+
+            # 6. Enable compare and verify legend badge opens guide
+            compare_btn = page.locator(".compare-toggle-btn")
+            compare_btn.click()
+            time.sleep(0.4)
+            legend = page.locator(".chart-comparison-legend").first
+            assert legend.is_visible(), "Expected comparison legend to be visible"
+            print("Action: Clicking comparison legend to open guide...")
+            legend.click()
+            time.sleep(0.3)
+            assert guide_dialog.is_visible(), "Expected guide to open when clicking legend badge"
+
+            # 7. Close via close button
+            print("Action: Clicking close button...")
+            close_guide_btn.click()
+            time.sleep(0.3)
+            assert not guide_dialog.is_visible(), "Expected guide to close after close button clicked"
+
+            browser.close()
+
+        print("\n[SUCCESS] Guide & Tooltip Reference feature fully verified end-to-end!")
 
 def cmd_verify_all(args):
     print("Running full verification suite...")
     cmd_doctor(args)
     cmd_verify_compare(args)
+    cmd_verify_guide(args)
     print("\nAll verification suites passed.")
 
 def main():
@@ -197,6 +272,11 @@ def main():
     p_comp.add_argument("--port", type=int, default=DEFAULT_PORT, help="Port to serve dashboard on")
     p_comp.add_argument("--output", type=str, help="Path to save screenshot evidence")
     p_comp.set_defaults(func=cmd_verify_compare)
+
+    p_guide = subparsers.add_parser("verify-guide", help="Drive and verify Guide & Tooltip Reference")
+    p_guide.add_argument("--port", type=int, default=DEFAULT_PORT, help="Port to serve dashboard on")
+    p_guide.add_argument("--output", type=str, help="Path to save screenshot evidence")
+    p_guide.set_defaults(func=cmd_verify_guide)
 
     p_all = subparsers.add_parser("verify-all", help="Run all verification suites")
     p_all.add_argument("--port", type=int, default=DEFAULT_PORT, help="Port to serve dashboard on")

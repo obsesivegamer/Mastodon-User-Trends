@@ -33,5 +33,7 @@
 - 2026-09-06T16:32Z [TOOL] Merged PR #10 into master (commit f6b2576) and deleted feature branch fix/compare-period-chart-overlays.
 - 2026-09-06T16:48Z [TOOL] Generated and proved project-local verification skill `verify-mastodon-trends` with feature map (.cursor/skills/verify-mastodon-trends/) and executable test harness (scripts/control-dashboard.py). Captured visual proof to artifacts/verify-mastodon-trends/proof-compare.png.
 - 2026-09-06T16:56Z [TOOL] Synology Web Station clone at /volume1/web/Mastodon updated to latest master (063c29a). Executed live Playwright verification against https://lichtman.synology.me/Mastodon/ confirming comparison overlays render in production (captured live-proof-compare.png).
+- 2026-09-06T17:19Z [CODE] Built in-product Terminal Guide dialog (`<dialog id="guide-dialog">`) explaining Prior Period methodology across all time ranges, interactive tooltip mechanics, and analytical indicators (7D MA, Velocity, Engagement Ratio).
+- 2026-09-06T17:20Z [TOOL] Verified end-to-end locally with `scripts/control-dashboard.py verify-all` (doctor, verify-compare, verify-guide). Captured visual evidence proof-guide.png and proof-tooltip-full.png.
 
 

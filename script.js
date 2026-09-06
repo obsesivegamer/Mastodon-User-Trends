@@ -349,6 +349,8 @@ const renderChart = (data, comparisonData = null) => {
     Chart.defaults.color = textColor;
     Chart.defaults.font.family = "'JetBrains Mono', 'Outfit', monospace";
 
+    const hasComparison = Boolean(showComparison && comparisonData && comparisonData.totalUsers);
+
     const commonOptions = {
         responsive: true,
         maintainAspectRatio: false,
@@ -369,6 +371,10 @@ const renderChart = (data, comparisonData = null) => {
                 titleFont: { family: "'Outfit', sans-serif", weight: '600', size: 13 },
                 bodyFont: { family: "'JetBrains Mono', monospace", size: 12 },
                 callbacks: {
+                    title: function(tooltipItems) {
+                        const defaultTitle = tooltipItems && tooltipItems.length > 0 ? tooltipItems[0].label : '';
+                        return hasComparison ? `Current Date: ${defaultTitle}` : defaultTitle;
+                    },
                     label: function(context) {
                         const val = context.parsed.y;
                         if (val === null || val === undefined) return '';
@@ -376,9 +382,12 @@ const renderChart = (data, comparisonData = null) => {
                         if (label.includes('Prior Period') && comparisonData && comparisonData.labels) {
                             const priorDate = comparisonData.labels[context.dataIndex];
                             const dateSuffix = priorDate ? ` (${priorDate})` : '';
-                            return ` ${label}${dateSuffix}: ${val.toLocaleString()}`;
+                            return ` Prior Period${dateSuffix}: ${val.toLocaleString()}`;
                         }
                         return ` ${label}: ${val.toLocaleString()}`;
+                    },
+                    footer: function() {
+                        return hasComparison ? 'Parentheses show equivalent historical date' : '';
                     }
                 }
             },
@@ -415,8 +424,6 @@ const renderChart = (data, comparisonData = null) => {
             }
         }
     };
-
-    const hasComparison = Boolean(showComparison && comparisonData && comparisonData.totalUsers);
 
     // 1. Total Users Chart
     totalChartInstance = new Chart(ctxTotal, {
@@ -926,6 +933,56 @@ const initDashboard = () => {
             yearSelect.addEventListener('change', (e) => {
                 document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
                 applyFilter(e.target.value);
+            });
+        }
+
+        // Setup Terminal Methodology & Reference Guide Dialog
+        const guideDialog = document.getElementById('guide-dialog');
+        const openGuideBtn = document.getElementById('open-guide-btn');
+        const closeGuideBtn = document.getElementById('close-guide-btn');
+        const guideDismissBtn = document.getElementById('guide-dismiss-btn');
+
+        if (guideDialog) {
+            const openModal = () => {
+                if (typeof guideDialog.showModal === 'function') {
+                    guideDialog.showModal();
+                } else {
+                    guideDialog.setAttribute('open', 'true');
+                }
+            };
+
+            const closeModal = () => {
+                if (typeof guideDialog.close === 'function') {
+                    guideDialog.close();
+                } else {
+                    guideDialog.removeAttribute('open');
+                }
+            };
+
+            if (openGuideBtn) {
+                openGuideBtn.addEventListener('click', openModal);
+            }
+
+            if (closeGuideBtn) {
+                closeGuideBtn.addEventListener('click', closeModal);
+            }
+
+            if (guideDismissBtn) {
+                guideDismissBtn.addEventListener('click', closeModal);
+            }
+
+            // Close when clicking directly on dialog backdrop
+            guideDialog.addEventListener('click', (e) => {
+                if (e.target === guideDialog) {
+                    closeModal();
+                }
+            });
+
+            // Allow clicking comparison legend to open guide reference
+            document.querySelectorAll('.chart-comparison-legend').forEach(legend => {
+                legend.style.cursor = 'pointer';
+                legend.setAttribute('title', 'Click to view Tooltip & Methodology Guide');
+                legend.addEventListener('click', openModal);
             });
         }
 
