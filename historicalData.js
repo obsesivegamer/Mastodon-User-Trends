@@ -26,8 +26,8 @@ const historicalData = [
   },
   {
     "date": "2022-10-05",
-    "total": 3555038,
-    "active": 400142
+    "total": 3583802,
+    "active": 400650
   },
   {
     "date": "2022-10-06",
@@ -1921,13 +1921,13 @@ const historicalData = [
   },
   {
     "date": "2023-11-23",
-    "total": 8796939,
-    "active": 1568179
+    "total": 8839893,
+    "active": 1566821
   },
   {
     "date": "2023-11-24",
-    "total": 8753686,
-    "active": 1557432
+    "total": 8785786,
+    "active": 1558683
   },
   {
     "date": "2023-11-25",
@@ -2036,8 +2036,8 @@ const historicalData = [
   },
   {
     "date": "2023-12-16",
-    "total": 8668819,
-    "active": 1540509
+    "total": 8705523,
+    "active": 1544347
   },
   {
     "date": "2023-12-17",
@@ -2251,8 +2251,8 @@ const historicalData = [
   },
   {
     "date": "2024-01-28",
-    "total": 8509308,
-    "active": 1031172
+    "total": 8562207,
+    "active": 1034623
   },
   {
     "date": "2024-01-29",
@@ -2276,13 +2276,13 @@ const historicalData = [
   },
   {
     "date": "2024-02-02",
-    "total": 8393982,
-    "active": 1005070
+    "total": 8536765,
+    "active": 1011784
   },
   {
     "date": "2024-02-03",
-    "total": 8363140,
-    "active": 1006765
+    "total": 8451372,
+    "active": 1010179
   },
   {
     "date": "2024-02-04",
@@ -2311,8 +2311,8 @@ const historicalData = [
   },
   {
     "date": "2024-02-09",
-    "total": 9439003,
-    "active": 1041966
+    "total": 9540415,
+    "active": 1044086
   },
   {
     "date": "2024-02-10",
@@ -2351,8 +2351,8 @@ const historicalData = [
   },
   {
     "date": "2024-02-17",
-    "total": 8507930,
-    "active": 992547
+    "total": 8607382,
+    "active": 997388
   },
   {
     "date": "2024-02-18",
@@ -2371,8 +2371,8 @@ const historicalData = [
   },
   {
     "date": "2024-02-21",
-    "total": 8491559,
-    "active": 1003959
+    "total": 8603617,
+    "active": 1003642
   },
   {
     "date": "2024-02-22",
@@ -2411,8 +2411,8 @@ const historicalData = [
   },
   {
     "date": "2024-02-29",
-    "total": 8513559,
-    "active": 989204
+    "total": 8560770,
+    "active": 988394
   },
   {
     "date": "2024-03-01",
@@ -2461,8 +2461,8 @@ const historicalData = [
   },
   {
     "date": "2024-03-10",
-    "total": 8473724,
-    "active": 963332
+    "total": 8536798,
+    "active": 965749
   },
   {
     "date": "2024-03-11",
@@ -2521,8 +2521,8 @@ const historicalData = [
   },
   {
     "date": "2024-03-22",
-    "total": 8514644,
-    "active": 933832
+    "total": 8565483,
+    "active": 935989
   },
   {
     "date": "2024-03-23",
@@ -2741,8 +2741,8 @@ const historicalData = [
   },
   {
     "date": "2024-05-08",
-    "total": 8599780,
-    "active": 892074
+    "total": 8648026,
+    "active": 893394
   },
   {
     "date": "2024-05-09",
@@ -2766,8 +2766,8 @@ const historicalData = [
   },
   {
     "date": "2024-05-13",
-    "total": 8607667,
-    "active": 878777
+    "total": 8657971,
+    "active": 882108
   },
   {
     "date": "2024-05-14",
@@ -3311,8 +3311,8 @@ const historicalData = [
   },
   {
     "date": "2024-09-01",
-    "total": 8548931,
-    "active": 818596
+    "total": 8843583,
+    "active": 859885
   },
   {
     "date": "2024-09-02",
@@ -3651,8 +3651,8 @@ const historicalData = [
   },
   {
     "date": "2024-11-08",
-    "total": 8788724,
-    "active": 889060
+    "total": 9017682,
+    "active": 887730
   },
   {
     "date": "2024-11-09",
@@ -3851,8 +3851,8 @@ const historicalData = [
   },
   {
     "date": "2024-12-18",
-    "total": 9110156,
-    "active": 874574
+    "total": 10078121,
+    "active": 877518
   },
   {
     "date": "2024-12-19",
@@ -4131,18 +4131,18 @@ const historicalData = [
   },
   {
     "date": "2025-02-20",
-    "total": 9180236,
-    "active": 905319
+    "total": 9401259,
+    "active": 939540
   },
   {
     "date": "2025-02-21",
-    "total": 9184065,
-    "active": 910259
+    "total": 9330528,
+    "active": 933882
   },
   {
     "date": "2025-02-22",
-    "total": 9187568,
-    "active": 917057
+    "total": 9259796,
+    "active": 928223
   },
   {
     "date": "2025-02-23",
@@ -4261,8 +4261,8 @@ const historicalData = [
   },
   {
     "date": "2025-03-24",
-    "total": 9193724,
-    "active": 903817
+    "total": 9571204,
+    "active": 948442
   },
   {
     "date": "2025-03-25",
@@ -4651,8 +4651,8 @@ const historicalData = [
   },
   {
     "date": "2025-06-10",
-    "total": 9679479,
-    "active": 801333
+    "total": 9709490,
+    "active": 803003
   },
   {
     "date": "2025-06-11",
@@ -4841,8 +4841,8 @@ const historicalData = [
   },
   {
     "date": "2025-07-18",
-    "total": 9545033,
-    "active": 773858
+    "total": 9773834,
+    "active": 774593
   },
   {
     "date": "2025-07-19",
@@ -5526,8 +5526,8 @@ const historicalData = [
   },
   {
     "date": "2026-08-27",
-    "total": 9985549,
-    "active": 670298
+    "total": 10153560,
+    "active": 674461
   },
   {
     "date": "2026-08-28",
