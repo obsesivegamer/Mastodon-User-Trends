@@ -6,9 +6,13 @@ const path = require('node:path');
 
 const {
     buildChartCSV,
+    calculateDailyDeltas,
+    calculateEngagementRatio,
+    calculateGrowthVelocity,
     calculateMovingAverage,
     calculatePeriodComparison,
     filterDataByRange,
+    generateSparklineSVG,
     parseArchiveDate,
     processData,
     resetChartZoom
@@ -217,4 +221,62 @@ test('resetChartZoom does not throw for unknown chart ID or missing resetZoom', 
     assert.doesNotThrow(() => resetChartZoom('unknownChart', {}));
     assert.doesNotThrow(() => resetChartZoom('totalChart', { totalChart: {} }));
     assert.doesNotThrow(() => resetChartZoom('totalChart', { totalChart: null }));
+});
+
+test('calculateEngagementRatio computes accurate percentages and handles edge cases', () => {
+    assert.equal(calculateEngagementRatio(10000000, 650000), '6.50%');
+    assert.equal(calculateEngagementRatio(10141940, 666966), '6.58%');
+    assert.equal(calculateEngagementRatio(0, 500), '0.00%');
+    assert.equal(calculateEngagementRatio(1000, 0), '0.00%');
+    assert.equal(calculateEngagementRatio(null, 500), '0.00%');
+});
+
+test('calculateGrowthVelocity computes run rate per day over period', () => {
+    const data = [
+        { date: '2026-07-01', total: 10000 },
+        { date: '2026-07-11', total: 20000 }
+    ];
+    const velocity = calculateGrowthVelocity(data);
+    assert.equal(velocity.diff, 10000);
+    assert.equal(velocity.days, 10);
+    assert.equal(velocity.ratePerDay, 1000);
+    assert.equal(velocity.formatted, '+1.0K / day');
+
+    // Single item fallback
+    const single = [{ date: '2026-07-01', total: 10000 }];
+    assert.equal(calculateGrowthVelocity(single).formatted, '0 / day');
+});
+
+test('calculateDailyDeltas computes day-over-day changes', () => {
+    const data = [
+        { total: 100 },
+        { total: 150 },
+        { total: 140 },
+        { total: 200 }
+    ];
+    assert.deepEqual(calculateDailyDeltas(data, 'total'), [0, 50, -10, 60]);
+    assert.deepEqual(calculateDailyDeltas([], 'total'), []);
+});
+
+test('generateSparklineSVG produces valid SVG path strings', () => {
+    const points = [10, 20, 15, 30, 25];
+    const svgPath = generateSparklineSVG(points, 100, 30);
+    assert.ok(svgPath.startsWith('M '));
+    assert.ok(svgPath.includes(' L '));
+
+    // Handles degenerate inputs gracefully
+    assert.equal(generateSparklineSVG([]), '');
+    assert.equal(generateSparklineSVG([10]), '');
+});
+
+test('resetChartZoom resets velocityChart and does not touch other charts', () => {
+    let velocityResetCount = 0;
+    let totalResetCount = 0;
+    const instances = {
+        totalChart: { resetZoom: () => { totalResetCount += 1; } },
+        velocityChart: { resetZoom: () => { velocityResetCount += 1; } }
+    };
+    resetChartZoom('velocityChart', instances);
+    assert.equal(velocityResetCount, 1);
+    assert.equal(totalResetCount, 0);
 });

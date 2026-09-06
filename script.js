@@ -1,11 +1,13 @@
-// Historical data is now loaded from historicalData.js
+// Historical data is loaded from historicalData.js
 
-// Configuration
+// Configuration & Global State
 const API_URL = "https://api.joinmastodon.org/statistics";
 let totalChartInstance = null;
 let activeChartInstance = null;
+let velocityChartInstance = null;
 let showMovingAverage = false;
 let showComparison = false;
+let showVelocityChart = false;
 let selectedRange = 'ALL';
 
 const parseArchiveDate = (value) => {
@@ -19,8 +21,11 @@ const parseArchiveDate = (value) => {
 
 // Format numbers
 const formatNumber = (num) => {
-    if (num >= 1000000) return (num / 1000000).toFixed(2) + 'M';
-    if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+    if (num === null || num === undefined || isNaN(num)) return '--';
+    const abs = Math.abs(num);
+    const sign = num < 0 ? '-' : '';
+    if (abs >= 1000000) return sign + (abs / 1000000).toFixed(2) + 'M';
+    if (abs >= 1000) return sign + (abs / 1000).toFixed(1) + 'K';
     return num.toLocaleString();
 };
 
@@ -32,6 +37,62 @@ const calculateMovingAverage = (dataArray, key, window = 7) => {
         const sum = slice.reduce((acc, item) => acc + item[key], 0);
         return Math.round(sum / window);
     });
+};
+
+// Quantitative Financial & Terminal Analytics Helpers
+const calculateEngagementRatio = (total, active) => {
+    if (!total || total <= 0 || !active || active < 0) return '0.00%';
+    const pct = (active / total) * 100;
+    return pct.toFixed(2) + '%';
+};
+
+const calculateGrowthVelocity = (dataArray) => {
+    if (!dataArray || dataArray.length < 2) {
+        return { diff: 0, days: 1, ratePerDay: 0, formatted: '0 / day' };
+    }
+    const first = dataArray[0];
+    const last = dataArray[dataArray.length - 1];
+    const diff = last.total - first.total;
+
+    const startDate = parseArchiveDate(first.date);
+    const endDate = parseArchiveDate(last.date);
+    const diffMs = Math.max(0, endDate - startDate);
+    const days = Math.max(1, Math.round(diffMs / (1000 * 60 * 60 * 24)));
+
+    const ratePerDay = Math.round(diff / days);
+    const sign = ratePerDay >= 0 ? '+' : '';
+    const formatted = `${sign}${formatNumber(ratePerDay)} / day`;
+
+    return { diff, days, ratePerDay, formatted };
+};
+
+const calculateDailyDeltas = (dataArray, key = 'total') => {
+    if (!dataArray || dataArray.length === 0) return [];
+    return dataArray.map((item, index) => {
+        if (index === 0) return 0;
+        return item[key] - dataArray[index - 1][key];
+    });
+};
+
+const generateSparklineSVG = (values, width = 120, height = 28) => {
+    if (!values || values.length < 2) return '';
+    const valid = values.filter(v => typeof v === 'number' && !isNaN(v));
+    if (valid.length < 2) return '';
+
+    const min = Math.min(...valid);
+    const max = Math.max(...valid);
+    const range = max - min || 1;
+    const padding = 2;
+    const innerHeight = height - padding * 2;
+    const step = (width - padding * 2) / (values.length - 1);
+
+    const points = values.map((val, idx) => {
+        const x = (padding + idx * step).toFixed(1);
+        const y = (height - padding - ((val - min) / range) * innerHeight).toFixed(1);
+        return `${x},${y}`;
+    });
+
+    return `M ${points.join(' L ')}`;
 };
 
 // Process Data
@@ -59,18 +120,20 @@ const processData = (fullDataArray, range = 'ALL') => {
     });
     const totalUsers = filteredData.map(d => d.total);
     const activeUsers = filteredData.map(d => d.active);
+    const dailyTotalDeltas = calculateDailyDeltas(filteredData, 'total');
 
     return {
         labels,
         totalUsers,
         activeUsers,
+        dailyTotalDeltas,
         totalMA: filteredTotalMA,
         activeMA: filteredActiveMA,
         raw: filteredData
     };
 };
 
-// Update DOM Metrics
+// Period Comparison
 const calculatePeriodComparison = (range, dataArray) => {
     if (range === 'ALL') return null;
 
@@ -87,14 +150,12 @@ const calculatePeriodComparison = (range, dataArray) => {
     return previous.length >= 2 ? processData(previous) : null;
 };
 
+// Update DOM Metrics
 const updateMetrics = (data, periodLabel = 'All Time', comparisonData = null) => {
     if (data.raw.length === 0) return;
 
     const latest = data.raw[data.raw.length - 1];
-    const previous = data.raw[0]; // Compare against the start of the selected period
-
-    document.getElementById('val-total-users').textContent = formatNumber(latest.total);
-    document.getElementById('val-active-users').textContent = formatNumber(latest.active);
+    const previous = data.raw[0];
 
     const calcTrend = (current, past) => {
         const diff = current - past;
@@ -105,38 +166,87 @@ const updateMetrics = (data, periodLabel = 'All Time', comparisonData = null) =>
         return { diff, pct };
     };
 
-    const totalTrend = calcTrend(latest.total, previous.total);
-    const activeTrend = calcTrend(latest.active, previous.active);
-
-    // Net user growth is the change in total users, including additions and removals.
-    const netGrowthDiff = latest.total - previous.total;
-    const netGrowthPct = previous.total > 0 ? (netGrowthDiff / previous.total) * 100 : 0;
-    const netGrowthTrend = { diff: netGrowthDiff, pct: netGrowthPct };
-
     const formatTrendText = (trend) => {
         const sign = trend.diff >= 0 ? '+' : '';
         const arrow = trend.diff >= 0 ? '▲' : '▼';
         return `${arrow} ${sign}${trend.pct.toFixed(2)}% (${sign}${formatNumber(trend.diff)}) ${periodLabel}`;
     };
 
+    // 1. Total Users Card
+    const totalEl = document.getElementById('val-total-users');
+    if (totalEl) totalEl.textContent = formatNumber(latest.total);
+    const totalTrend = calcTrend(latest.total, previous.total);
     const totalTrendEl = document.getElementById('trend-total');
-    totalTrendEl.textContent = formatTrendText(totalTrend);
-    totalTrendEl.className = totalTrend.diff >= 0 ? 'trend up' : 'trend down';
+    if (totalTrendEl) {
+        totalTrendEl.textContent = formatTrendText(totalTrend);
+        totalTrendEl.className = totalTrend.diff >= 0 ? 'trend up' : 'trend down';
+    }
 
+    // 2. Active Users Card
+    const activeEl = document.getElementById('val-active-users');
+    if (activeEl) activeEl.textContent = formatNumber(latest.active);
+    const activeTrend = calcTrend(latest.active, previous.active);
     const activeTrendEl = document.getElementById('trend-active');
-    activeTrendEl.textContent = formatTrendText(activeTrend);
-    activeTrendEl.className = activeTrend.diff >= 0 ? 'trend up' : 'trend down';
+    if (activeTrendEl) {
+        activeTrendEl.textContent = formatTrendText(activeTrend);
+        activeTrendEl.className = activeTrend.diff >= 0 ? 'trend up' : 'trend down';
+    }
 
+    // 3. Engagement Ratio Card
+    const engagementRatioEl = document.getElementById('val-engagement-ratio');
+    if (engagementRatioEl) {
+        engagementRatioEl.textContent = calculateEngagementRatio(latest.total, latest.active);
+    }
+    const latestEngagePct = latest.total > 0 ? (latest.active / latest.total) * 100 : 0;
+    const prevEngagePct = previous.total > 0 ? (previous.active / previous.total) * 100 : 0;
+    const engageDiff = latestEngagePct - prevEngagePct;
+    const engageTrendEl = document.getElementById('trend-engagement');
+    if (engageTrendEl) {
+        const engageArrow = engageDiff >= 0 ? '▲' : '▼';
+        const engageSign = engageDiff >= 0 ? '+' : '';
+        engageTrendEl.textContent = `${engageArrow} ${engageSign}${engageDiff.toFixed(2)}% ${periodLabel}`;
+        engageTrendEl.className = engageDiff >= 0 ? 'trend up' : 'trend down';
+    }
+
+    // 4. Net User Growth & Velocity Card
+    const netGrowthDiff = latest.total - previous.total;
+    const netGrowthPct = previous.total > 0 ? (netGrowthDiff / previous.total) * 100 : 0;
+    const netGrowthTrend = { diff: netGrowthDiff, pct: netGrowthPct };
     const netGrowthEl = document.getElementById('val-net-growth');
-    netGrowthEl.textContent = formatNumber(netGrowthDiff);
-
+    if (netGrowthEl) {
+        const sign = netGrowthDiff > 0 ? '+' : '';
+        netGrowthEl.textContent = `${sign}${formatNumber(netGrowthDiff)}`;
+    }
     const netGrowthTrendEl = document.getElementById('trend-net-growth');
-    netGrowthTrendEl.textContent = formatTrendText(netGrowthTrend);
-    netGrowthTrendEl.className = netGrowthTrend.diff >= 0 ? 'trend up' : 'trend down';
+    if (netGrowthTrendEl) {
+        netGrowthTrendEl.textContent = formatTrendText(netGrowthTrend);
+        netGrowthTrendEl.className = netGrowthTrend.diff >= 0 ? 'trend up' : 'trend down';
+    }
 
+    const velocity = calculateGrowthVelocity(data.raw);
+    const velocityEl = document.getElementById('val-growth-velocity');
+    if (velocityEl) {
+        velocityEl.textContent = velocity.formatted;
+    }
+
+    // Render Sparklines
+    const setSparkline = (id, points) => {
+        const path = document.querySelector(`#${id} path`);
+        if (path) {
+            path.setAttribute('d', generateSparklineSVG(points));
+        }
+    };
+
+    setSparkline('sparkline-total', data.totalUsers);
+    setSparkline('sparkline-active', data.activeUsers);
+    setSparkline('sparkline-engagement', data.raw.map(d => d.total > 0 ? (d.active / d.total) * 100 : 0));
+    setSparkline('sparkline-velocity', data.dailyTotalDeltas);
+
+    // Comparison Subtitles
     const comparisonElements = {
         total: document.getElementById('comparison-total'),
         active: document.getElementById('comparison-active'),
+        engagement: document.getElementById('comparison-engagement'),
         net: document.getElementById('comparison-net-growth')
     };
 
@@ -157,37 +267,57 @@ const updateMetrics = (data, periodLabel = 'All Time', comparisonData = null) =>
     const priorTotalTrend = calcTrend(priorLast.total, priorFirst.total);
     const priorActiveTrend = calcTrend(priorLast.active, priorFirst.active);
 
-    comparisonElements.total.textContent = `Previous period: ${formatTrendText(priorTotalTrend)}`;
-    comparisonElements.active.textContent = `Previous period: ${formatTrendText(priorActiveTrend)}`;
-    comparisonElements.net.textContent = `Previous period net growth: ${formatNumber(priorTotalTrend.diff)}`;
+    const priorStartEngage = priorFirst.total > 0 ? (priorFirst.active / priorFirst.total) * 100 : 0;
+    const priorEndEngage = priorLast.total > 0 ? (priorLast.active / priorLast.total) * 100 : 0;
+    const priorEngageDiff = priorEndEngage - priorStartEngage;
+
+    if (comparisonElements.total) comparisonElements.total.textContent = `Prev period: ${formatTrendText(priorTotalTrend)}`;
+    if (comparisonElements.active) comparisonElements.active.textContent = `Prev period: ${formatTrendText(priorActiveTrend)}`;
+    if (comparisonElements.engagement) {
+        const sign = priorEngageDiff >= 0 ? '+' : '';
+        comparisonElements.engagement.textContent = `Prev period: ${sign}${priorEngageDiff.toFixed(2)}% engagement`;
+    }
+    if (comparisonElements.net) {
+        const netSign = priorTotalTrend.diff >= 0 ? '+' : '';
+        comparisonElements.net.textContent = `Prev period net: ${netSign}${formatNumber(priorTotalTrend.diff)}`;
+    }
 };
 
-// Render Chart
+// Render Charts
 const renderChart = (data) => {
-    const ctxTotal = document.getElementById('totalChart').getContext('2d');
-    const ctxActive = document.getElementById('activeChart').getContext('2d');
+    const canvasTotal = document.getElementById('totalChart');
+    const canvasActive = document.getElementById('activeChart');
+    const canvasVelocity = document.getElementById('velocityChart');
 
-    // Destroy existing charts if updating
+    if (!canvasTotal || !canvasActive) return;
+
+    const ctxTotal = canvasTotal.getContext('2d');
+    const ctxActive = canvasActive.getContext('2d');
+
+    // Destroy existing chart instances
     if (totalChartInstance) totalChartInstance.destroy();
     if (activeChartInstance) activeChartInstance.destroy();
+    if (velocityChartInstance) velocityChartInstance.destroy();
 
-    // Chart styling vars (matching CSS)
-    const colorPrimary = 'hsl(280, 100%, 70%)'; // Purple
-    const colorSecondary = 'hsl(190, 100%, 60%)'; // Cyan
-    const gridColor = 'rgba(255, 255, 255, 0.05)';
-    const textColor = 'hsl(220, 10%, 70%)';
+    // Institutional Terminal Palette
+    const colorTotal = '#A78BFA';      // Violet
+    const colorActive = '#38BDF8';     // Sky Cyan
+    const colorGain = '#10B981';       // Emerald Green
+    const colorLoss = '#F43F5E';       // Rose Red
+    const gridColor = 'rgba(255, 255, 255, 0.04)';
+    const textColor = '#94A3B8';
 
-    // Gradients for fill
-    const gradientTotal = ctxTotal.createLinearGradient(0, 0, 0, 400);
-    gradientTotal.addColorStop(0, 'rgba(178, 102, 255, 0.2)');
-    gradientTotal.addColorStop(1, 'rgba(178, 102, 255, 0)');
+    // Gradients for area fills
+    const gradientTotal = ctxTotal.createLinearGradient(0, 0, 0, 420);
+    gradientTotal.addColorStop(0, 'rgba(167, 139, 250, 0.22)');
+    gradientTotal.addColorStop(1, 'rgba(167, 139, 250, 0)');
 
-    const gradientActive = ctxActive.createLinearGradient(0, 0, 0, 400);
-    gradientActive.addColorStop(0, 'rgba(51, 204, 255, 0.2)');
-    gradientActive.addColorStop(1, 'rgba(51, 204, 255, 0)');
+    const gradientActive = ctxActive.createLinearGradient(0, 0, 0, 420);
+    gradientActive.addColorStop(0, 'rgba(56, 189, 248, 0.22)');
+    gradientActive.addColorStop(1, 'rgba(56, 189, 248, 0)');
 
     Chart.defaults.color = textColor;
-    Chart.defaults.font.family = "'Outfit', sans-serif";
+    Chart.defaults.font.family = "'JetBrains Mono', 'Outfit', monospace";
 
     const commonOptions = {
         responsive: true,
@@ -199,16 +329,20 @@ const renderChart = (data) => {
         plugins: {
             legend: { display: false },
             tooltip: {
-                backgroundColor: 'rgba(18, 20, 32, 0.9)',
-                titleColor: '#fff',
-                bodyColor: '#ccc',
-                borderColor: 'rgba(255,255,255,0.1)',
+                backgroundColor: 'rgba(15, 20, 31, 0.95)',
+                titleColor: '#F8FAFC',
+                bodyColor: '#94A3B8',
+                borderColor: 'rgba(255, 255, 255, 0.12)',
                 borderWidth: 1,
                 padding: 12,
                 cornerRadius: 8,
+                titleFont: { family: "'Outfit', sans-serif", weight: '600', size: 13 },
+                bodyFont: { family: "'JetBrains Mono', monospace", size: 12 },
                 callbacks: {
                     label: function(context) {
-                        return context.parsed.y.toLocaleString();
+                        const val = context.parsed.y;
+                        const label = context.dataset.label || '';
+                        return ` ${label}: ${val.toLocaleString()}`;
                     }
                 }
             },
@@ -229,18 +363,24 @@ const renderChart = (data) => {
                 grid: { color: gridColor, drawBorder: false },
                 ticks: {
                     maxTicksLimit: 10,
-                    maxRotation: 45,
-                    minRotation: 45,
-                    includeBounds: true
+                    maxRotation: 0,
+                    minRotation: 0,
+                    color: textColor,
+                    font: { size: 11 }
                 }
             },
             y: {
                 grid: { color: gridColor, drawBorder: false },
-                ticks: { callback: function(value) { return formatNumber(value); } }
+                ticks: {
+                    callback: function(value) { return formatNumber(value); },
+                    color: textColor,
+                    font: { size: 11 }
+                }
             }
         }
     };
 
+    // 1. Total Users Chart
     totalChartInstance = new Chart(ctxTotal, {
         type: 'line',
         data: {
@@ -249,34 +389,35 @@ const renderChart = (data) => {
                 {
                     label: 'Total Users',
                     data: data.totalUsers,
-                    borderColor: colorPrimary,
+                    borderColor: colorTotal,
                     backgroundColor: gradientTotal,
-                    borderWidth: 3,
-                    pointBackgroundColor: '#121420',
-                    pointBorderColor: colorPrimary,
-                    pointBorderWidth: 2,
-                    pointRadius: 4,
-                    pointHoverRadius: 6,
+                    borderWidth: 2.5,
+                    pointBackgroundColor: '#0B0F17',
+                    pointBorderColor: colorTotal,
+                    pointBorderWidth: 1.5,
+                    pointRadius: data.labels.length > 90 ? 0 : 3,
+                    pointHoverRadius: 5,
                     fill: true,
-                    tension: 0.4
+                    tension: 0.25
                 },
                 ...(showMovingAverage ? [{
-                    label: '7-Day Moving Average',
+                    label: '7-Day MA',
                     data: data.totalMA,
-                    borderColor: 'rgba(178, 102, 255, 0.5)',
+                    borderColor: 'rgba(167, 139, 250, 0.65)',
                     backgroundColor: 'transparent',
-                    borderWidth: 2,
-                    borderDash: [5, 5],
+                    borderWidth: 1.75,
+                    borderDash: [4, 4],
                     pointRadius: 0,
                     pointHoverRadius: 0,
                     fill: false,
-                    tension: 0.4
+                    tension: 0.25
                 }] : [])
             ]
         },
         options: commonOptions
     });
 
+    // 2. Active Users Chart
     activeChartInstance = new Chart(ctxActive, {
         type: 'line',
         data: {
@@ -285,48 +426,93 @@ const renderChart = (data) => {
                 {
                     label: 'Active Users',
                     data: data.activeUsers,
-                    borderColor: colorSecondary,
+                    borderColor: colorActive,
                     backgroundColor: gradientActive,
-                    borderWidth: 3,
-                    pointBackgroundColor: '#121420',
-                    pointBorderColor: colorSecondary,
-                    pointBorderWidth: 2,
-                    pointRadius: 4,
-                    pointHoverRadius: 6,
+                    borderWidth: 2.5,
+                    pointBackgroundColor: '#0B0F17',
+                    pointBorderColor: colorActive,
+                    pointBorderWidth: 1.5,
+                    pointRadius: data.labels.length > 90 ? 0 : 3,
+                    pointHoverRadius: 5,
                     fill: true,
-                    tension: 0.4
+                    tension: 0.25
                 },
                 ...(showMovingAverage ? [{
-                    label: '7-Day Moving Average',
+                    label: '7-Day MA',
                     data: data.activeMA,
-                    borderColor: 'rgba(51, 204, 255, 0.5)',
+                    borderColor: 'rgba(56, 189, 248, 0.65)',
                     backgroundColor: 'transparent',
-                    borderWidth: 2,
-                    borderDash: [5, 5],
+                    borderWidth: 1.75,
+                    borderDash: [4, 4],
                     pointRadius: 0,
                     pointHoverRadius: 0,
                     fill: false,
-                    tension: 0.4
+                    tension: 0.25
                 }] : [])
             ]
         },
         options: commonOptions
     });
+
+    // 3. Optional Daily Net Change Velocity Histogram Chart
+    const velocitySection = document.getElementById('section-velocity-chart');
+    if (velocitySection && canvasVelocity) {
+        if (showVelocityChart) {
+            velocitySection.hidden = false;
+            const ctxVelocity = canvasVelocity.getContext('2d');
+            const deltas = data.dailyTotalDeltas;
+            const barColors = deltas.map(val => val >= 0 ? colorGain : colorLoss);
+
+            velocityChartInstance = new Chart(ctxVelocity, {
+                type: 'bar',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        label: 'Net Daily Change',
+                        data: deltas,
+                        backgroundColor: barColors,
+                        borderRadius: 3,
+                        borderSkipped: false
+                    }]
+                },
+                options: {
+                    ...commonOptions,
+                    scales: {
+                        ...commonOptions.scales,
+                        y: {
+                            grid: { color: gridColor, drawBorder: false },
+                            ticks: {
+                                callback: function(value) {
+                                    const sign = value > 0 ? '+' : '';
+                                    return sign + formatNumber(value);
+                                },
+                                color: textColor,
+                                font: { size: 11 }
+                            }
+                        }
+                    }
+                }
+            });
+        } else {
+            velocitySection.hidden = true;
+        }
+    }
 };
 
-// Set UI Status
+// UI Status
 const setStatus = (mode) => {
     const statusEl = document.getElementById('data-status');
+    if (!statusEl) return;
     const container = statusEl.parentElement;
 
     if (mode === 'live') {
-        statusEl.textContent = 'Live Data Connected';
+        statusEl.textContent = 'Live Connected';
         container.className = 'status-indicator live';
     } else if (mode === 'fallback') {
-        statusEl.textContent = 'Using Static Fallback Data';
+        statusEl.textContent = 'Static Fallback';
         container.className = 'status-indicator fallback';
     } else if (mode === 'archive') {
-        statusEl.textContent = 'Archived Data Loaded';
+        statusEl.textContent = 'Archive Verified';
         container.className = 'status-indicator archive';
     }
 };
@@ -375,7 +561,11 @@ const updateLastUpdatedDisplay = () => {
 };
 
 const resetChartZoom = (chartId, instances) => {
-    const map = instances || { totalChart: totalChartInstance, activeChart: activeChartInstance };
+    const map = instances || {
+        totalChart: totalChartInstance,
+        activeChart: activeChartInstance,
+        velocityChart: velocityChartInstance
+    };
     const chart = map[chartId];
     if (chart && typeof chart.resetZoom === 'function') {
         chart.resetZoom();
@@ -405,12 +595,13 @@ const buildYearRangeButtons = () => {
     if (yearRanges.length > MAX_YEAR_BUTTONS) {
         const select = document.createElement('select');
         select.className = 'year-range-select';
+        select.setAttribute('aria-label', 'Select multi-year range');
 
         const placeholder = document.createElement('option');
         placeholder.value = '';
         placeholder.disabled = true;
         placeholder.selected = true;
-        placeholder.textContent = 'Year Ranges';
+        placeholder.textContent = 'YEARS';
         select.appendChild(placeholder);
 
         yearRanges.forEach(range => {
@@ -546,6 +737,7 @@ const initDashboard = () => {
         applyFilter('ALL');
         setStatus('archive');
 
+        // Setup Reset Zoom buttons
         document.querySelectorAll('.reset-zoom-btn').forEach(btn => {
             btn.addEventListener('click', () => resetChartZoom(btn.dataset.chart));
         });
@@ -564,7 +756,10 @@ const initDashboard = () => {
         document.querySelectorAll('.export-png-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const chartId = e.target.dataset.chart;
-                const chartName = chartId === 'totalChart' ? 'total-users' : 'active-users';
+                let chartName = 'chart';
+                if (chartId === 'totalChart') chartName = 'total-users';
+                else if (chartId === 'activeChart') chartName = 'active-users';
+                else if (chartId === 'velocityChart') chartName = 'daily-velocity';
                 exportChartAsPNG(chartId, chartName);
             });
         });
@@ -572,8 +767,8 @@ const initDashboard = () => {
         document.querySelectorAll('.export-csv-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const chartId = e.target.dataset.chart;
-                const chartName = chartId === 'totalChart' ? 'total-users' : 'active-users';
                 const isTotal = chartId === 'totalChart';
+                const chartName = isTotal ? 'total-users' : 'active-users';
                 exportChartAsCSV(chartName, isTotal);
             });
         });
@@ -586,10 +781,20 @@ const initDashboard = () => {
                     toggle.classList.toggle('active', showMovingAverage);
                     toggle.setAttribute('aria-pressed', String(showMovingAverage));
                 });
-
                 applyFilter(selectedRange);
             });
         });
+
+        // Setup Velocity chart toggle
+        const velocityToggleBtn = document.getElementById('toggle-velocity-btn');
+        if (velocityToggleBtn) {
+            velocityToggleBtn.addEventListener('click', () => {
+                showVelocityChart = !showVelocityChart;
+                velocityToggleBtn.classList.toggle('active', showVelocityChart);
+                velocityToggleBtn.setAttribute('aria-pressed', String(showVelocityChart));
+                applyFilter(selectedRange);
+            });
+        }
 
         // Setup comparison toggle
         const compareBtn = document.querySelector('.compare-toggle-btn');
@@ -623,8 +828,13 @@ const initDashboard = () => {
 
     } catch (error) {
         console.error("Failed to load dashboard data.", error);
-        document.getElementById('data-status').textContent = 'Data Error';
-        document.getElementById('data-status').parentElement.style.backgroundColor = '#ff5555';
+        const statusEl = document.getElementById('data-status');
+        if (statusEl) {
+            statusEl.textContent = 'Data Error';
+            if (statusEl.parentElement) {
+                statusEl.parentElement.style.backgroundColor = '#ff5555';
+            }
+        }
     }
 };
 
@@ -636,11 +846,15 @@ if (typeof document !== 'undefined') {
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
         buildChartCSV,
+        calculateDailyDeltas,
+        calculateEngagementRatio,
+        calculateGrowthVelocity,
         calculateMovingAverage,
         calculatePeriodComparison,
         filterDataByRange,
         formatTimestamp,
         formatTooltip,
+        generateSparklineSVG,
         getRangeLabel,
         parseArchiveDate,
         processData,

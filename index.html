@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mastodon User Statistics Dashboard</title>
-    <meta name="description" content="A real-time dashboard displaying Mastodon user growth and active user statistics.">
+    <title>Mastodon Analytics Terminal</title>
+    <meta name="description" content="Institutional-grade analytics terminal displaying Mastodon user growth, active user retention, and network velocity.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
@@ -15,109 +15,231 @@
 </head>
 <body>
     <div class="background-effects">
-        <div class="glow-orb orb-1"></div>
-        <div class="glow-orb orb-2"></div>
+        <div class="ambient-glow glow-top"></div>
+        <div class="ambient-glow glow-bottom"></div>
+        <div class="grid-overlay"></div>
     </div>
-    
+
     <div class="dashboard-container">
-        <header class="dashboard-header glass-panel">
-            <div class="header-content">
+        <!-- Terminal Header -->
+        <header class="dashboard-header terminal-panel">
+            <div class="header-brand">
+                <div class="terminal-badge">
+                    <span class="badge-pulse"></span>
+                    <span class="badge-text">FEDIVERSE // LIVE</span>
+                </div>
                 <h1>Mastodon <span>Network Pulse</span></h1>
-                <p>Tracking the growth of the decentralized web.</p>
+                <p class="header-subtitle">Quantitative analytics & growth metrics for decentralized social infrastructure</p>
             </div>
-            <div class="header-right">
+            <div class="header-status-panel">
                 <div class="status-indicator">
                     <div class="status-dot"></div>
                     <span id="data-status">Connecting...</span>
                 </div>
-                <div class="last-updated-badge">
-                    <span class="update-label">Last Updated:</span>
-                    <span id="last-updated-time">--</span>
-                    <button id="refresh-data-btn" class="refresh-btn" title="Reload the latest local archive" aria-label="Reload the latest local archive">↻</button>
+                <div class="last-updated-badge" title="Timestamp of the latest ingested data point">
+                    <span class="update-label">LAST ARCHIVE:</span>
+                    <span id="last-updated-time" class="tabular-stat">--</span>
+                    <button id="refresh-data-btn" class="refresh-btn" title="Reload local archive" aria-label="Reload local archive">↻</button>
                 </div>
             </div>
         </header>
 
-        <main class="dashboard-grid">
-            <!-- Time Scale Selector -->
-            <div class="time-scale-selector glass-panel">
-                <div class="selector-content">
-                    <div class="buttons-group">
-                        <button class="time-btn" data-range="1W">1W</button>
-                        <button class="time-btn" data-range="1M">1M</button>
-                        <button class="time-btn" data-range="6M">6M</button>
-                        <button class="time-btn" data-range="YTD">YTD</button>
-                        <div id="year-range-container" class="year-range-container"></div>
-                        <button class="time-btn active" data-range="ALL">ALL</button>
-                    </div>
-                    <div class="range-label-container">
-                        <span class="range-label">Viewing: <span id="selected-range-label">All Time</span></span>
-                        <button class="control-btn compare-toggle-btn" title="Toggle period comparison" aria-pressed="false">🔄 Compare</button>
-                    </div>
+        <!-- Sticky Integrated Global Command Bar -->
+        <nav class="terminal-command-bar terminal-panel" aria-label="Analytics controls">
+            <div class="command-group time-ranges" role="toolbar" aria-label="Time scale range">
+                <span class="command-label">RANGE</span>
+                <div class="pill-segmented">
+                    <button class="time-btn" data-range="1W">1W</button>
+                    <button class="time-btn" data-range="1M">1M</button>
+                    <button class="time-btn" data-range="6M">6M</button>
+                    <button class="time-btn" data-range="YTD">YTD</button>
+                    <div id="year-range-container" class="year-range-container"></div>
+                    <button class="time-btn active" data-range="ALL">ALL</button>
                 </div>
             </div>
 
-            <!-- Key Metrics Cards -->
-            <section class="metrics-row">
-                <div class="metric-card glass-panel" id="card-total">
-                    <h3>Total Users</h3>
-                    <div class="value" id="val-total-users">--</div>
-                    <div class="trend" id="trend-total">--</div>
-                    <div class="comparison" id="comparison-total" hidden></div>
+            <div class="command-group view-toggles" role="toolbar" aria-label="Analysis toggles">
+                <span class="command-label">INDICATORS</span>
+                <div class="pill-segmented">
+                    <button class="control-btn toggle-ma-btn" title="Toggle trailing 7-day moving average" aria-pressed="false">📈 7D MA</button>
+                    <button class="control-btn toggle-velocity-btn" id="toggle-velocity-btn" title="Toggle daily additions/losses velocity chart" aria-pressed="false">📊 Velocity</button>
+                    <button class="control-btn compare-toggle-btn" title="Toggle period comparison" aria-pressed="false">🔄 Compare</button>
                 </div>
-                <div class="metric-card glass-panel" id="card-active">
-                    <h3>Active Users</h3>
-                    <div class="value" id="val-active-users">--</div>
-                    <div class="trend" id="trend-active">--</div>
-                    <div class="comparison" id="comparison-active" hidden></div>
+            </div>
+
+            <div class="command-group range-status">
+                <span class="range-display">VIEWING: <strong id="selected-range-label">All Time</strong></span>
+            </div>
+        </nav>
+
+        <main class="dashboard-grid">
+            <!-- 4-Card Quantitative Metrics Grid -->
+            <section class="metrics-row" aria-label="Key quantitative metrics">
+                <!-- Total Users Card -->
+                <div class="metric-card terminal-panel" id="card-total">
+                    <div class="card-header">
+                        <span class="metric-title">TOTAL USERS</span>
+                        <span class="metric-chip">CUMULATIVE</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="value-row">
+                            <span class="value tabular-stat" id="val-total-users">--</span>
+                            <div class="trend" id="trend-total">--</div>
+                        </div>
+                        <div class="comparison" id="comparison-total" hidden></div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="sparkline-wrapper">
+                            <svg class="sparkline-svg" id="sparkline-total" viewBox="0 0 120 28" preserveAspectRatio="none" aria-hidden="true">
+                                <path class="sparkline-path sparkline-total" d="" />
+                            </svg>
+                        </div>
+                    </div>
                 </div>
-                <div class="metric-card glass-panel" id="card-net-growth">
-                    <h3>Net User Growth</h3>
-                    <div class="value" id="val-net-growth">--</div>
-                    <div class="trend" id="trend-net-growth">--</div>
-                    <div class="comparison" id="comparison-net-growth" hidden></div>
+
+                <!-- Active Users Card -->
+                <div class="metric-card terminal-panel" id="card-active">
+                    <div class="card-header">
+                        <span class="metric-title">ACTIVE USERS</span>
+                        <span class="metric-chip chip-cyan">MONTHLY</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="value-row">
+                            <span class="value tabular-stat" id="val-active-users">--</span>
+                            <div class="trend" id="trend-active">--</div>
+                        </div>
+                        <div class="comparison" id="comparison-active" hidden></div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="sparkline-wrapper">
+                            <svg class="sparkline-svg" id="sparkline-active" viewBox="0 0 120 28" preserveAspectRatio="none" aria-hidden="true">
+                                <path class="sparkline-path sparkline-active" d="" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Engagement Ratio Card -->
+                <div class="metric-card terminal-panel" id="card-engagement">
+                    <div class="card-header">
+                        <span class="metric-title">ENGAGEMENT RATIO</span>
+                        <span class="metric-chip chip-violet">ACTIVE / TOTAL</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="value-row">
+                            <span class="value tabular-stat" id="val-engagement-ratio">--</span>
+                            <div class="trend" id="trend-engagement">--</div>
+                        </div>
+                        <div class="comparison" id="comparison-engagement" hidden></div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="sparkline-wrapper">
+                            <svg class="sparkline-svg" id="sparkline-engagement" viewBox="0 0 120 28" preserveAspectRatio="none" aria-hidden="true">
+                                <path class="sparkline-path sparkline-engagement" d="" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Net User Growth & Velocity Card -->
+                <div class="metric-card terminal-panel" id="card-net-growth">
+                    <div class="card-header">
+                        <span class="metric-title">NET GROWTH & VELOCITY</span>
+                        <span class="metric-chip chip-amber">PACE</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="value-row">
+                            <span class="value tabular-stat" id="val-net-growth">--</span>
+                            <div class="trend" id="trend-net-growth">--</div>
+                        </div>
+                        <div class="velocity-pace-stat">
+                            <span class="velocity-label">RUN RATE:</span>
+                            <span class="velocity-val tabular-stat" id="val-growth-velocity">--</span>
+                        </div>
+                        <div class="comparison" id="comparison-net-growth" hidden></div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="sparkline-wrapper">
+                            <svg class="sparkline-svg" id="sparkline-velocity" viewBox="0 0 120 28" preserveAspectRatio="none" aria-hidden="true">
+                                <path class="sparkline-path sparkline-velocity" d="" />
+                            </svg>
+                        </div>
+                    </div>
                 </div>
             </section>
 
-            <!-- Charts Area -->
-            <section class="charts-grid">
-                <div class="chart-section glass-panel">
+            <!-- Charts Section -->
+            <section class="charts-grid" aria-label="Time series charts">
+                <!-- Total Users Chart -->
+                <div class="chart-section terminal-panel">
                     <div class="chart-header">
-                        <h2>Total Users Over Time</h2>
+                        <div class="chart-title-group">
+                            <h2>Total Users Over Time</h2>
+                            <span class="chart-subtitle">Cumulative registered network population</span>
+                        </div>
                         <div class="chart-actions">
                             <button class="control-btn toggle-ma-btn" title="Toggle trailing 7-day moving average" aria-pressed="false">📈 MA</button>
                             <button class="control-btn export-png-btn" data-chart="totalChart" title="Export as PNG">📥 PNG</button>
                             <button class="control-btn export-csv-btn" data-chart="totalChart" title="Export data as CSV">📥 CSV</button>
-                            <button class="control-btn reset-zoom-btn" data-chart="totalChart">Reset Zoom</button>
+                            <button class="control-btn reset-zoom-btn" data-chart="totalChart" title="Reset Zoom">Reset Zoom</button>
                         </div>
                     </div>
                     <div class="chart-container">
-                        <canvas id="totalChart"></canvas>
+                        <canvas id="totalChart" aria-label="Total users chart" role="img"></canvas>
                     </div>
                 </div>
-                <div class="chart-section glass-panel">
+
+                <!-- Active Users Chart -->
+                <div class="chart-section terminal-panel">
                     <div class="chart-header">
-                        <h2>Active Users Over Time</h2>
+                        <div class="chart-title-group">
+                            <h2>Active Users Over Time</h2>
+                            <span class="chart-subtitle">Observed monthly active accounts</span>
+                        </div>
                         <div class="chart-actions">
                             <button class="control-btn toggle-ma-btn" title="Toggle trailing 7-day moving average" aria-pressed="false">📈 MA</button>
                             <button class="control-btn export-png-btn" data-chart="activeChart" title="Export as PNG">📥 PNG</button>
                             <button class="control-btn export-csv-btn" data-chart="activeChart" title="Export data as CSV">📥 CSV</button>
-                            <button class="control-btn reset-zoom-btn" data-chart="activeChart">Reset Zoom</button>
+                            <button class="control-btn reset-zoom-btn" data-chart="activeChart" title="Reset Zoom">Reset Zoom</button>
                         </div>
                     </div>
                     <div class="chart-container">
-                        <canvas id="activeChart"></canvas>
+                        <canvas id="activeChart" aria-label="Active users chart" role="img"></canvas>
+                    </div>
+                </div>
+
+                <!-- Daily Net Change Velocity Histogram Chart (Collapsible / Toggleable) -->
+                <div class="chart-section terminal-panel" id="section-velocity-chart" hidden>
+                    <div class="chart-header">
+                        <div class="chart-title-group">
+                            <h2>Daily Net Change Velocity</h2>
+                            <span class="chart-subtitle">Day-over-day net user change volume</span>
+                        </div>
+                        <div class="chart-actions">
+                            <button class="control-btn export-png-btn" data-chart="velocityChart" title="Export as PNG">📥 PNG</button>
+                            <button class="control-btn export-csv-btn" data-chart="velocityChart" title="Export data as CSV">📥 CSV</button>
+                            <button class="control-btn reset-zoom-btn" data-chart="velocityChart" title="Reset Zoom">Reset Zoom</button>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="velocityChart" aria-label="Daily net change velocity chart" role="img"></canvas>
                     </div>
                 </div>
             </section>
         </main>
-        
+
         <footer class="dashboard-footer">
-            <p>Data provided by <a href="https://api.joinmastodon.org/statistics" target="_blank" rel="noopener">Mastodon API</a>.</p>
+            <div class="footer-left">
+                <span class="footer-dot"></span>
+                <span>Mastodon Statistics Terminal</span>
+            </div>
+            <div class="footer-right">
+                <p>Data provided by <a href="https://api.joinmastodon.org/statistics" target="_blank" rel="noopener">Mastodon API</a>. Updates automated via GitHub Actions.</p>
+            </div>
         </footer>
     </div>
 
-    <script src="historicalData.js?v=3"></script>
-    <script src="script.js?v=3"></script>
+    <script src="historicalData.js?v=4"></script>
+    <script src="script.js?v=4"></script>
 </body>
 </html>
