@@ -7,16 +7,14 @@
     <meta name="description" content="Institutional-grade analytics terminal displaying Mastodon user growth, active user retention, and network velocity.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
-    <link rel="stylesheet" href="style.css?v=6">
+    <link rel="stylesheet" href="style.css?v=7">
 </head>
 <body>
     <div class="background-effects">
-        <div class="ambient-glow glow-top"></div>
-        <div class="ambient-glow glow-bottom"></div>
         <div class="grid-overlay"></div>
     </div>
 
@@ -26,7 +24,7 @@
             <div class="header-brand">
                 <div class="terminal-badge">
                     <span class="badge-pulse"></span>
-                    <span class="badge-text">FEDIVERSE // LIVE</span>
+                    <span class="badge-text">FEDIVERSE // MASTODON-HQ</span>
                 </div>
                 <h1>Mastodon <span>Network Pulse</span></h1>
                 <p class="header-subtitle">Quantitative analytics & growth metrics for decentralized social infrastructure</p>
@@ -178,7 +176,7 @@
                             <h2>Total Users Over Time</h2>
                             <span class="chart-subtitle">Cumulative registered network population</span>
                             <div class="chart-comparison-legend" hidden>
-                                <span class="legend-badge"><span class="legend-line line-violet"></span> Current</span>
+                                <span class="legend-badge"><span class="legend-line line-amber"></span> Current</span>
                                 <span class="legend-badge"><span class="legend-line line-prior"></span> Prior Period</span>
                             </div>
                         </div>
@@ -374,7 +372,7 @@
         </div>
     </dialog>
 
-    <script src="historicalData.js?v=6"></script>
-    <script src="script.js?v=6"></script>
+    <script src="historicalData.js?v=7"></script>
+    <script src="script.js?v=7"></script>
 </body>
 </html>

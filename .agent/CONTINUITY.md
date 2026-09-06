@@ -2,11 +2,17 @@
 
 [PLANS]
 
-- 2026-09-06T16:16Z [USER] Diagnose why the Compare button is broken on https://lichtman.synology.me/Mastodon/, decide how to fix it, and propose a work breakdown.
-- 2026-09-06T16:17Z [USER] Implementation plan approved via user review policy.
-- 2026-09-06T16:19Z [CODE] Completed all 4 implementation phases.
+- 2026-09-06T17:46Z [USER] Redesign the visual style of the Mastodon statistics dashboard; run /frontend-design and /grill-me interactive interview to nail down aesthetics, typography, palette, and layout.
+- 2026-09-06T17:48Z [CODE] Completed 8-stage /grill-me interview. Created implementation plan for Bloomberg Amber & Obsidian Precision Quantitative Terminal redesign.
+- 2026-09-06T17:50Z [CODE] Implemented complete redesign across index.html, style.css, and script.js. Verified end-to-end with unit tests, Playwright test harness, and visual proof screenshots.
 
 [DECISIONS]
+
+- 2026-09-06T17:48Z [USER] Selected Bloomberg Amber & Obsidian Precision Quantitative Terminal: deep carbon obsidian (#080A0E), warm terminal amber (#FFB000), electric cyan (#00E5FF), phosphor emerald (#00D26A) / crimson (#F83F55) deltas, and muted ochre (#D97706) prior period comparison baseline.
+- 2026-09-06T17:48Z [USER] Typography: Hybrid Technical Terminal pairing IBM Plex Sans (grotesque chrome/labels) with JetBrains Mono (slashed-zero tabular monospace figures, metrics, timestamps).
+- 2026-09-06T17:48Z [USER] Framing & Controls: Flat obsidian pane surfaces with 1px razor-sharp hairline borders (#1E2430), 2px micro-radiused keycap buttons with active amber lighting & LED indicator dots, and zero blurry drop shadows or ambient glowing blobs.
+- 2026-09-06T17:48Z [USER] Chart Traces & Telemetry: 1.5px clean wire traces, 2% minimal fill, obsidian HUD tooltips with 1px hairline framing, and modular ticker metric blocks with bottom sparklines.
+
 
 - 2026-09-06T16:16Z [CODE] Break implementation into 4 phases: (1) Data Pipeline & Alignment, (2) Chart Overlay Engine, (3) Range & Command Bar UX, (4) Automated Testing & Verification.
 - 2026-09-06T16:16Z [CODE] Overlay previous period as a dashed comparison line on Total and Active Users line charts, with tooltips comparing current vs. prior observations.
@@ -35,5 +41,6 @@
 - 2026-09-06T16:56Z [TOOL] Synology Web Station clone at /volume1/web/Mastodon updated to latest master (063c29a). Executed live Playwright verification against https://lichtman.synology.me/Mastodon/ confirming comparison overlays render in production (captured live-proof-compare.png).
 - 2026-09-06T17:19Z [CODE] Built in-product Terminal Guide dialog (`<dialog id="guide-dialog">`) explaining Prior Period methodology across all time ranges, interactive tooltip mechanics, and analytical indicators (7D MA, Velocity, Engagement Ratio).
 - 2026-09-06T17:20Z [TOOL] Verified end-to-end locally with `scripts/control-dashboard.py verify-all` (doctor, verify-compare, verify-guide). Captured visual evidence proof-guide.png and proof-tooltip-full.png.
-
-
+- 2026-09-06T17:50Z [TOOL] Bloomberg Amber & Obsidian redesign fully deployed to index.html, style.css, and script.js. Verified with 22/22 unit tests passing, control-dashboard.py verification suite passing, and captured visual proofs (proof-redesign-default.png, proof-redesign-active.png). Walkthrough documented in walkthrough.md.
+- 2026-09-06T18:09Z [DISCOVERY] In style.css, .chart-section { display: flex } was overriding the HTML [hidden] attribute on #section-velocity-chart, causing the container to sit visible on initial page load with a blank canvas while showVelocityChart was false.
+- 2026-09-06T18:10Z [CODE] Added [hidden] { display: none !important; } to style.css and minBarLength: 2 with adaptive borderRadius to velocityChartInstance in script.js so bars remain visible when toggled. Verified clean hide/show behavior with Playwright.

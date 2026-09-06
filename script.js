@@ -328,26 +328,26 @@ const renderChart = (data, comparisonData = null) => {
     if (activeChartInstance) activeChartInstance.destroy();
     if (velocityChartInstance) velocityChartInstance.destroy();
 
-    // Institutional Terminal Palette
-    const colorTotal = '#A78BFA';      // Violet
-    const colorActive = '#38BDF8';     // Sky Cyan
-    const colorPrior = '#F59E0B';      // Amber for prior period comparison
-    const colorGain = '#10B981';       // Emerald Green
-    const colorLoss = '#F43F5E';       // Rose Red
-    const gridColor = 'rgba(255, 255, 255, 0.04)';
-    const textColor = '#94A3B8';
+    // Bloomberg Amber & Obsidian Terminal Palette
+    const colorTotal = '#FFB000';      // Bloomberg Amber
+    const colorActive = '#00E5FF';     // Electric Cyan
+    const colorPrior = '#D97706';      // Muted Ochre for prior period comparison
+    const colorGain = '#00D26A';       // Phosphor Green
+    const colorLoss = '#F83F55';       // Crimson
+    const gridColor = 'rgba(255, 255, 255, 0.035)';
+    const textColor = '#9BA3AF';
 
-    // Gradients for area fills
+    // Gradients for area fills - ultra-restrained 2-5% tint
     const gradientTotal = ctxTotal.createLinearGradient(0, 0, 0, 420);
-    gradientTotal.addColorStop(0, 'rgba(167, 139, 250, 0.22)');
-    gradientTotal.addColorStop(1, 'rgba(167, 139, 250, 0)');
+    gradientTotal.addColorStop(0, 'rgba(255, 176, 0, 0.05)');
+    gradientTotal.addColorStop(1, 'rgba(255, 176, 0, 0)');
 
     const gradientActive = ctxActive.createLinearGradient(0, 0, 0, 420);
-    gradientActive.addColorStop(0, 'rgba(56, 189, 248, 0.22)');
-    gradientActive.addColorStop(1, 'rgba(56, 189, 248, 0)');
+    gradientActive.addColorStop(0, 'rgba(0, 229, 255, 0.05)');
+    gradientActive.addColorStop(1, 'rgba(0, 229, 255, 0)');
 
     Chart.defaults.color = textColor;
-    Chart.defaults.font.family = "'JetBrains Mono', 'Outfit', monospace";
+    Chart.defaults.font.family = "'JetBrains Mono', 'IBM Plex Sans', monospace";
 
     const hasComparison = Boolean(showComparison && comparisonData && comparisonData.totalUsers);
 
@@ -361,14 +361,14 @@ const renderChart = (data, comparisonData = null) => {
         plugins: {
             legend: { display: false },
             tooltip: {
-                backgroundColor: 'rgba(15, 20, 31, 0.95)',
-                titleColor: '#F8FAFC',
-                bodyColor: '#94A3B8',
-                borderColor: 'rgba(255, 255, 255, 0.12)',
+                backgroundColor: '#0B0E14',
+                titleColor: '#FFB000',
+                bodyColor: '#F0F4F8',
+                borderColor: '#2D3748',
                 borderWidth: 1,
-                padding: 12,
-                cornerRadius: 8,
-                titleFont: { family: "'Outfit', sans-serif", weight: '600', size: 13 },
+                padding: 10,
+                cornerRadius: 2,
+                titleFont: { family: "'IBM Plex Sans', sans-serif", weight: '600', size: 12 },
                 bodyFont: { family: "'JetBrains Mono', monospace", size: 12 },
                 callbacks: {
                     title: function(tooltipItems) {
@@ -411,7 +411,7 @@ const renderChart = (data, comparisonData = null) => {
                     maxRotation: 0,
                     minRotation: 0,
                     color: textColor,
-                    font: { size: 11 }
+                    font: { size: 11, family: "'JetBrains Mono', monospace" }
                 }
             },
             y: {
@@ -419,7 +419,7 @@ const renderChart = (data, comparisonData = null) => {
                 ticks: {
                     callback: function(value) { return formatNumber(value); },
                     color: textColor,
-                    font: { size: 11 }
+                    font: { size: 11, family: "'JetBrains Mono', monospace" }
                 }
             }
         }
@@ -436,41 +436,41 @@ const renderChart = (data, comparisonData = null) => {
                     data: data.totalUsers,
                     borderColor: colorTotal,
                     backgroundColor: gradientTotal,
-                    borderWidth: 2.5,
-                    pointBackgroundColor: '#0B0F17',
+                    borderWidth: 2,
+                    pointBackgroundColor: '#080A0E',
                     pointBorderColor: colorTotal,
                     pointBorderWidth: 1.5,
                     pointRadius: data.labels.length > 90 ? 0 : 3,
                     pointHoverRadius: 5,
                     fill: true,
-                    tension: 0.25
+                    tension: 0.2
                 },
                 ...(showMovingAverage ? [{
                     label: '7-Day MA',
                     data: data.totalMA,
-                    borderColor: 'rgba(167, 139, 250, 0.65)',
+                    borderColor: 'rgba(255, 176, 0, 0.65)',
                     backgroundColor: 'transparent',
-                    borderWidth: 1.75,
+                    borderWidth: 1.5,
                     borderDash: [4, 4],
                     pointRadius: 0,
                     pointHoverRadius: 0,
                     fill: false,
-                    tension: 0.25
+                    tension: 0.2
                 }] : []),
                 ...(hasComparison ? [{
                     label: 'Total Users (Prior Period)',
                     data: comparisonData.totalUsers,
                     borderColor: colorPrior,
                     backgroundColor: 'transparent',
-                    borderWidth: 2,
+                    borderWidth: 1.75,
                     borderDash: [5, 5],
-                    pointBackgroundColor: '#0B0F17',
+                    pointBackgroundColor: '#080A0E',
                     pointBorderColor: colorPrior,
                     pointBorderWidth: 1.5,
                     pointRadius: data.labels.length > 90 ? 0 : 2.5,
                     pointHoverRadius: 5,
                     fill: false,
-                    tension: 0.25
+                    tension: 0.2
                 }] : [])
             ]
         },
@@ -488,41 +488,41 @@ const renderChart = (data, comparisonData = null) => {
                     data: data.activeUsers,
                     borderColor: colorActive,
                     backgroundColor: gradientActive,
-                    borderWidth: 2.5,
-                    pointBackgroundColor: '#0B0F17',
+                    borderWidth: 2,
+                    pointBackgroundColor: '#080A0E',
                     pointBorderColor: colorActive,
                     pointBorderWidth: 1.5,
                     pointRadius: data.labels.length > 90 ? 0 : 3,
                     pointHoverRadius: 5,
                     fill: true,
-                    tension: 0.25
+                    tension: 0.2
                 },
                 ...(showMovingAverage ? [{
                     label: '7-Day MA',
                     data: data.activeMA,
-                    borderColor: 'rgba(56, 189, 248, 0.65)',
+                    borderColor: 'rgba(0, 229, 255, 0.65)',
                     backgroundColor: 'transparent',
-                    borderWidth: 1.75,
+                    borderWidth: 1.5,
                     borderDash: [4, 4],
                     pointRadius: 0,
                     pointHoverRadius: 0,
                     fill: false,
-                    tension: 0.25
+                    tension: 0.2
                 }] : []),
                 ...(hasComparison ? [{
                     label: 'Active Users (Prior Period)',
                     data: comparisonData.activeUsers,
                     borderColor: colorPrior,
                     backgroundColor: 'transparent',
-                    borderWidth: 2,
+                    borderWidth: 1.75,
                     borderDash: [5, 5],
-                    pointBackgroundColor: '#0B0F17',
+                    pointBackgroundColor: '#080A0E',
                     pointBorderColor: colorPrior,
                     pointBorderWidth: 1.5,
                     pointRadius: data.labels.length > 90 ? 0 : 2.5,
                     pointHoverRadius: 5,
                     fill: false,
-                    tension: 0.25
+                    tension: 0.2
                 }] : [])
             ]
         },
@@ -551,7 +551,8 @@ const renderChart = (data, comparisonData = null) => {
                         label: 'Net Daily Change',
                         data: deltas,
                         backgroundColor: barColors,
-                        borderRadius: 3,
+                        borderRadius: data.labels.length > 90 ? 0 : 2,
+                        minBarLength: 2,
                         borderSkipped: false
                     }]
                 },
