@@ -135,7 +135,7 @@ const processData = (fullDataArray, range = 'ALL') => {
 
 // Period Comparison
 const calculatePeriodComparison = (range, dataArray) => {
-    if (range === 'ALL') return null;
+    if (range === 'ALL' || !dataArray || dataArray.length === 0) return null;
 
     const current = filterDataByRange(range, dataArray);
     if (current.length < 2) return null;
@@ -143,11 +143,21 @@ const calculatePeriodComparison = (range, dataArray) => {
     const currentStartIndex = dataArray.findIndex(item => item === current[0]);
     if (currentStartIndex <= 0) return null;
 
-    const previous = dataArray.slice(
-        Math.max(0, currentStartIndex - current.length),
-        currentStartIndex
-    );
-    return previous.length >= 2 ? processData(previous) : null;
+    const previousStartIndex = Math.max(0, currentStartIndex - current.length);
+    const previous = dataArray.slice(previousStartIndex, currentStartIndex);
+    if (previous.length < 2) return null;
+
+    const processed = processData(previous);
+    // Align previous points with current length if previous had fewer points due to dataset boundary
+    if (previous.length < current.length) {
+        const padCount = current.length - previous.length;
+        const nullPad = Array(padCount).fill(null);
+        processed.totalUsers = [...nullPad, ...processed.totalUsers];
+        processed.activeUsers = [...nullPad, ...processed.activeUsers];
+        processed.dailyTotalDeltas = [...nullPad, ...processed.dailyTotalDeltas];
+        processed.labels = [...nullPad, ...processed.labels];
+    }
+    return processed;
 };
 
 // Update DOM Metrics
@@ -257,7 +267,10 @@ const updateMetrics = (data, periodLabel = 'All Time', comparisonData = null) =>
     if (!showComparison) return;
     if (!comparisonData || comparisonData.raw.length < 2) {
         Object.values(comparisonElements).forEach(element => {
-            if (element) element.textContent = 'Previous period unavailable';
+            if (element) {
+                element.textContent = 'Previous period unavailable';
+                element.className = 'comparison';
+            }
         });
         return;
     }
@@ -271,20 +284,36 @@ const updateMetrics = (data, periodLabel = 'All Time', comparisonData = null) =>
     const priorEndEngage = priorLast.total > 0 ? (priorLast.active / priorLast.total) * 100 : 0;
     const priorEngageDiff = priorEndEngage - priorStartEngage;
 
-    if (comparisonElements.total) comparisonElements.total.textContent = `Prev period: ${formatTrendText(priorTotalTrend)}`;
-    if (comparisonElements.active) comparisonElements.active.textContent = `Prev period: ${formatTrendText(priorActiveTrend)}`;
+    const formatPriorTrend = (trend) => {
+        const sign = trend.diff >= 0 ? '+' : '';
+        const arrow = trend.diff >= 0 ? '▲' : '▼';
+        return `${arrow} ${sign}${trend.pct.toFixed(2)}% (${sign}${formatNumber(trend.diff)})`;
+    };
+
+    if (comparisonElements.total) {
+        comparisonElements.total.textContent = `Prev: ${formatPriorTrend(priorTotalTrend)}`;
+        comparisonElements.total.className = `comparison ${priorTotalTrend.diff >= 0 ? 'comp-up' : 'comp-down'}`;
+    }
+    if (comparisonElements.active) {
+        comparisonElements.active.textContent = `Prev: ${formatPriorTrend(priorActiveTrend)}`;
+        comparisonElements.active.className = `comparison ${priorActiveTrend.diff >= 0 ? 'comp-up' : 'comp-down'}`;
+    }
     if (comparisonElements.engagement) {
         const sign = priorEngageDiff >= 0 ? '+' : '';
-        comparisonElements.engagement.textContent = `Prev period: ${sign}${priorEngageDiff.toFixed(2)}% engagement`;
+        const arrow = priorEngageDiff >= 0 ? '▲' : '▼';
+        comparisonElements.engagement.textContent = `Prev: ${arrow} ${sign}${priorEngageDiff.toFixed(2)}%`;
+        comparisonElements.engagement.className = `comparison ${priorEngageDiff >= 0 ? 'comp-up' : 'comp-down'}`;
     }
     if (comparisonElements.net) {
         const netSign = priorTotalTrend.diff >= 0 ? '+' : '';
-        comparisonElements.net.textContent = `Prev period net: ${netSign}${formatNumber(priorTotalTrend.diff)}`;
+        const netArrow = priorTotalTrend.diff >= 0 ? '▲' : '▼';
+        comparisonElements.net.textContent = `Prev net: ${netArrow} ${netSign}${formatNumber(priorTotalTrend.diff)}`;
+        comparisonElements.net.className = `comparison ${priorTotalTrend.diff >= 0 ? 'comp-up' : 'comp-down'}`;
     }
 };
 
 // Render Charts
-const renderChart = (data) => {
+const renderChart = (data, comparisonData = null) => {
     const canvasTotal = document.getElementById('totalChart');
     const canvasActive = document.getElementById('activeChart');
     const canvasVelocity = document.getElementById('velocityChart');
@@ -302,6 +331,7 @@ const renderChart = (data) => {
     // Institutional Terminal Palette
     const colorTotal = '#A78BFA';      // Violet
     const colorActive = '#38BDF8';     // Sky Cyan
+    const colorPrior = '#F59E0B';      // Amber for prior period comparison
     const colorGain = '#10B981';       // Emerald Green
     const colorLoss = '#F43F5E';       // Rose Red
     const gridColor = 'rgba(255, 255, 255, 0.04)';
@@ -341,7 +371,13 @@ const renderChart = (data) => {
                 callbacks: {
                     label: function(context) {
                         const val = context.parsed.y;
+                        if (val === null || val === undefined) return '';
                         const label = context.dataset.label || '';
+                        if (label.includes('Prior Period') && comparisonData && comparisonData.labels) {
+                            const priorDate = comparisonData.labels[context.dataIndex];
+                            const dateSuffix = priorDate ? ` (${priorDate})` : '';
+                            return ` ${label}${dateSuffix}: ${val.toLocaleString()}`;
+                        }
                         return ` ${label}: ${val.toLocaleString()}`;
                     }
                 }
@@ -380,6 +416,8 @@ const renderChart = (data) => {
         }
     };
 
+    const hasComparison = Boolean(showComparison && comparisonData && comparisonData.totalUsers);
+
     // 1. Total Users Chart
     totalChartInstance = new Chart(ctxTotal, {
         type: 'line',
@@ -409,6 +447,21 @@ const renderChart = (data) => {
                     borderDash: [4, 4],
                     pointRadius: 0,
                     pointHoverRadius: 0,
+                    fill: false,
+                    tension: 0.25
+                }] : []),
+                ...(hasComparison ? [{
+                    label: 'Total Users (Prior Period)',
+                    data: comparisonData.totalUsers,
+                    borderColor: colorPrior,
+                    backgroundColor: 'transparent',
+                    borderWidth: 2,
+                    borderDash: [5, 5],
+                    pointBackgroundColor: '#0B0F17',
+                    pointBorderColor: colorPrior,
+                    pointBorderWidth: 1.5,
+                    pointRadius: data.labels.length > 90 ? 0 : 2.5,
+                    pointHoverRadius: 5,
                     fill: false,
                     tension: 0.25
                 }] : [])
@@ -448,10 +501,30 @@ const renderChart = (data) => {
                     pointHoverRadius: 0,
                     fill: false,
                     tension: 0.25
+                }] : []),
+                ...(hasComparison ? [{
+                    label: 'Active Users (Prior Period)',
+                    data: comparisonData.activeUsers,
+                    borderColor: colorPrior,
+                    backgroundColor: 'transparent',
+                    borderWidth: 2,
+                    borderDash: [5, 5],
+                    pointBackgroundColor: '#0B0F17',
+                    pointBorderColor: colorPrior,
+                    pointBorderWidth: 1.5,
+                    pointRadius: data.labels.length > 90 ? 0 : 2.5,
+                    pointHoverRadius: 5,
+                    fill: false,
+                    tension: 0.25
                 }] : [])
             ]
         },
         options: commonOptions
+    });
+
+    // Toggle chart comparison legend badges
+    document.querySelectorAll('.chart-comparison-legend').forEach(legend => {
+        legend.hidden = !hasComparison;
     });
 
     // 3. Optional Daily Net Change Velocity Histogram Chart
@@ -712,6 +785,25 @@ const exportChartAsCSV = (chartName, isTotal) => {
     URL.revokeObjectURL(url);
 };
 
+const updateComparisonButtonState = () => {
+    const compareBtn = document.querySelector('.compare-toggle-btn');
+    if (!compareBtn) return;
+
+    const canCompare = selectedRange !== 'ALL' && calculatePeriodComparison(selectedRange, historicalData) !== null;
+
+    if (!canCompare) {
+        compareBtn.classList.remove('active');
+        compareBtn.setAttribute('aria-pressed', 'false');
+        compareBtn.classList.add('range-unsupported');
+        compareBtn.title = 'Period comparison unavailable for this range (select 1W, 1M, 6M, YTD, 1Y, or 2Y)';
+    } else {
+        compareBtn.classList.remove('range-unsupported');
+        compareBtn.classList.toggle('active', showComparison);
+        compareBtn.setAttribute('aria-pressed', String(showComparison));
+        compareBtn.title = 'Toggle period comparison';
+    }
+};
+
 const applyFilter = (range) => {
     selectedRange = range;
     const processed = processData(historicalData, range);
@@ -721,8 +813,9 @@ const applyFilter = (range) => {
         : null;
 
     updateMetrics(processed, rangeLabel, comparisonData);
-    renderChart(processed);
+    renderChart(processed, comparisonData);
     updateRangeLabel(rangeLabel);
+    updateComparisonButtonState();
 };
 
 // Main Init Function
@@ -800,9 +893,19 @@ const initDashboard = () => {
         const compareBtn = document.querySelector('.compare-toggle-btn');
         if (compareBtn) {
             compareBtn.addEventListener('click', () => {
+                // If on ALL or an unsupported range, automatically transition to 1Y
+                if (selectedRange === 'ALL' || calculatePeriodComparison(selectedRange, historicalData) === null) {
+                    showComparison = true;
+                    document.querySelectorAll('.time-btn').forEach(b => {
+                        b.classList.toggle('active', b.dataset.range === '1Y');
+                    });
+                    const yearSelect = document.querySelector('.year-range-select');
+                    if (yearSelect) yearSelect.value = '1Y';
+                    applyFilter('1Y');
+                    return;
+                }
+
                 showComparison = !showComparison;
-                compareBtn.classList.toggle('active', showComparison);
-                compareBtn.setAttribute('aria-pressed', String(showComparison));
                 applyFilter(selectedRange);
             });
         }
@@ -858,6 +961,7 @@ if (typeof module !== 'undefined' && module.exports) {
         getRangeLabel,
         parseArchiveDate,
         processData,
-        resetChartZoom
+        resetChartZoom,
+        updateComparisonButtonState
     };
 }

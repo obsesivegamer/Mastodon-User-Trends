@@ -280,3 +280,42 @@ test('resetChartZoom resets velocityChart and does not touch other charts', () =
     assert.equal(velocityResetCount, 1);
     assert.equal(totalResetCount, 0);
 });
+
+test('calculatePeriodComparison returns null for ALL, empty data, or single records', () => {
+    const data = [{ date: '2026-07-01', total: 100, active: 50 }];
+    assert.equal(calculatePeriodComparison('ALL', data), null);
+    assert.equal(calculatePeriodComparison('1M', []), null);
+    assert.equal(calculatePeriodComparison('1M', data), null);
+    assert.equal(calculatePeriodComparison('1M', null), null);
+});
+
+test('calculatePeriodComparison produces aligned arrays matching current period length', () => {
+    const data = Array.from({ length: 30 }, (_, index) => ({
+        date: `2026-08-${String(index + 1).padStart(2, '0')}`,
+        total: 1000 + index * 10,
+        active: 500 + index * 5
+    }));
+    const current = filterDataByRange('1W', data);
+    const comparison = calculatePeriodComparison('1W', data);
+    assert.ok(comparison);
+    assert.equal(comparison.totalUsers.length, current.length);
+    assert.equal(comparison.activeUsers.length, current.length);
+    assert.equal(comparison.labels.length, current.length);
+});
+
+test('calculatePeriodComparison pads nulls when previous period is truncated at dataset boundary', () => {
+    const data = Array.from({ length: 10 }, (_, index) => ({
+        date: `2026-08-${String(index + 1).padStart(2, '0')}`,
+        total: 100 + index,
+        active: 50 + index
+    }));
+    const current = filterDataByRange('1W', data);
+    const comparison = calculatePeriodComparison('1W', data);
+    assert.ok(comparison);
+    assert.equal(comparison.totalUsers.length, current.length);
+    const padCount = current.length - 2;
+    for (let i = 0; i < padCount; i++) {
+        assert.equal(comparison.totalUsers[i], null);
+    }
+    assert.equal(typeof comparison.totalUsers[padCount], 'number');
+});
