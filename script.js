@@ -46,13 +46,15 @@ const calculateEngagementRatio = (total, active) => {
     return pct.toFixed(2) + '%';
 };
 
-const calculateGrowthVelocity = (dataArray) => {
+const calculateGrowthVelocity = (dataArray, key = 'total') => {
     if (!dataArray || dataArray.length < 2) {
         return { diff: 0, days: 1, ratePerDay: 0, formatted: '0 / day' };
     }
     const first = dataArray[0];
     const last = dataArray[dataArray.length - 1];
-    const diff = last.total - first.total;
+    const firstVal = first[key] !== undefined ? first[key] : (first.total !== undefined ? first.total : 0);
+    const lastVal = last[key] !== undefined ? last[key] : (last.total !== undefined ? last.total : 0);
+    const diff = lastVal - firstVal;
 
     const startDate = parseArchiveDate(first.date);
     const endDate = parseArchiveDate(last.date);
@@ -121,12 +123,14 @@ const processData = (fullDataArray, range = 'ALL') => {
     const totalUsers = filteredData.map(d => d.total);
     const activeUsers = filteredData.map(d => d.active);
     const dailyTotalDeltas = calculateDailyDeltas(filteredData, 'total');
+    const dailyActiveDeltas = calculateDailyDeltas(filteredData, 'active');
 
     return {
         labels,
         totalUsers,
         activeUsers,
         dailyTotalDeltas,
+        dailyActiveDeltas,
         totalMA: filteredTotalMA,
         activeMA: filteredActiveMA,
         raw: filteredData
@@ -155,6 +159,7 @@ const calculatePeriodComparison = (range, dataArray) => {
         processed.totalUsers = [...nullPad, ...processed.totalUsers];
         processed.activeUsers = [...nullPad, ...processed.activeUsers];
         processed.dailyTotalDeltas = [...nullPad, ...processed.dailyTotalDeltas];
+        processed.dailyActiveDeltas = [...nullPad, ...processed.dailyActiveDeltas];
         processed.labels = [...nullPad, ...processed.labels];
     }
     return processed;

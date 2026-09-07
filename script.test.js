@@ -319,3 +319,37 @@ test('calculatePeriodComparison pads nulls when previous period is truncated at 
     }
     assert.equal(typeof comparison.totalUsers[padCount], 'number');
 });
+
+test('calculateGrowthVelocity computes run rate for active metric when key is "active"', () => {
+    const data = [
+        { date: '2026-07-01', total: 10000, active: 5000 },
+        { date: '2026-07-11', total: 20000, active: 8000 }
+    ];
+    const totalVelocity = calculateGrowthVelocity(data, 'total');
+    const activeVelocity = calculateGrowthVelocity(data, 'active');
+    assert.equal(totalVelocity.diff, 10000);
+    assert.equal(activeVelocity.diff, 3000);
+    assert.equal(activeVelocity.ratePerDay, 300);
+    assert.equal(activeVelocity.formatted, '+300 / day');
+});
+
+test('calculateDailyDeltas computes day-over-day changes for active metric', () => {
+    const data = [
+        { date: '2026-07-01', total: 100, active: 50 },
+        { date: '2026-07-02', total: 105, active: 48 },
+        { date: '2026-07-03', total: 110, active: 54 }
+    ];
+    const activeDeltas = calculateDailyDeltas(data, 'active');
+    assert.deepEqual(activeDeltas, [0, -2, 6]);
+});
+
+test('processData provides both dailyTotalDeltas and dailyActiveDeltas', () => {
+    const data = [
+        { date: '2026-07-01', total: 100, active: 50 },
+        { date: '2026-07-02', total: 110, active: 45 },
+        { date: '2026-07-03', total: 125, active: 60 }
+    ];
+    const processed = processData(data, 'ALL');
+    assert.deepEqual(processed.dailyTotalDeltas, [0, 10, 15]);
+    assert.deepEqual(processed.dailyActiveDeltas, [0, -5, 15]);
+});
