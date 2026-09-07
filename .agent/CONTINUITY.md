@@ -32,6 +32,7 @@
 - 2026-09-06T16:16Z [CODE] `renderChart()` previously had no comparison datasets; Compare toggle only unhid 4 metric card subtitles and never modified the charts.
 - 2026-09-06T16:16Z [CODE] `calculatePeriodComparison('ALL')` returns `null`; since `ALL` is the default page load range, clicking Compare previously activated the button but yielded "Previous period unavailable" on cards and zero chart feedback.
 - 2026-09-06T16:43Z [TOOL] Discovered live site at https://lichtman.synology.me/Mastodon/ was still serving commit 2979033 (script.js?v=4) because the NAS git clone at /volume1/web/Mastodon has not pulled master since PR #10 was merged.
+- 2026-09-07T12:32Z [DISCOVERY] Live velocity mode buttons (#vel-mode-active, #vel-mode-total) were unresponsive because Synology clone was still running commit 65a768b (ahead only in index.html, lacking script.js click listeners from ff4dbcf) and assets were pinned to v=7.
 
 [OUTCOMES]
 
@@ -53,3 +54,4 @@
 - 2026-09-07T12:26Z [DECISION] Established Monthly Active Users (MAU) as primary platform health metric (Slot 1 in metric cards, Chart 1 in time series, and default mode in Velocity chart). Total Users (Cumulative Registrations) relegated to secondary network size metric (Slot 2 in metric cards, Chart 2 in time series).
 - 2026-09-07T12:26Z [CODE] Implemented dual-mode Velocity chart (⚡ MAU Health vs 👥 Signups), added Peak Signup Surges era bar (Nov '22, Jul '23, Sep '24, Feb '24), and updated Card 4 to MAU Health & Velocity.
 - 2026-09-07T12:26Z [TOOL] All 25/25 unit tests pass. Automated Playwright suite verified end-to-end (captured proof-mau-primary.png, proof-velocity-signups.png, proof-velocity-mau.png). Committed to master (ff4dbcf).
+- 2026-09-07T12:35Z [TOOL] Bumped asset query strings to v=8 in index.html, extended verification skill (`scripts/control-dashboard.py verify-velocity` and `.cursor/skills/verify-mastodon-trends/features/velocity-modes.md`), pushed to origin/master (d09e157), and synced to Synology NAS. Executed live verification against https://lichtman.synology.me/Mastodon/ confirming velocity mode switching and peak surge chips operate cleanly in production (captured live-proof-velocity.png). Full test suite passes (verify-all).
