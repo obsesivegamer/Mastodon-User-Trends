@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://obsesivegamer.github.io/Mastodon-User-Trends/sitemap.xml

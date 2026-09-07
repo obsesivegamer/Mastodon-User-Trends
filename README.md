@@ -1,6 +1,10 @@
 # Mastodon Statistics Dashboard
 
-A sleek, premium, financial-style dashboard to track Mastodon's total user growth and active user trends over time. Built with Vanilla HTML/JS/CSS, it is incredibly fast, visually stunning, and works entirely client-side.
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-GitHub%20Pages-FFB000?style=flat-square&logo=github)](https://obsesivegamer.github.io/Mastodon-User-Trends/)
+
+🌐 **Live Analytics Terminal:** [https://obsesivegamer.github.io/Mastodon-User-Trends/](https://obsesivegamer.github.io/Mastodon-User-Trends/)
+
+An institutional-grade, Bloomberg Amber & Obsidian analytics terminal to track Mastodon's total user growth, active user retention, and network velocity over time. Built with Vanilla HTML/JS/CSS, it is incredibly fast, visually stunning, and works entirely client-side.
 
 ## Features
 
