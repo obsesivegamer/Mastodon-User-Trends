@@ -90,6 +90,9 @@ python3 scripts/control-dashboard.py doctor
 # Drive and verify Period Comparison with visual screenshot
 python3 scripts/control-dashboard.py verify-compare --output artifacts/verify-mastodon-trends/proof-compare.png
 
+# Drive and verify Velocity modes (MAU Health vs Signups) and Peak Surges
+python3 scripts/control-dashboard.py verify-velocity --output artifacts/verify-mastodon-trends/proof-velocity.png
+
 # Run all automated verification suites
 python3 scripts/control-dashboard.py verify-all
 ```

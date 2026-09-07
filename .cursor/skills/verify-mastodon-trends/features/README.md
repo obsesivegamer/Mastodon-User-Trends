@@ -21,3 +21,4 @@ This directory contains the feature-level verification recipes for the Mastodon 
 - [Period Comparison](./period-comparison.md): Compare button toggle, auto-transition from unsupported ranges (`ALL` -> `1Y`), dashed comparison datasets, tooltips, and card deltas.
 - [Range Filtering](./range-filtering.md): Dynamic range selection (`1W`, `1M`, `6M`, `YTD`, `1Y`, `2Y`, `3Y`, `4Y`, `ALL`), active pill states, and metric re-slicing.
 - [Indicator Toggles](./indicator-toggles.md): 7-day trailing moving average overlay line and Daily Net Change velocity histogram.
+- [Velocity Modes & Peak Surges](./velocity-modes.md): Dual-mode velocity histogram (MAU Health vs Signups) and peak registration surges.
