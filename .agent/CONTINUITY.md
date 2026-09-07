@@ -5,6 +5,7 @@
 - 2026-09-06T17:46Z [USER] Redesign the visual style of the Mastodon statistics dashboard; run /frontend-design and /grill-me interactive interview to nail down aesthetics, typography, palette, and layout.
 - 2026-09-06T17:48Z [CODE] Completed 8-stage /grill-me interview. Created implementation plan for Bloomberg Amber & Obsidian Precision Quantitative Terminal redesign.
 - 2026-09-06T17:50Z [CODE] Implemented complete redesign across index.html, style.css, and script.js. Verified end-to-end with unit tests, Playwright test harness, and visual proof screenshots.
+- 2026-09-07T12:19Z [USER] Prioritize Monthly Active Users (MAU) as primary day-to-day platform health metric and surface peak user growth waves (signups) as secondary. Created implementation_plan.md artifact.
 
 [DECISIONS]
 
@@ -48,3 +49,4 @@
 - 2026-09-06T19:59Z [TOOL] User enabled GitHub Pages deployment from master branch. Verified live site at https://obsesivegamer.github.io/Mastodon-User-Trends/ via HTTP 200 and Playwright screenshot capture (github-pages-proof.png).
 - 2026-09-06T23:26Z [CODE] Added Google Search Console verification meta tag (_81BEB4N-Is_lfr7M82xSeJYes1Rg4vPYw2eOPZMKdM) to index.html. Pushed commit 3301981 to GitHub master and synced to Synology NAS clone at /volume1/web/Mastodon.
 - 2026-09-06T23:33Z [USER] Verified domain ownership in Google Search Console, submitted sitemap.xml, and initiated live URL inspection indexing request.
+- 2026-09-07T12:21Z [CODE] Enhanced on-page SEO: updated title/meta tags targeting Mastodon User Stats, Growth, Trends & DAU; added Schema.org FAQPage JSON-LD; added semantic Network Intelligence & FAQ accordion section in style.css and index.html. Verified visually and with test suites.

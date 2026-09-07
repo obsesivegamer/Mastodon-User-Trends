@@ -697,6 +697,113 @@ body {
     height: 440px;
 }
 
+/* Velocity Title Row & Mode Selector */
+.velocity-title-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.velocity-mode-pill {
+    margin-left: 0.25rem;
+}
+
+.velocity-mode-btn {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--text-secondary);
+    background: transparent;
+    border: 1px solid transparent;
+    padding: 0.25rem 0.55rem;
+    border-radius: 2px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.12s ease;
+}
+
+.velocity-mode-btn:hover {
+    color: var(--text-primary);
+    background-color: var(--bg-surface-active);
+    border-color: var(--border-subtle);
+}
+
+.velocity-mode-btn.active[data-mode="active"] {
+    background-color: var(--color-cyan-dim);
+    color: var(--color-cyan);
+    border-color: rgba(0, 229, 255, 0.45);
+    box-shadow: 0 0 10px rgba(0, 229, 255, 0.12);
+}
+
+.velocity-mode-btn.active[data-mode="total"] {
+    background-color: var(--color-amber-dim);
+    color: var(--color-amber);
+    border-color: rgba(255, 176, 0, 0.45);
+    box-shadow: 0 0 10px rgba(255, 176, 0, 0.12);
+}
+
+/* Peak Signup Surges Strip */
+.peak-surges-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.5rem 0.75rem;
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: 2px;
+    flex-wrap: wrap;
+}
+
+.peak-surges-label {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--color-amber);
+    white-space: nowrap;
+}
+
+.peak-surges-chips {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+}
+
+.peak-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.25rem 0.55rem;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 2px;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.12s ease;
+}
+
+.peak-chip:hover {
+    background: var(--bg-surface-active);
+    color: var(--text-primary);
+    border-color: var(--color-amber);
+    box-shadow: 0 0 8px rgba(255, 176, 0, 0.15);
+}
+
+.peak-chip .chip-title {
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.peak-chip .chip-val {
+    font-weight: 700;
+    color: var(--color-amber);
+}
+
 /* ==========================================================================
    Footer
    ========================================================================== */
@@ -736,6 +843,169 @@ body {
 .dashboard-footer a:hover {
     text-decoration: underline;
     color: var(--text-primary);
+}
+
+/* ==========================================================================
+   Terminal Insights & SEO Knowledge Base (Bloomberg Terminal Style)
+   ========================================================================== */
+.insights-panel {
+    margin-top: 1.5rem;
+    padding: 1.75rem;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+}
+
+.insights-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.insights-header h2 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: -0.01em;
+}
+
+.insights-summary {
+    font-size: 0.88rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    max-width: 900px;
+}
+
+.insights-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.75rem;
+}
+
+.insight-card {
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    padding: 1.15rem;
+    border-radius: 3px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.insight-card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--color-amber);
+}
+
+.insight-card-header h3 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.insight-card p {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    line-height: 1.55;
+}
+
+.insight-card strong {
+    color: var(--text-primary);
+}
+
+.insights-faq-wrap {
+    border-top: 1px solid var(--border-subtle);
+    padding-top: 1.5rem;
+}
+
+.faq-section-title {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-amber);
+    margin-bottom: 1rem;
+}
+
+.faq-accordion {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.faq-item {
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: 3px;
+    overflow: hidden;
+    transition: border-color 0.15s ease;
+}
+
+.faq-item[open] {
+    border-color: var(--border-strong);
+}
+
+.faq-question {
+    padding: 0.85rem 1.15rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    list-style: none;
+    user-select: none;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.faq-question::-webkit-details-marker {
+    display: none;
+}
+
+.faq-question:hover {
+    background: var(--bg-surface-active);
+    color: var(--color-amber);
+}
+
+.faq-arrow {
+    font-size: 0.65rem;
+    color: var(--color-amber);
+    transition: transform 0.2s ease;
+    margin-left: 0.75rem;
+    flex-shrink: 0;
+}
+
+.faq-item[open] .faq-arrow {
+    transform: rotate(180deg);
+}
+
+.faq-answer {
+    padding: 0 1.15rem 1rem 1.15rem;
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.faq-answer p {
+    margin: 0;
+}
+
+.faq-answer strong {
+    color: var(--text-primary);
+}
+
+.faq-answer code {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    background: var(--bg-canvas);
+    border: 1px solid var(--border-subtle);
+    padding: 0.1rem 0.35rem;
+    border-radius: 2px;
+    color: var(--color-cyan);
 }
 
 /* ==========================================================================
@@ -1070,6 +1340,10 @@ dialog.guide-dialog[open] {
     .metrics-row {
         grid-template-columns: repeat(2, 1fr);
     }
+
+    .insights-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 @media (max-width: 768px) {
@@ -1083,6 +1357,14 @@ dialog.guide-dialog[open] {
 
     .dashboard-header h1 {
         font-size: 1.4rem;
+    }
+
+    .insights-panel {
+        padding: 1.25rem 1rem;
+    }
+
+    .insights-header h2 {
+        font-size: 1.15rem;
     }
 
     .terminal-command-bar {

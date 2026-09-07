@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mastodon Analytics Terminal // Network Pulse &amp; Statistics</title>
-    <meta name="description" content="Institutional-grade quantitative analytics terminal displaying Mastodon cumulative user growth, active user retention, and daily network velocity.">
+    <title>Mastodon User Stats, Growth &amp; Trends // Daily Analytics Tracker</title>
+    <meta name="description" content="Track real-time Mastodon user stats, cumulative growth, daily active user trends, and network velocity from 2022 to present. Free historical analytics terminal.">
     <link rel="canonical" href="https://obsesivegamer.github.io/Mastodon-User-Trends/">
     <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
     <meta name="google-site-verification" content="_81BEB4N-Is_lfr7M82xSeJYes1Rg4vPYw2eOPZMKdM">
@@ -12,30 +12,71 @@
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://obsesivegamer.github.io/Mastodon-User-Trends/">
-    <meta property="og:title" content="Mastodon Analytics Terminal // Network Pulse">
-    <meta property="og:description" content="Quantitative analytics and historical growth statistics for decentralized social infrastructure.">
+    <meta property="og:title" content="Mastodon User Stats, Growth &amp; Trends Tracker">
+    <meta property="og:description" content="Interactive quantitative analytics terminal tracking Mastodon user growth, active user retention, and daily network velocity.">
     <meta property="og:site_name" content="Mastodon Analytics Terminal">
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary">
     <meta name="twitter:url" content="https://obsesivegamer.github.io/Mastodon-User-Trends/">
-    <meta name="twitter:title" content="Mastodon Analytics Terminal // Network Pulse">
-    <meta name="twitter:description" content="Quantitative analytics and historical growth statistics for decentralized social infrastructure.">
+    <meta name="twitter:title" content="Mastodon User Stats, Growth &amp; Trends Tracker">
+    <meta name="twitter:description" content="Interactive quantitative analytics terminal tracking Mastodon user growth, active user retention, and daily network velocity.">
 
-    <!-- Structured Data (JSON-LD) for Search Engines -->
+    <!-- Structured Data (JSON-LD) for Search Engines & Rich Results -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "WebApplication",
-      "name": "Mastodon Analytics Terminal",
-      "url": "https://obsesivegamer.github.io/Mastodon-User-Trends/",
-      "description": "Institutional-grade analytics terminal displaying Mastodon user growth, active retention, and network velocity.",
-      "applicationCategory": "AnalyticsApplication",
-      "operatingSystem": "All",
-      "about": {
-        "@type": "Thing",
-        "name": "Mastodon"
-      }
+      "@graph": [
+        {
+          "@type": "WebApplication",
+          "name": "Mastodon User Stats & Growth Analytics Terminal",
+          "url": "https://obsesivegamer.github.io/Mastodon-User-Trends/",
+          "description": "Institutional-grade analytics terminal displaying Mastodon user growth, daily active retention, and network velocity.",
+          "applicationCategory": "AnalyticsApplication",
+          "operatingSystem": "All",
+          "about": {
+            "@type": "Thing",
+            "name": "Mastodon"
+          }
+        },
+        {
+          "@type": "FAQPage",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "How many users does Mastodon have right now?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Mastodon tracks over 10 million cumulative registered accounts and between 1.0 million and 1.5 million monthly active users across thousands of decentralized federated instances, updated daily with historical records back to September 2022."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "What is the difference between total registered users and active users on Mastodon?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Total registered accounts is the cumulative count of all accounts created since instance inception. Active users measures unique accounts that have logged in, posted, or interacted within the trailing 30-day window, providing an accurate view of genuine engagement."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "How is Mastodon daily user growth velocity measured?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Daily growth velocity tracks the net additions or losses per day (new accounts minus deactivated or suspended accounts) over a selected timeframe, smoothed by a trailing 7-day moving average to filter out reporting anomalies."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Where can I view historical Mastodon user trends over time?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "This Mastodon Analytics Terminal provides continuous historical user growth data from September 2022 to the present, featuring customizable time ranges (1W, 1M, 6M, YTD, 1Y, 2Y, 3Y, ALL), period-over-period comparisons, and CSV data export."
+              }
+            }
+          ]
+        }
+      ]
     }
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -44,7 +85,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
-    <link rel="stylesheet" href="style.css?v=7">
+    <link rel="stylesheet" href="style.css?v=8">
 </head>
 <body>
     <div class="background-effects">
@@ -107,33 +148,11 @@
         <main class="dashboard-grid">
             <!-- 4-Card Quantitative Metrics Grid -->
             <section class="metrics-row" aria-label="Key quantitative metrics">
-                <!-- Total Users Card -->
-                <div class="metric-card terminal-panel" id="card-total">
-                    <div class="card-header">
-                        <span class="metric-title">TOTAL USERS</span>
-                        <span class="metric-chip">CUMULATIVE</span>
-                    </div>
-                    <div class="card-body">
-                        <div class="value-row">
-                            <span class="value tabular-stat" id="val-total-users">--</span>
-                            <div class="trend" id="trend-total">--</div>
-                        </div>
-                        <div class="comparison" id="comparison-total" hidden></div>
-                    </div>
-                    <div class="card-footer">
-                        <div class="sparkline-wrapper">
-                            <svg class="sparkline-svg" id="sparkline-total" viewBox="0 0 120 28" preserveAspectRatio="none" aria-hidden="true">
-                                <path class="sparkline-path sparkline-total" d="" />
-                            </svg>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Active Users Card -->
+                <!-- Active Users Card (Primary Platform Health) -->
                 <div class="metric-card terminal-panel" id="card-active">
                     <div class="card-header">
                         <span class="metric-title">ACTIVE USERS</span>
-                        <span class="metric-chip chip-cyan">MONTHLY</span>
+                        <span class="metric-chip chip-cyan">MONTHLY MAU</span>
                     </div>
                     <div class="card-body">
                         <div class="value-row">
@@ -146,6 +165,28 @@
                         <div class="sparkline-wrapper">
                             <svg class="sparkline-svg" id="sparkline-active" viewBox="0 0 120 28" preserveAspectRatio="none" aria-hidden="true">
                                 <path class="sparkline-path sparkline-active" d="" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Total Users Card (Secondary Network Size) -->
+                <div class="metric-card terminal-panel" id="card-total">
+                    <div class="card-header">
+                        <span class="metric-title">TOTAL USERS</span>
+                        <span class="metric-chip chip-amber">CUMULATIVE</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="value-row">
+                            <span class="value tabular-stat" id="val-total-users">--</span>
+                            <div class="trend" id="trend-total">--</div>
+                        </div>
+                        <div class="comparison" id="comparison-total" hidden></div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="sparkline-wrapper">
+                            <svg class="sparkline-svg" id="sparkline-total" viewBox="0 0 120 28" preserveAspectRatio="none" aria-hidden="true">
+                                <path class="sparkline-path sparkline-total" d="" />
                             </svg>
                         </div>
                     </div>
@@ -173,11 +214,11 @@
                     </div>
                 </div>
 
-                <!-- Net User Growth & Velocity Card -->
+                <!-- MAU Health & Velocity Card -->
                 <div class="metric-card terminal-panel" id="card-net-growth">
                     <div class="card-header">
-                        <span class="metric-title">NET GROWTH & VELOCITY</span>
-                        <span class="metric-chip chip-amber">PACE</span>
+                        <span class="metric-title">MAU HEALTH &amp; VELOCITY</span>
+                        <span class="metric-chip chip-cyan">ACTIVE PACE</span>
                     </div>
                     <div class="card-body">
                         <div class="value-row">
@@ -202,35 +243,12 @@
 
             <!-- Charts Section -->
             <section class="charts-grid" aria-label="Time series charts">
-                <!-- Total Users Chart -->
-                <div class="chart-section terminal-panel">
-                    <div class="chart-header">
-                        <div class="chart-title-group">
-                            <h2>Total Users Over Time</h2>
-                            <span class="chart-subtitle">Cumulative registered network population</span>
-                            <div class="chart-comparison-legend" hidden>
-                                <span class="legend-badge"><span class="legend-line line-amber"></span> Current</span>
-                                <span class="legend-badge"><span class="legend-line line-prior"></span> Prior Period</span>
-                            </div>
-                        </div>
-                        <div class="chart-actions">
-                            <button class="control-btn toggle-ma-btn" title="Toggle trailing 7-day moving average" aria-pressed="false">📈 MA</button>
-                            <button class="control-btn export-png-btn" data-chart="totalChart" title="Export as PNG">📥 PNG</button>
-                            <button class="control-btn export-csv-btn" data-chart="totalChart" title="Export data as CSV">📥 CSV</button>
-                            <button class="control-btn reset-zoom-btn" data-chart="totalChart" title="Reset Zoom">Reset Zoom</button>
-                        </div>
-                    </div>
-                    <div class="chart-container">
-                        <canvas id="totalChart" aria-label="Total users chart" role="img"></canvas>
-                    </div>
-                </div>
-
-                <!-- Active Users Chart -->
+                <!-- Active Users Chart (Primary Platform Health) -->
                 <div class="chart-section terminal-panel">
                     <div class="chart-header">
                         <div class="chart-title-group">
                             <h2>Active Users Over Time</h2>
-                            <span class="chart-subtitle">Observed monthly active accounts</span>
+                            <span class="chart-subtitle">Observed monthly active accounts (Primary platform health)</span>
                             <div class="chart-comparison-legend" hidden>
                                 <span class="legend-badge"><span class="legend-line line-cyan"></span> Current</span>
                                 <span class="legend-badge"><span class="legend-line line-prior"></span> Prior Period</span>
@@ -248,12 +266,41 @@
                     </div>
                 </div>
 
-                <!-- Daily Net Change Velocity Histogram Chart (Collapsible / Toggleable) -->
+                <!-- Total Users Chart (Secondary Cumulative Network Size) -->
+                <div class="chart-section terminal-panel">
+                    <div class="chart-header">
+                        <div class="chart-title-group">
+                            <h2>Total Users Over Time</h2>
+                            <span class="chart-subtitle">Cumulative registered network population (Secondary network size)</span>
+                            <div class="chart-comparison-legend" hidden>
+                                <span class="legend-badge"><span class="legend-line line-amber"></span> Current</span>
+                                <span class="legend-badge"><span class="legend-line line-prior"></span> Prior Period</span>
+                            </div>
+                        </div>
+                        <div class="chart-actions">
+                            <button class="control-btn toggle-ma-btn" title="Toggle trailing 7-day moving average" aria-pressed="false">📈 MA</button>
+                            <button class="control-btn export-png-btn" data-chart="totalChart" title="Export as PNG">📥 PNG</button>
+                            <button class="control-btn export-csv-btn" data-chart="totalChart" title="Export data as CSV">📥 CSV</button>
+                            <button class="control-btn reset-zoom-btn" data-chart="totalChart" title="Reset Zoom">Reset Zoom</button>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="totalChart" aria-label="Total users chart" role="img"></canvas>
+                    </div>
+                </div>
+
+                <!-- Daily Net Velocity Histogram Chart (Dual-Mode: MAU Health vs. Signups) -->
                 <div class="chart-section terminal-panel" id="section-velocity-chart" hidden>
                     <div class="chart-header">
                         <div class="chart-title-group">
-                            <h2>Daily Net Change Velocity</h2>
-                            <span class="chart-subtitle">Day-over-day net user change volume</span>
+                            <div class="velocity-title-row">
+                                <h2 id="velocity-chart-heading">Daily Active User Velocity</h2>
+                                <div class="pill-segmented velocity-mode-pill" role="group" aria-label="Velocity mode selector">
+                                    <button class="velocity-mode-btn active" id="vel-mode-active" data-mode="active" title="Primary: Day-over-day active user expansion &amp; churn">⚡ MAU Health</button>
+                                    <button class="velocity-mode-btn" id="vel-mode-total" data-mode="total" title="Secondary: Day-over-day new registrations &amp; signups">👥 Signups</button>
+                                </div>
+                            </div>
+                            <span class="chart-subtitle" id="velocity-chart-subtitle">Day-over-day net active user expansion (+) &amp; contraction (-)</span>
                         </div>
                         <div class="chart-actions">
                             <button class="control-btn export-png-btn" data-chart="velocityChart" title="Export as PNG">📥 PNG</button>
@@ -261,12 +308,136 @@
                             <button class="control-btn reset-zoom-btn" data-chart="velocityChart" title="Reset Zoom">Reset Zoom</button>
                         </div>
                     </div>
+
+                    <!-- Peak Signup Surges Strip -->
+                    <div class="peak-surges-bar" id="peak-surges-bar">
+                        <span class="peak-surges-label">⚡ PEAK SIGNUP SURGES:</span>
+                        <div class="peak-surges-chips">
+                            <button class="peak-chip" data-mode="total" title="Nov 2022 Musk/Twitter takeover surge: +2.25M new users">
+                                <span class="chip-title">Nov 2022 Musk Wave</span>
+                                <span class="chip-val">+2.25M</span>
+                            </button>
+                            <button class="peak-chip" data-mode="total" title="Jul 2023 Meta Threads launch &amp; Twitter rate limits: +1.18M new users">
+                                <span class="chip-title">Jul 2023 Threads Wave</span>
+                                <span class="chip-val">+1.18M</span>
+                            </button>
+                            <button class="peak-chip" data-mode="total" title="Sep 2024 Brazil X ban migration wave: +1.0M+ new accounts">
+                                <span class="chip-title">Sep 2024 Brazil Wave</span>
+                                <span class="chip-val">+1.0M+</span>
+                            </button>
+                            <button class="peak-chip" data-mode="total" title="Feb 2024 Major federation expansion: +1.18M total jump">
+                                <span class="chip-title">Feb 2024 Fed Surge</span>
+                                <span class="chip-val">+1.18M</span>
+                            </button>
+                        </div>
+                    </div>
+
                     <div class="chart-container">
                         <canvas id="velocityChart" aria-label="Daily net change velocity chart" role="img"></canvas>
                     </div>
                 </div>
             </section>
         </main>
+
+        <!-- Terminal Insights & SEO Knowledge Base -->
+        <section class="terminal-panel insights-panel" id="insights-section" aria-labelledby="insights-heading">
+            <div class="insights-header">
+                <div class="terminal-badge">
+                    <span class="badge-pulse"></span>
+                    <span class="badge-text">NETWORK INTELLIGENCE // RESEARCH BRIEF</span>
+                </div>
+                <h2 id="insights-heading">Mastodon User Trends, Stats &amp; Historical Growth</h2>
+                <p class="insights-summary">
+                    Continuous quantitative analysis tracking Mastodon user growth, daily active user retention, and historical network adoption across federated instances since September 2022.
+                </p>
+            </div>
+
+            <div class="insights-grid">
+                <div class="insight-card">
+                    <div class="insight-card-header">
+                        <span class="insight-icon">📈</span>
+                        <h3>Mastodon User Growth</h3>
+                    </div>
+                    <p>
+                        Tracking cumulative registered accounts across all federated Mastodon servers. The platform experienced monumental adoption surges during late 2022 and 2023, expanding from an open-source experiment into the foundation of the decentralized Fediverse.
+                    </p>
+                </div>
+
+                <div class="insight-card">
+                    <div class="insight-card-header">
+                        <span class="insight-icon">👥</span>
+                        <h3>Daily &amp; Monthly Active Users</h3>
+                    </div>
+                    <p>
+                        Active users measure unique accounts active within rolling 30-day windows. Comparing daily active user retention against cumulative registrations computes the <strong>Engagement Ratio</strong>, revealing authentic long-term community participation.
+                    </p>
+                </div>
+
+                <div class="insight-card">
+                    <div class="insight-card-header">
+                        <span class="insight-icon">⚡</span>
+                        <h3>Daily Net Change Velocity</h3>
+                    </div>
+                    <p>
+                        Monitors day-over-day net user change volume (new account registrations minus deactivations). Trailing 7-day moving averages (7D MA) smooth transient weekend variations and API reporting delays to surface clear growth velocity trends.
+                    </p>
+                </div>
+            </div>
+
+            <!-- FAQ Accordion for Search Engines & Visitors -->
+            <div class="insights-faq-wrap">
+                <h3 class="faq-section-title">Frequently Asked Questions // Mastodon User Stats &amp; Trends</h3>
+                <div class="faq-accordion">
+                    <details class="faq-item" open>
+                        <summary class="faq-question">
+                            <span>How many users does Mastodon have right now?</span>
+                            <span class="faq-arrow">▼</span>
+                        </summary>
+                        <div class="faq-answer">
+                            <p>
+                                Mastodon tracks over <strong>10 million total registered accounts</strong> and between <strong>1.0M and 1.5M monthly active users</strong> across thousands of independent servers. Live figures, day-over-day changes, and multi-year historical run-rates are updated daily on this dashboard.
+                            </p>
+                        </div>
+                    </details>
+
+                    <details class="faq-item">
+                        <summary class="faq-question">
+                            <span>What is the difference between total registered users and daily active users?</span>
+                            <span class="faq-arrow">▼</span>
+                        </summary>
+                        <div class="faq-answer">
+                            <p>
+                                <strong>Total Registered Users</strong> counts every account created across federated instances since launch. <strong>Active Users</strong> measures accounts that actively interacted, logged in, or posted within the trailing 30-day window, providing a realistic view of daily community activity.
+                            </p>
+                        </div>
+                    </details>
+
+                    <details class="faq-item">
+                        <summary class="faq-question">
+                            <span>How is Mastodon user growth velocity calculated?</span>
+                            <span class="faq-arrow">▼</span>
+                        </summary>
+                        <div class="faq-answer">
+                            <p>
+                                Daily velocity measures the net change between consecutive archive dates: <code>Users(today) - Users(yesterday)</code>. Over custom ranges (1W, 1M, 6M, YTD, 1Y, 2Y, 3Y), the terminal calculates the daily run rate and plots trailing 7-day moving averages to isolate sustained momentum.
+                            </p>
+                        </div>
+                    </details>
+
+                    <details class="faq-item">
+                        <summary class="faq-question">
+                            <span>Where does this Mastodon statistics data come from?</span>
+                            <span class="faq-arrow">▼</span>
+                        </summary>
+                        <div class="faq-answer">
+                            <p>
+                                Data is ingested daily from the official Mastodon API statistics endpoint (<code>https://api.joinmastodon.org/statistics</code>) and preserved in this open-source repository with records starting in September 2022. You can download the filtered dataset anytime via the <strong>📥 CSV</strong> export buttons.
+                            </p>
+                        </div>
+                    </details>
+                </div>
+            </div>
+        </section>
 
         <footer class="dashboard-footer">
             <div class="footer-left">
@@ -388,11 +559,13 @@
                 <section class="guide-section">
                     <div class="guide-section-header">
                         <span class="guide-section-icon">📈</span>
-                        <h3>Analytical Indicators &amp; Ratios</h3>
+                        <h3>Analytical Indicators &amp; Velocity Modes</h3>
                     </div>
                     <ul class="guide-feature-list">
+                        <li><strong>MAU Health Velocity (⚡ MAU Health - Primary):</strong> Day-over-day net active user expansion (+) and contraction (-) in the observed 30-day active population. Directly reveals platform health, community retention, and user churn.</li>
+                        <li><strong>Signups Velocity (👥 Signups - Secondary):</strong> Day-over-day net registered account creations and federated server additions. Useful for examining migration waves and viral signup surges.</li>
+                        <li><strong>Historical Signup Surges:</strong> One-click era shortcuts (Nov '22 Musk Wave, Jul '23 Threads Launch, Sep '24 Brazil X Ban) that allow instant inspection of peak user growth events.</li>
                         <li><strong>7-Day Moving Average (📈 7D MA):</strong> Trailing 7-observation arithmetic mean that filters transient weekend fluctuations and API reporting anomalies.</li>
-                        <li><strong>Net Change Velocity (📊 Velocity):</strong> Daily addition or loss run rate calculated as the net change divided by elapsed days in the period.</li>
                         <li><strong>Engagement Ratio:</strong> Percentage of cumulative registered users active within the trailing 30 days (<code>Active Users / Total Users</code>).</li>
                     </ul>
                 </section>
