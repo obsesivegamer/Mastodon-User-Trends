@@ -13,9 +13,11 @@ const {
     calculatePeriodComparison,
     filterDataByRange,
     generateSparklineSVG,
+    getRangeLabel,
     parseArchiveDate,
     processData,
-    resetChartZoom
+    resetChartZoom,
+    SURGE_DEFINITIONS
 } = require('./script.js');
 
 test('date-only archive values remain on the same local calendar date', () => {
@@ -352,4 +354,24 @@ test('processData provides both dailyTotalDeltas and dailyActiveDeltas', () => {
     const processed = processData(data, 'ALL');
     assert.deepEqual(processed.dailyTotalDeltas, [0, 10, 15]);
     assert.deepEqual(processed.dailyActiveDeltas, [0, -5, 15]);
+});
+
+test('filterDataByRange filters correctly for historical surge events', () => {
+    const data = [
+        { date: '2022-10-01', total: 100, active: 50 },
+        { date: '2022-10-25', total: 200, active: 100 },
+        { date: '2022-11-07', total: 500, active: 300 },
+        { date: '2022-12-10', total: 800, active: 450 },
+        { date: '2023-01-01', total: 900, active: 500 }
+    ];
+    const novSurge = filterDataByRange('SURGE_NOV_2022', data);
+    assert.equal(novSurge.length, 3);
+    assert.equal(novSurge[0].date, '2022-10-25');
+    assert.equal(novSurge[novSurge.length - 1].date, '2022-12-10');
+});
+
+test('getRangeLabel returns informative surge label and calculatePeriodComparison returns null for surges', () => {
+    assert.match(getRangeLabel('SURGE_NOV_2022'), /Nov 2022 Musk Wave/);
+    assert.match(getRangeLabel('SURGE_JUL_2023'), /Jul 2023 Threads Wave/);
+    assert.equal(calculatePeriodComparison('SURGE_NOV_2022', [{ date: '2022-11-01', total: 1, active: 1 }]), null);
 });

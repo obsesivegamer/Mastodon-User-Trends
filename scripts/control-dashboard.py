@@ -268,16 +268,9 @@ def cmd_verify_velocity(args):
 
             page.goto(target_url, wait_until="networkidle")
 
-            # 1. Ensure Velocity Chart is unhidden
+            # 1. Ensure Velocity Chart is visible by default
             vel_section = page.locator("#section-velocity-chart")
-            toggle_vel_btn = page.locator("#toggle-velocity-btn")
-
-            if not vel_section.is_visible():
-                print("Action: Velocity chart section is hidden, clicking toggle button...")
-                toggle_vel_btn.click()
-                time.sleep(0.5)
-
-            assert vel_section.is_visible(), "Expected velocity chart section to be visible"
+            assert vel_section.is_visible(), "Expected velocity chart section to be visible by default on page load"
 
             # 2. Check Initial Default State (MAU Health)
             vel_mode_active = page.locator("#vel-mode-active")
@@ -324,22 +317,51 @@ def cmd_verify_velocity(args):
             assert "active" in (vel_mode_active.get_attribute("class") or ""), "Expected #vel-mode-active to have 'active' class"
             assert "active" not in (vel_mode_total.get_attribute("class") or ""), "Expected #vel-mode-total not to have 'active' class"
 
-            # 5. Test Peak Surge Chip Interaction
+            # 5. Test Peak Surge Chip Interaction (Focus and Zooming)
             peak_chip = page.locator(".peak-chip").first
+            reset_surge_btn = page.locator("#reset-surge-filter-btn")
             if peak_chip.count() > 0:
                 print(f"Action: Clicking peak chip '{peak_chip.inner_text().strip()}'...", flush=True)
                 peak_chip.click()
                 time.sleep(0.6)
 
                 heading_peak = page.locator("#velocity-chart-heading").inner_text().strip()
-                active_range = page.locator(".time-btn.active").inner_text().strip()
-                print(f"After Peak Chip -> Heading: '{heading_peak}', Active range: '{active_range}', Total class: {vel_mode_total.get_attribute('class')}", flush=True)
-                assert "Daily Signups & Additions Velocity" in heading_peak, f"Expected Signups heading after peak chip, got {heading_peak}"
-                assert "active" in (vel_mode_total.get_attribute("class") or ""), "Expected total mode active after peak chip"
+                range_label = page.locator("#selected-range-label").inner_text().strip()
+                chip_class = peak_chip.get_attribute("class") or ""
+                print(f"After Peak Chip -> Heading: '{heading_peak}', Viewing Range: '{range_label}', Chip class: {chip_class}", flush=True)
+                assert "active" in chip_class, "Expected clicked peak chip to have 'active' class"
+                assert "Musk Wave" in range_label, f"Expected range label to mention Musk Wave, got {range_label}"
+                assert reset_surge_btn.is_visible(), "Expected reset surge button to be visible"
+
+                # Check that chart is zoomed into surge window (~55 days instead of 1000+)
+                surge_dataset_count = page.evaluate("""() => {
+                    const chart = Chart.getChart('velocityChart');
+                    return chart ? chart.data.datasets[0].data.length : 0;
+                }""")
+                print(f"Zoomed Surge Velocity Data Points: {surge_dataset_count}", flush=True)
+                assert 40 <= surge_dataset_count <= 70, f"Expected zoomed surge data points between 40 and 70, got {surge_dataset_count}"
+
+                # Test Reset to All Time
+                print("Action: Clicking '✕ Reset to All Time'...", flush=True)
+                reset_surge_btn.click()
+                time.sleep(0.6)
+
+                restored_range = page.locator("#selected-range-label").inner_text().strip()
+                restored_count = page.evaluate("""() => {
+                    const chart = Chart.getChart('velocityChart');
+                    return chart ? chart.data.datasets[0].data.length : 0;
+                }""")
+                print(f"After Reset -> Range: '{restored_range}', Data Points: {restored_count}", flush=True)
+                assert "All Time" in restored_range, f"Expected All Time after reset, got {restored_range}"
+                assert restored_count > 500, f"Expected restored full dataset > 500 points, got {restored_count}"
+
+                # Click surge chip again to leave proof screenshot focused on surge
+                peak_chip.click()
+                time.sleep(0.5)
 
             # 6. Capture Visual Evidence
             page.screenshot(path=str(output_path), full_page=False)
-            print(f"Evidence captured and saved to: {output_path}")
+            print(f"Evidence captured and saved to: {output_path}", flush=True)
 
             browser.close()
 

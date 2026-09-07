@@ -7,9 +7,52 @@ let activeChartInstance = null;
 let velocityChartInstance = null;
 let showMovingAverage = false;
 let showComparison = false;
-let showVelocityChart = false;
+let showVelocityChart = true;
 let velocityMode = 'active'; // 'active' (MAU Health) | 'total' (Signups)
 let selectedRange = 'ALL';
+
+const SURGE_DEFINITIONS = {
+    'SURGE_NOV_2022': {
+        id: 'SURGE_NOV_2022',
+        title: 'Nov 2022 Musk Wave',
+        startDate: '2022-10-20',
+        endDate: '2022-12-15',
+        peakDate: '2022-11-07',
+        peakActiveDate: '2022-11-30',
+        label: 'Nov 2022 Musk Wave (Oct 20 – Dec 15, 2022)',
+        description: 'Musk takeover surge (+2.25M new users, active users peaked at 2.62M)'
+    },
+    'SURGE_JUL_2023': {
+        id: 'SURGE_JUL_2023',
+        title: 'Jul 2023 Threads Wave',
+        startDate: '2023-06-25',
+        endDate: '2023-08-15',
+        peakDate: '2023-07-04',
+        peakActiveDate: '2023-07-29',
+        label: 'Jul 2023 Threads Wave (Jun 25 – Aug 15, 2023)',
+        description: 'Meta Threads launch & Twitter rate limits (+1.18M new users)'
+    },
+    'SURGE_FEB_2024': {
+        id: 'SURGE_FEB_2024',
+        title: 'Feb 2024 Fed Surge',
+        startDate: '2024-01-20',
+        endDate: '2024-03-05',
+        peakDate: '2024-02-08',
+        peakActiveDate: '2024-02-11',
+        label: 'Feb 2024 Fed Surge (Jan 20 – Mar 5, 2024)',
+        description: 'Federation crawl expansion (+1.18M net accounts)'
+    },
+    'SURGE_SEP_2024': {
+        id: 'SURGE_SEP_2024',
+        title: 'Sep 2024 Brazil Wave',
+        startDate: '2024-08-20',
+        endDate: '2024-10-10',
+        peakDate: '2024-09-04',
+        peakActiveDate: '2024-09-26',
+        label: 'Sep 2024 Brazil Wave (Aug 20 – Oct 10, 2024)',
+        description: 'Brazil nationwide X ban migration wave (+1.0M+ new accounts)'
+    }
+};
 
 const parseArchiveDate = (value) => {
     const dateOnlyMatch = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
@@ -140,7 +183,7 @@ const processData = (fullDataArray, range = 'ALL') => {
 
 // Period Comparison
 const calculatePeriodComparison = (range, dataArray) => {
-    if (range === 'ALL' || !dataArray || dataArray.length === 0) return null;
+    if (range === 'ALL' || !dataArray || dataArray.length === 0 || SURGE_DEFINITIONS[range]) return null;
 
     const current = filterDataByRange(range, dataArray);
     if (current.length < 2) return null;
@@ -431,6 +474,20 @@ const renderChart = (data, comparisonData = null) => {
         }
     };
 
+    const isSurge = typeof selectedRange === 'string' && !!SURGE_DEFINITIONS[selectedRange];
+    const surgeInfo = isSurge ? SURGE_DEFINITIONS[selectedRange] : null;
+
+    let peakTotalIdx = -1;
+    let peakActiveIdx = -1;
+    if (isSurge && data.raw && data.raw.length > 0) {
+        if (surgeInfo.peakDate) {
+            peakTotalIdx = data.raw.findIndex(d => d.date === surgeInfo.peakDate);
+        }
+        if (surgeInfo.peakActiveDate) {
+            peakActiveIdx = data.raw.findIndex(d => d.date === surgeInfo.peakActiveDate);
+        }
+    }
+
     // 1. Total Users Chart
     totalChartInstance = new Chart(ctxTotal, {
         type: 'line',
@@ -443,11 +500,11 @@ const renderChart = (data, comparisonData = null) => {
                     borderColor: colorTotal,
                     backgroundColor: gradientTotal,
                     borderWidth: 2,
-                    pointBackgroundColor: '#080A0E',
-                    pointBorderColor: colorTotal,
-                    pointBorderWidth: 1.5,
-                    pointRadius: data.labels.length > 90 ? 0 : 3,
-                    pointHoverRadius: 5,
+                    pointBackgroundColor: isSurge ? data.raw.map((_, i) => (i === peakTotalIdx ? '#FFB000' : '#080A0E')) : '#080A0E',
+                    pointBorderColor: isSurge ? data.raw.map((_, i) => (i === peakTotalIdx ? '#FFFFFF' : colorTotal)) : colorTotal,
+                    pointBorderWidth: isSurge ? data.raw.map((_, i) => (i === peakTotalIdx ? 2.5 : 1.5)) : 1.5,
+                    pointRadius: isSurge ? data.raw.map((_, i) => (i === peakTotalIdx ? 6 : 3)) : (data.labels.length > 90 ? 0 : 3),
+                    pointHoverRadius: isSurge ? data.raw.map((_, i) => (i === peakTotalIdx ? 8 : 5)) : 5,
                     fill: true,
                     tension: 0.2
                 },
@@ -480,7 +537,24 @@ const renderChart = (data, comparisonData = null) => {
                 }] : [])
             ]
         },
-        options: commonOptions
+        options: {
+            ...commonOptions,
+            plugins: {
+                ...commonOptions.plugins,
+                tooltip: {
+                    ...commonOptions.plugins.tooltip,
+                    callbacks: {
+                        ...(commonOptions.plugins.tooltip ? commonOptions.plugins.tooltip.callbacks : {}),
+                        afterLabel: function(context) {
+                            if (isSurge && context.dataIndex === peakTotalIdx) {
+                                return '⚡ Record Daily Signup Spike Day';
+                            }
+                            return '';
+                        }
+                    }
+                }
+            }
+        }
     });
 
     // 2. Active Users Chart
@@ -495,11 +569,11 @@ const renderChart = (data, comparisonData = null) => {
                     borderColor: colorActive,
                     backgroundColor: gradientActive,
                     borderWidth: 2,
-                    pointBackgroundColor: '#080A0E',
-                    pointBorderColor: colorActive,
-                    pointBorderWidth: 1.5,
-                    pointRadius: data.labels.length > 90 ? 0 : 3,
-                    pointHoverRadius: 5,
+                    pointBackgroundColor: isSurge ? data.raw.map((_, i) => (i === peakActiveIdx ? '#00E5FF' : '#080A0E')) : '#080A0E',
+                    pointBorderColor: isSurge ? data.raw.map((_, i) => (i === peakActiveIdx ? '#FFFFFF' : colorActive)) : colorActive,
+                    pointBorderWidth: isSurge ? data.raw.map((_, i) => (i === peakActiveIdx ? 2.5 : 1.5)) : 1.5,
+                    pointRadius: isSurge ? data.raw.map((_, i) => (i === peakActiveIdx ? 6 : 3)) : (data.labels.length > 90 ? 0 : 3),
+                    pointHoverRadius: isSurge ? data.raw.map((_, i) => (i === peakActiveIdx ? 8 : 5)) : 5,
                     fill: true,
                     tension: 0.2
                 },
@@ -532,7 +606,24 @@ const renderChart = (data, comparisonData = null) => {
                 }] : [])
             ]
         },
-        options: commonOptions
+        options: {
+            ...commonOptions,
+            plugins: {
+                ...commonOptions.plugins,
+                tooltip: {
+                    ...commonOptions.plugins.tooltip,
+                    callbacks: {
+                        ...(commonOptions.plugins.tooltip ? commonOptions.plugins.tooltip.callbacks : {}),
+                        afterLabel: function(context) {
+                            if (isSurge && context.dataIndex === peakActiveIdx) {
+                                return '★ Peak Monthly Active Users Reached';
+                            }
+                            return '';
+                        }
+                    }
+                }
+            }
+        }
     });
 
     // Toggle chart comparison legend badges
@@ -540,7 +631,7 @@ const renderChart = (data, comparisonData = null) => {
         legend.hidden = !hasComparison;
     });
 
-    // 3. Optional Daily Net Velocity Histogram Chart (Dual-Mode: MAU Health vs. Signups)
+    // 3. Daily Net Velocity Histogram Chart (Dual-Mode: MAU Health vs. Signups)
     const velocitySection = document.getElementById('section-velocity-chart');
     if (velocitySection && canvasVelocity) {
         if (showVelocityChart) {
@@ -548,8 +639,31 @@ const renderChart = (data, comparisonData = null) => {
             const ctxVelocity = canvasVelocity.getContext('2d');
             const isAct = velocityMode === 'active';
             const deltas = isAct ? data.dailyActiveDeltas : data.dailyTotalDeltas;
-            const barColors = deltas.map(val => val >= 0 ? colorGain : colorLoss);
             const seriesLabel = isAct ? 'Net Active Change (MAU)' : 'Net Signups / Additions';
+
+            const maxDelta = Math.max(...deltas.filter(v => typeof v === 'number'));
+            const peakDeltaIdx = deltas.indexOf(maxDelta);
+
+            const barColors = deltas.map((val, idx) => {
+                if (isSurge && idx === peakDeltaIdx && val > 0) {
+                    return '#FFB000'; // Peak surge record bar in vibrant amber
+                }
+                return val >= 0 ? colorGain : colorLoss;
+            });
+
+            const barBorders = deltas.map((val, idx) => {
+                if (isSurge && idx === peakDeltaIdx && val > 0) {
+                    return '#FFE580';
+                }
+                return 'transparent';
+            });
+
+            const barBorderWidths = deltas.map((val, idx) => {
+                if (isSurge && idx === peakDeltaIdx && val > 0) {
+                    return 2;
+                }
+                return 0;
+            });
 
             // Sync heading and subtitle
             const velHeading = document.getElementById('velocity-chart-heading');
@@ -558,9 +672,13 @@ const renderChart = (data, comparisonData = null) => {
                 velHeading.textContent = isAct ? 'Daily Active User Velocity' : 'Daily Signups & Additions Velocity';
             }
             if (velSubtitle) {
-                velSubtitle.textContent = isAct
-                    ? 'Day-over-day net active user expansion (+) & contraction (-) (MAU Health)'
-                    : 'Day-over-day net registered account additions & federated expansions (Signups)';
+                if (isSurge) {
+                    velSubtitle.textContent = `Focusing on ${surgeInfo.title} — ${surgeInfo.description}. Click chip again or '✕ Reset to All Time' to clear.`;
+                } else {
+                    velSubtitle.textContent = isAct
+                        ? 'Day-over-day net active user expansion (+) & contraction (-) (MAU Health)'
+                        : 'Day-over-day net registered account additions & federated expansions (Signups)';
+                }
             }
 
             // Sync mode selector buttons
@@ -581,13 +699,30 @@ const renderChart = (data, comparisonData = null) => {
                         label: seriesLabel,
                         data: deltas,
                         backgroundColor: barColors,
-                        borderRadius: data.labels.length > 90 ? 0 : 2,
+                        borderColor: barBorders,
+                        borderWidth: barBorderWidths,
+                        borderRadius: data.labels.length > 90 ? 0 : (isSurge ? 3 : 2),
                         minBarLength: 2,
                         borderSkipped: false
                     }]
                 },
                 options: {
                     ...commonOptions,
+                    plugins: {
+                        ...commonOptions.plugins,
+                        tooltip: {
+                            ...commonOptions.plugins.tooltip,
+                            callbacks: {
+                                ...(commonOptions.plugins.tooltip ? commonOptions.plugins.tooltip.callbacks : {}),
+                                afterLabel: function(context) {
+                                    if (isSurge && context.dataIndex === peakDeltaIdx) {
+                                        return '⚡ RECORD SURGE PEAK DAY';
+                                    }
+                                    return '';
+                                }
+                            }
+                        }
+                    },
                     scales: {
                         ...commonOptions.scales,
                         y: {
@@ -741,7 +876,18 @@ const buildYearRangeButtons = () => {
 
 // Time Scale Filtering
 const filterDataByRange = (range, dataArray) => {
-    if (range === 'ALL' || dataArray.length === 0) return dataArray;
+    if (!dataArray || dataArray.length === 0) return [];
+    if (range === 'ALL') return dataArray;
+
+    if (typeof range === 'string' && SURGE_DEFINITIONS[range]) {
+        const surge = SURGE_DEFINITIONS[range];
+        const start = parseArchiveDate(surge.startDate);
+        const end = parseArchiveDate(surge.endDate);
+        return dataArray.filter(d => {
+            const dt = parseArchiveDate(d.date);
+            return dt >= start && dt <= end;
+        });
+    }
 
     const latest = parseArchiveDate(dataArray[dataArray.length - 1].date);
     let cutoff = new Date(latest);
@@ -760,6 +906,10 @@ const filterDataByRange = (range, dataArray) => {
 };
 
 const getRangeLabel = (range) => {
+    if (typeof range === 'string' && SURGE_DEFINITIONS[range]) {
+        return SURGE_DEFINITIONS[range].label;
+    }
+
     if (/^\d+Y$/.test(range)) {
         const years = parseInt(range.replace('Y', ''), 10);
         return years === 1 ? 'Past Year' : `Past ${years} Years`;
@@ -964,22 +1114,59 @@ const initDashboard = () => {
             });
         });
 
+        const resetSurgeBtn = document.getElementById('reset-surge-filter-btn');
+
+        const clearSurgeSelection = (restoreRange = 'ALL') => {
+            document.querySelectorAll('.peak-chip').forEach(c => c.classList.remove('active'));
+            if (resetSurgeBtn) resetSurgeBtn.hidden = true;
+            document.querySelectorAll('.time-btn').forEach(b => {
+                b.classList.toggle('active', b.dataset.range === restoreRange);
+            });
+            const yearSelectEl = document.querySelector('.year-range-select');
+            if (yearSelectEl) yearSelectEl.selectedIndex = 0;
+            applyFilter(restoreRange);
+        };
+
+        if (resetSurgeBtn) {
+            resetSurgeBtn.addEventListener('click', () => {
+                clearSurgeSelection('ALL');
+            });
+        }
+
         // Setup Peak Signup Surges era chips
         document.querySelectorAll('.peak-chip').forEach(chip => {
             chip.addEventListener('click', () => {
+                const surgeKey = chip.dataset.surge;
+                if (!surgeKey || !SURGE_DEFINITIONS[surgeKey]) return;
+
+                // Toggle off if already active
+                if (chip.classList.contains('active') && selectedRange === surgeKey) {
+                    clearSurgeSelection('ALL');
+                    return;
+                }
+
+                // Deactivate other surge chips, activate this one
+                document.querySelectorAll('.peak-chip').forEach(c => c.classList.remove('active'));
+                chip.classList.add('active');
+                if (resetSurgeBtn) resetSurgeBtn.hidden = false;
+
+                // Deactivate standard time range buttons
+                document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
+                const yearSelectEl = document.querySelector('.year-range-select');
+                if (yearSelectEl) yearSelectEl.selectedIndex = 0;
+
+                // Ensure velocity chart is visible and set to signups mode
                 showVelocityChart = true;
                 if (velocityToggleBtn) {
                     velocityToggleBtn.classList.add('active');
                     velocityToggleBtn.setAttribute('aria-pressed', 'true');
                 }
                 velocityMode = 'total';
-                selectedRange = 'ALL';
-                document.querySelectorAll('.time-btn').forEach(b => {
-                    b.classList.toggle('active', b.dataset.range === 'ALL');
-                });
-                const yearSelectEl = document.querySelector('.year-range-select');
-                if (yearSelectEl) yearSelectEl.selectedIndex = 0;
-                applyFilter('ALL');
+
+                // Filter data to this surge event
+                applyFilter(surgeKey);
+
+                // Scroll velocity chart into view smoothly
                 const velSec = document.getElementById('section-velocity-chart');
                 if (velSec) velSec.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             });
@@ -1009,6 +1196,8 @@ const initDashboard = () => {
         // Setup Event Listeners for Time Scale Buttons
         document.querySelectorAll('.time-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.peak-chip').forEach(c => c.classList.remove('active'));
+                if (resetSurgeBtn) resetSurgeBtn.hidden = true;
                 document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
                 e.target.classList.add('active');
                 const yearSelect = document.querySelector('.year-range-select');
@@ -1020,6 +1209,8 @@ const initDashboard = () => {
         const yearSelect = document.querySelector('.year-range-select');
         if (yearSelect) {
             yearSelect.addEventListener('change', (e) => {
+                document.querySelectorAll('.peak-chip').forEach(c => c.classList.remove('active'));
+                if (resetSurgeBtn) resetSurgeBtn.hidden = true;
                 document.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
                 applyFilter(e.target.value);
             });
@@ -1108,6 +1299,7 @@ if (typeof module !== 'undefined' && module.exports) {
         parseArchiveDate,
         processData,
         resetChartZoom,
+        SURGE_DEFINITIONS,
         updateComparisonButtonState
     };
 }

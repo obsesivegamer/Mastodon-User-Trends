@@ -804,6 +804,45 @@ body {
     color: var(--color-amber);
 }
 
+.peak-chip.active {
+    background: rgba(255, 176, 0, 0.16);
+    border-color: var(--color-amber);
+    color: var(--color-amber-light);
+    box-shadow: 0 0 10px rgba(255, 176, 0, 0.35);
+}
+
+.peak-chip.active .chip-title {
+    color: var(--color-amber-light);
+}
+
+.peak-chip.active::before {
+    content: "●";
+    color: var(--color-amber);
+    font-size: 0.55rem;
+    line-height: 1;
+}
+
+.peak-chip-reset {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.25rem 0.55rem;
+    background: transparent;
+    border: 1px dashed var(--border-subtle);
+    border-radius: 2px;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.12s ease;
+}
+
+.peak-chip-reset:hover {
+    color: var(--text-primary);
+    border-color: var(--color-amber);
+    background: var(--bg-surface-active);
+}
+
 /* ==========================================================================
    Footer
    ========================================================================== */

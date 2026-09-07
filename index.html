@@ -85,7 +85,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
-    <link rel="stylesheet" href="style.css?v=8">
+    <link rel="stylesheet" href="style.css?v=9">
 </head>
 <body>
     <div class="background-effects">
@@ -134,7 +134,7 @@
                 <span class="command-label">INDICATORS</span>
                 <div class="pill-segmented">
                     <button class="control-btn toggle-ma-btn" title="Toggle trailing 7-day moving average" aria-pressed="false">📈 7D MA</button>
-                    <button class="control-btn toggle-velocity-btn" id="toggle-velocity-btn" title="Toggle daily additions/losses velocity chart" aria-pressed="false">📊 Velocity</button>
+                    <button class="control-btn toggle-velocity-btn active" id="toggle-velocity-btn" title="Toggle daily additions/losses velocity chart" aria-pressed="true">📊 Velocity</button>
                     <button class="control-btn compare-toggle-btn" title="Toggle period comparison" aria-pressed="false">🔄 Compare</button>
                     <button class="control-btn guide-toggle-btn" id="open-guide-btn" title="View terminal methodology & tooltip guide" aria-haspopup="dialog">📖 Guide</button>
                 </div>
@@ -290,7 +290,7 @@
                 </div>
 
                 <!-- Daily Net Velocity Histogram Chart (Dual-Mode: MAU Health vs. Signups) -->
-                <div class="chart-section terminal-panel" id="section-velocity-chart" hidden>
+                <div class="chart-section terminal-panel" id="section-velocity-chart">
                     <div class="chart-header">
                         <div class="chart-title-group">
                             <div class="velocity-title-row">
@@ -313,21 +313,24 @@
                     <div class="peak-surges-bar" id="peak-surges-bar">
                         <span class="peak-surges-label">⚡ PEAK SIGNUP SURGES:</span>
                         <div class="peak-surges-chips">
-                            <button class="peak-chip" data-mode="total" title="Nov 2022 Musk/Twitter takeover surge: +2.25M new users">
+                            <button class="peak-chip" data-surge="SURGE_NOV_2022" title="Nov 2022 Musk/Twitter takeover surge: +2.25M new users (Oct 20 – Dec 15, 2022)">
                                 <span class="chip-title">Nov 2022 Musk Wave</span>
                                 <span class="chip-val">+2.25M</span>
                             </button>
-                            <button class="peak-chip" data-mode="total" title="Jul 2023 Meta Threads launch &amp; Twitter rate limits: +1.18M new users">
+                            <button class="peak-chip" data-surge="SURGE_JUL_2023" title="Jul 2023 Meta Threads launch &amp; Twitter rate limits: +1.18M new users (Jun 25 – Aug 15, 2023)">
                                 <span class="chip-title">Jul 2023 Threads Wave</span>
                                 <span class="chip-val">+1.18M</span>
                             </button>
-                            <button class="peak-chip" data-mode="total" title="Sep 2024 Brazil X ban migration wave: +1.0M+ new accounts">
+                            <button class="peak-chip" data-surge="SURGE_FEB_2024" title="Feb 2024 Federation crawl expansion: +1.18M total jump (Jan 20 – Mar 5, 2024)">
+                                <span class="chip-title">Feb 2024 Fed Surge</span>
+                                <span class="chip-val">+1.18M</span>
+                            </button>
+                            <button class="peak-chip" data-surge="SURGE_SEP_2024" title="Sep 2024 Brazil X ban migration wave: +1.0M+ new accounts (Aug 20 – Oct 10, 2024)">
                                 <span class="chip-title">Sep 2024 Brazil Wave</span>
                                 <span class="chip-val">+1.0M+</span>
                             </button>
-                            <button class="peak-chip" data-mode="total" title="Feb 2024 Major federation expansion: +1.18M total jump">
-                                <span class="chip-title">Feb 2024 Fed Surge</span>
-                                <span class="chip-val">+1.18M</span>
+                            <button class="peak-chip-reset" id="reset-surge-filter-btn" title="Exit surge focus and return to All Time timeline" hidden>
+                                ✕ Reset to All Time
                             </button>
                         </div>
                     </div>
@@ -578,7 +581,7 @@
         </div>
     </dialog>
 
-    <script src="historicalData.js?v=8"></script>
-    <script src="script.js?v=8"></script>
+    <script src="historicalData.js?v=9"></script>
+    <script src="script.js?v=9"></script>
 </body>
 </html>
