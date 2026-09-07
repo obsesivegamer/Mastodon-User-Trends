@@ -85,7 +85,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
-    <link rel="stylesheet" href="style.css?v=9">
+    <link rel="stylesheet" href="style.css?v=10">
 </head>
 <body>
     <div class="background-effects">
@@ -243,53 +243,7 @@
 
             <!-- Charts Section -->
             <section class="charts-grid" aria-label="Time series charts">
-                <!-- Active Users Chart (Primary Platform Health) -->
-                <div class="chart-section terminal-panel">
-                    <div class="chart-header">
-                        <div class="chart-title-group">
-                            <h2>Active Users Over Time</h2>
-                            <span class="chart-subtitle">Observed monthly active accounts (Primary platform health)</span>
-                            <div class="chart-comparison-legend" hidden>
-                                <span class="legend-badge"><span class="legend-line line-cyan"></span> Current</span>
-                                <span class="legend-badge"><span class="legend-line line-prior"></span> Prior Period</span>
-                            </div>
-                        </div>
-                        <div class="chart-actions">
-                            <button class="control-btn toggle-ma-btn" title="Toggle trailing 7-day moving average" aria-pressed="false">📈 MA</button>
-                            <button class="control-btn export-png-btn" data-chart="activeChart" title="Export as PNG">📥 PNG</button>
-                            <button class="control-btn export-csv-btn" data-chart="activeChart" title="Export data as CSV">📥 CSV</button>
-                            <button class="control-btn reset-zoom-btn" data-chart="activeChart" title="Reset Zoom">Reset Zoom</button>
-                        </div>
-                    </div>
-                    <div class="chart-container">
-                        <canvas id="activeChart" aria-label="Active users chart" role="img"></canvas>
-                    </div>
-                </div>
-
-                <!-- Total Users Chart (Secondary Cumulative Network Size) -->
-                <div class="chart-section terminal-panel">
-                    <div class="chart-header">
-                        <div class="chart-title-group">
-                            <h2>Total Users Over Time</h2>
-                            <span class="chart-subtitle">Cumulative registered network population (Secondary network size)</span>
-                            <div class="chart-comparison-legend" hidden>
-                                <span class="legend-badge"><span class="legend-line line-amber"></span> Current</span>
-                                <span class="legend-badge"><span class="legend-line line-prior"></span> Prior Period</span>
-                            </div>
-                        </div>
-                        <div class="chart-actions">
-                            <button class="control-btn toggle-ma-btn" title="Toggle trailing 7-day moving average" aria-pressed="false">📈 MA</button>
-                            <button class="control-btn export-png-btn" data-chart="totalChart" title="Export as PNG">📥 PNG</button>
-                            <button class="control-btn export-csv-btn" data-chart="totalChart" title="Export data as CSV">📥 CSV</button>
-                            <button class="control-btn reset-zoom-btn" data-chart="totalChart" title="Reset Zoom">Reset Zoom</button>
-                        </div>
-                    </div>
-                    <div class="chart-container">
-                        <canvas id="totalChart" aria-label="Total users chart" role="img"></canvas>
-                    </div>
-                </div>
-
-                <!-- Daily Net Velocity Histogram Chart (Dual-Mode: MAU Health vs. Signups) -->
+                <!-- Daily Net Velocity Histogram Chart (Centerpiece: Dual-Mode MAU Health vs. Signups) -->
                 <div class="chart-section terminal-panel" id="section-velocity-chart">
                     <div class="chart-header">
                         <div class="chart-title-group">
@@ -337,6 +291,52 @@
 
                     <div class="chart-container">
                         <canvas id="velocityChart" aria-label="Daily net change velocity chart" role="img"></canvas>
+                    </div>
+                </div>
+
+                <!-- Active Users Chart (Primary Platform Health) -->
+                <div class="chart-section terminal-panel" id="section-active-chart">
+                    <div class="chart-header">
+                        <div class="chart-title-group">
+                            <h2>Active Users Over Time</h2>
+                            <span class="chart-subtitle">Observed monthly active accounts (Primary platform health)</span>
+                            <div class="chart-comparison-legend" hidden>
+                                <span class="legend-badge"><span class="legend-line line-cyan"></span> Current</span>
+                                <span class="legend-badge"><span class="legend-line line-prior"></span> Prior Period</span>
+                            </div>
+                        </div>
+                        <div class="chart-actions">
+                            <button class="control-btn toggle-ma-btn" title="Toggle trailing 7-day moving average" aria-pressed="false">📈 MA</button>
+                            <button class="control-btn export-png-btn" data-chart="activeChart" title="Export as PNG">📥 PNG</button>
+                            <button class="control-btn export-csv-btn" data-chart="activeChart" title="Export data as CSV">📥 CSV</button>
+                            <button class="control-btn reset-zoom-btn" data-chart="activeChart" title="Reset Zoom">Reset Zoom</button>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="activeChart" aria-label="Active users chart" role="img"></canvas>
+                    </div>
+                </div>
+
+                <!-- Total Users Chart (Secondary Cumulative Network Size) -->
+                <div class="chart-section terminal-panel" id="section-total-chart">
+                    <div class="chart-header">
+                        <div class="chart-title-group">
+                            <h2>Total Users Over Time</h2>
+                            <span class="chart-subtitle">Cumulative registered network population (Secondary network size)</span>
+                            <div class="chart-comparison-legend" hidden>
+                                <span class="legend-badge"><span class="legend-line line-amber"></span> Current</span>
+                                <span class="legend-badge"><span class="legend-line line-prior"></span> Prior Period</span>
+                            </div>
+                        </div>
+                        <div class="chart-actions">
+                            <button class="control-btn toggle-ma-btn" title="Toggle trailing 7-day moving average" aria-pressed="false">📈 MA</button>
+                            <button class="control-btn export-png-btn" data-chart="totalChart" title="Export as PNG">📥 PNG</button>
+                            <button class="control-btn export-csv-btn" data-chart="totalChart" title="Export data as CSV">📥 CSV</button>
+                            <button class="control-btn reset-zoom-btn" data-chart="totalChart" title="Reset Zoom">Reset Zoom</button>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="totalChart" aria-label="Total users chart" role="img"></canvas>
                     </div>
                 </div>
             </section>
@@ -581,7 +581,7 @@
         </div>
     </dialog>
 
-    <script src="historicalData.js?v=9"></script>
-    <script src="script.js?v=9"></script>
+    <script src="historicalData.js?v=10"></script>
+    <script src="script.js?v=10"></script>
 </body>
 </html>
