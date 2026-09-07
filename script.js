@@ -8,6 +8,7 @@ let velocityChartInstance = null;
 let showMovingAverage = false;
 let showComparison = false;
 let showVelocityChart = false;
+let velocityMode = 'active'; // 'active' (MAU Health) | 'total' (Signups)
 let selectedRange = 'ALL';
 
 const parseArchiveDate = (value) => {
@@ -223,9 +224,9 @@ const updateMetrics = (data, periodLabel = 'All Time', comparisonData = null) =>
         engageTrendEl.className = engageDiff >= 0 ? 'trend up' : 'trend down';
     }
 
-    // 4. Net User Growth & Velocity Card
-    const netGrowthDiff = latest.total - previous.total;
-    const netGrowthPct = previous.total > 0 ? (netGrowthDiff / previous.total) * 100 : 0;
+    // 4. MAU Health & Velocity Card (Active user net change & run rate)
+    const netGrowthDiff = latest.active - previous.active;
+    const netGrowthPct = previous.active > 0 ? (netGrowthDiff / previous.active) * 100 : 0;
     const netGrowthTrend = { diff: netGrowthDiff, pct: netGrowthPct };
     const netGrowthEl = document.getElementById('val-net-growth');
     if (netGrowthEl) {
@@ -238,7 +239,7 @@ const updateMetrics = (data, periodLabel = 'All Time', comparisonData = null) =>
         netGrowthTrendEl.className = netGrowthTrend.diff >= 0 ? 'trend up' : 'trend down';
     }
 
-    const velocity = calculateGrowthVelocity(data.raw);
+    const velocity = calculateGrowthVelocity(data.raw, 'active');
     const velocityEl = document.getElementById('val-growth-velocity');
     if (velocityEl) {
         velocityEl.textContent = velocity.formatted;
@@ -255,7 +256,7 @@ const updateMetrics = (data, periodLabel = 'All Time', comparisonData = null) =>
     setSparkline('sparkline-total', data.totalUsers);
     setSparkline('sparkline-active', data.activeUsers);
     setSparkline('sparkline-engagement', data.raw.map(d => d.total > 0 ? (d.active / d.total) * 100 : 0));
-    setSparkline('sparkline-velocity', data.dailyTotalDeltas);
+    setSparkline('sparkline-velocity', data.dailyActiveDeltas);
 
     // Comparison Subtitles
     const comparisonElements = {
@@ -310,10 +311,10 @@ const updateMetrics = (data, periodLabel = 'All Time', comparisonData = null) =>
         comparisonElements.engagement.className = `comparison ${priorEngageDiff >= 0 ? 'comp-up' : 'comp-down'}`;
     }
     if (comparisonElements.net) {
-        const netSign = priorTotalTrend.diff >= 0 ? '+' : '';
-        const netArrow = priorTotalTrend.diff >= 0 ? '▲' : '▼';
-        comparisonElements.net.textContent = `Prev net: ${netArrow} ${netSign}${formatNumber(priorTotalTrend.diff)}`;
-        comparisonElements.net.className = `comparison ${priorTotalTrend.diff >= 0 ? 'comp-up' : 'comp-down'}`;
+        const netSign = priorActiveTrend.diff >= 0 ? '+' : '';
+        const netArrow = priorActiveTrend.diff >= 0 ? '▲' : '▼';
+        comparisonElements.net.textContent = `Prev net: ${netArrow} ${netSign}${formatNumber(priorActiveTrend.diff)}`;
+        comparisonElements.net.className = `comparison ${priorActiveTrend.diff >= 0 ? 'comp-up' : 'comp-down'}`;
     }
 };
 
@@ -539,21 +540,45 @@ const renderChart = (data, comparisonData = null) => {
         legend.hidden = !hasComparison;
     });
 
-    // 3. Optional Daily Net Change Velocity Histogram Chart
+    // 3. Optional Daily Net Velocity Histogram Chart (Dual-Mode: MAU Health vs. Signups)
     const velocitySection = document.getElementById('section-velocity-chart');
     if (velocitySection && canvasVelocity) {
         if (showVelocityChart) {
             velocitySection.hidden = false;
             const ctxVelocity = canvasVelocity.getContext('2d');
-            const deltas = data.dailyTotalDeltas;
+            const isAct = velocityMode === 'active';
+            const deltas = isAct ? data.dailyActiveDeltas : data.dailyTotalDeltas;
             const barColors = deltas.map(val => val >= 0 ? colorGain : colorLoss);
+            const seriesLabel = isAct ? 'Net Active Change (MAU)' : 'Net Signups / Additions';
+
+            // Sync heading and subtitle
+            const velHeading = document.getElementById('velocity-chart-heading');
+            const velSubtitle = document.getElementById('velocity-chart-subtitle');
+            if (velHeading) {
+                velHeading.textContent = isAct ? 'Daily Active User Velocity' : 'Daily Signups & Additions Velocity';
+            }
+            if (velSubtitle) {
+                velSubtitle.textContent = isAct
+                    ? 'Day-over-day net active user expansion (+) & contraction (-) (MAU Health)'
+                    : 'Day-over-day net registered account additions & federated expansions (Signups)';
+            }
+
+            // Sync mode selector buttons
+            const activeModeBtn = document.getElementById('vel-mode-active');
+            const totalModeBtn = document.getElementById('vel-mode-total');
+            if (activeModeBtn && totalModeBtn) {
+                activeModeBtn.classList.toggle('active', isAct);
+                activeModeBtn.setAttribute('aria-pressed', String(isAct));
+                totalModeBtn.classList.toggle('active', !isAct);
+                totalModeBtn.setAttribute('aria-pressed', String(!isAct));
+            }
 
             velocityChartInstance = new Chart(ctxVelocity, {
                 type: 'bar',
                 data: {
                     labels: data.labels,
                     datasets: [{
-                        label: 'Net Daily Change',
+                        label: seriesLabel,
                         data: deltas,
                         backgroundColor: barColors,
                         borderRadius: data.labels.length > 90 ? 0 : 2,
@@ -798,6 +823,29 @@ const exportChartAsCSV = (chartName, isTotal) => {
     URL.revokeObjectURL(url);
 };
 
+const exportVelocityCSV = () => {
+    if (!historicalData || historicalData.length === 0) {
+        console.error('No data to export');
+        return;
+    }
+
+    const filteredData = filterDataByRange(selectedRange, historicalData);
+    const isAct = velocityMode === 'active';
+    const deltas = calculateDailyDeltas(filteredData, isAct ? 'active' : 'total');
+    const header = `Date,${isAct ? 'Net Active Change' : 'Net Signups'}\n`;
+    const rows = filteredData.map((d, i) => `${d.date},${deltas[i] || 0}`).join('\n');
+    const csv = header + rows;
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `daily-velocity-${isAct ? 'mau' : 'signups'}-${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+};
+
 const updateComparisonButtonState = () => {
     const compareBtn = document.querySelector('.compare-toggle-btn');
     if (!compareBtn) return;
@@ -865,7 +913,7 @@ const initDashboard = () => {
                 let chartName = 'chart';
                 if (chartId === 'totalChart') chartName = 'total-users';
                 else if (chartId === 'activeChart') chartName = 'active-users';
-                else if (chartId === 'velocityChart') chartName = 'daily-velocity';
+                else if (chartId === 'velocityChart') chartName = velocityMode === 'active' ? 'daily-active-velocity' : 'daily-signups-velocity';
                 exportChartAsPNG(chartId, chartName);
             });
         });
@@ -873,9 +921,13 @@ const initDashboard = () => {
         document.querySelectorAll('.export-csv-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const chartId = e.target.dataset.chart;
-                const isTotal = chartId === 'totalChart';
-                const chartName = isTotal ? 'total-users' : 'active-users';
-                exportChartAsCSV(chartName, isTotal);
+                if (chartId === 'velocityChart') {
+                    exportVelocityCSV();
+                } else {
+                    const isTotal = chartId === 'totalChart';
+                    const chartName = isTotal ? 'total-users' : 'active-users';
+                    exportChartAsCSV(chartName, isTotal);
+                }
             });
         });
 
@@ -901,6 +953,37 @@ const initDashboard = () => {
                 applyFilter(selectedRange);
             });
         }
+
+        // Setup Velocity mode switcher (MAU Health vs Signups)
+        document.querySelectorAll('.velocity-mode-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const mode = e.currentTarget.dataset.mode;
+                if (!mode || mode === velocityMode) return;
+                velocityMode = mode;
+                applyFilter(selectedRange);
+            });
+        });
+
+        // Setup Peak Signup Surges era chips
+        document.querySelectorAll('.peak-chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                showVelocityChart = true;
+                if (velocityToggleBtn) {
+                    velocityToggleBtn.classList.add('active');
+                    velocityToggleBtn.setAttribute('aria-pressed', 'true');
+                }
+                velocityMode = 'total';
+                selectedRange = 'ALL';
+                document.querySelectorAll('.time-btn').forEach(b => {
+                    b.classList.toggle('active', b.dataset.range === 'ALL');
+                });
+                const yearSelectEl = document.querySelector('.year-range-select');
+                if (yearSelectEl) yearSelectEl.selectedIndex = 0;
+                applyFilter('ALL');
+                const velSec = document.getElementById('section-velocity-chart');
+                if (velSec) velSec.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            });
+        });
 
         // Setup comparison toggle
         const compareBtn = document.querySelector('.compare-toggle-btn');
