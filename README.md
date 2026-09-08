@@ -1,10 +1,10 @@
-# Mastodon Statistics Dashboard
+# Mastodon User Stats, Growth &amp; Trends Tracker
 
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-GitHub%20Pages-FFB000?style=flat-square&logo=github)](https://obsesivegamer.github.io/Mastodon-User-Trends/)
 
-🌐 **Live Analytics Terminal:** [https://obsesivegamer.github.io/Mastodon-User-Trends/](https://obsesivegamer.github.io/Mastodon-User-Trends/)
+🌐 **Live Terminal:** [Live Mastodon User Stats & Growth Tracker](https://obsesivegamer.github.io/Mastodon-User-Trends/)
 
-An institutional-grade, Bloomberg Amber & Obsidian analytics terminal to track Mastodon's total user growth, active user retention, and network velocity over time. Built with Vanilla HTML/JS/CSS, it is incredibly fast, visually stunning, and works entirely client-side.
+An institutional-grade, Bloomberg Amber & Obsidian analytics terminal to track Mastodon's total user growth, monthly active user (MAU) retention, and daily net change velocity over time. Built with Vanilla HTML/JS/CSS, it is fast, responsive, and works entirely client-side with daily archival data dating back to 2022.
 
 ## Features
 
