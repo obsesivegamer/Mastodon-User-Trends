@@ -955,6 +955,99 @@ body {
     color: var(--text-primary);
 }
 
+/* Historical Milestone Data Table */
+.insights-table-wrap {
+    border-top: 1px solid var(--border-subtle);
+    padding-top: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.table-header-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    margin-bottom: 1rem;
+}
+
+.table-tag {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-amber);
+}
+
+.insights-table-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    letter-spacing: -0.01em;
+}
+
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border: 1px solid var(--border-subtle);
+    border-radius: 3px;
+    background: var(--bg-surface-elevated);
+}
+
+.insights-data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.insights-data-table th {
+    background: var(--bg-surface-active);
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border-strong);
+}
+
+.insights-data-table td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+.insights-data-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.insights-data-table tbody tr:hover td {
+    background: rgba(255, 176, 0, 0.04);
+}
+
+.insights-data-table td strong {
+    color: var(--text-primary);
+}
+
+.insights-data-table .highlight-row td {
+    background: rgba(255, 176, 0, 0.06);
+}
+
+.insights-data-table .highlight-row td strong {
+    color: var(--color-amber);
+}
+
+.insights-data-table .current-row td {
+    background: rgba(0, 229, 255, 0.05);
+}
+
+.insights-data-table .current-row td strong {
+    color: var(--color-cyan);
+}
+
 .insights-faq-wrap {
     border-top: 1px solid var(--border-subtle);
     padding-top: 1.5rem;

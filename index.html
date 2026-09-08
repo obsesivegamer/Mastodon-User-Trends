@@ -75,6 +75,33 @@
               }
             }
           ]
+        },
+        {
+          "@type": "Dataset",
+          "name": "Mastodon Daily User Growth & Active User Statistics Archive",
+          "description": "Continuous daily time-series dataset tracking Mastodon registered user counts, monthly active users (MAU), and daily net growth velocity from September 30, 2022 to present.",
+          "url": "https://obsesivegamer.github.io/Mastodon-User-Trends/",
+          "keywords": [
+            "Mastodon user stats",
+            "Mastodon user growth",
+            "Mastodon daily active users",
+            "Fediverse statistics",
+            "Mastodon historical data",
+            "ActivityPub statistics"
+          ],
+          "creator": {
+            "@type": "Organization",
+            "name": "Mastodon Analytics Terminal"
+          },
+          "temporalCoverage": "2022-09-30/..",
+          "spatialCoverage": "Global",
+          "distribution": [
+            {
+              "@type": "DataDownload",
+              "encodingFormat": "text/csv",
+              "contentUrl": "https://obsesivegamer.github.io/Mastodon-User-Trends/"
+            }
+          ]
         }
       ]
     }
@@ -85,7 +112,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
-    <link rel="stylesheet" href="style.css?v=10">
+    <link rel="stylesheet" href="style.css?v=11">
 </head>
 <body>
     <div class="background-effects">
@@ -110,7 +137,7 @@
                 </div>
                 <div class="last-updated-badge" title="Timestamp of the latest ingested data point">
                     <span class="update-label">LAST ARCHIVE:</span>
-                    <span id="last-updated-time" class="tabular-stat">--</span>
+                    <span id="last-updated-time" class="tabular-stat">Sep 6, 2026</span>
                     <button id="refresh-data-btn" class="refresh-btn" title="Reload local archive" aria-label="Reload local archive">↻</button>
                 </div>
             </div>
@@ -156,8 +183,8 @@
                     </div>
                     <div class="card-body">
                         <div class="value-row">
-                            <span class="value tabular-stat" id="val-active-users">--</span>
-                            <div class="trend" id="trend-active">--</div>
+                            <span class="value tabular-stat" id="val-active-users">667,015</span>
+                            <div class="trend up" id="trend-active">▲ +49 (+0.01%)</div>
                         </div>
                         <div class="comparison" id="comparison-active" hidden></div>
                     </div>
@@ -178,8 +205,8 @@
                     </div>
                     <div class="card-body">
                         <div class="value-row">
-                            <span class="value tabular-stat" id="val-total-users">--</span>
-                            <div class="trend" id="trend-total">--</div>
+                            <span class="value tabular-stat" id="val-total-users">10,143,687</span>
+                            <div class="trend up" id="trend-total">▲ +1,747 (+0.02%)</div>
                         </div>
                         <div class="comparison" id="comparison-total" hidden></div>
                     </div>
@@ -200,8 +227,8 @@
                     </div>
                     <div class="card-body">
                         <div class="value-row">
-                            <span class="value tabular-stat" id="val-engagement-ratio">--</span>
-                            <div class="trend" id="trend-engagement">--</div>
+                            <span class="value tabular-stat" id="val-engagement-ratio">6.58%</span>
+                            <div class="trend" id="trend-engagement">0.00%</div>
                         </div>
                         <div class="comparison" id="comparison-engagement" hidden></div>
                     </div>
@@ -222,12 +249,12 @@
                     </div>
                     <div class="card-body">
                         <div class="value-row">
-                            <span class="value tabular-stat" id="val-net-growth">--</span>
-                            <div class="trend" id="trend-net-growth">--</div>
+                            <span class="value tabular-stat" id="val-net-growth">+49</span>
+                            <div class="trend up" id="trend-net-growth">▲ +49 (Day)</div>
                         </div>
                         <div class="velocity-pace-stat">
                             <span class="velocity-label">RUN RATE:</span>
-                            <span class="velocity-val tabular-stat" id="val-growth-velocity">--</span>
+                            <span class="velocity-val tabular-stat" id="val-growth-velocity">+1,747 / day</span>
                         </div>
                         <div class="comparison" id="comparison-net-growth" hidden></div>
                     </div>
@@ -384,6 +411,71 @@
                     <p>
                         Monitors day-over-day net user change volume (new account registrations minus deactivations). Trailing 7-day moving averages (7D MA) smooth transient weekend variations and API reporting delays to surface clear growth velocity trends.
                     </p>
+                </div>
+            </div>
+
+            <!-- Historical Milestones & Growth Summary Table (Structured Data for Crawlers) -->
+            <div class="insights-table-wrap">
+                <div class="table-header-group">
+                    <span class="table-tag">ARCHIVAL DIGEST // 2022–2026</span>
+                    <h3 class="insights-table-title">Historical Mastodon User Growth &amp; Active Retention Milestones</h3>
+                </div>
+                <div class="table-responsive">
+                    <table class="insights-data-table" aria-label="Historical Mastodon user statistics by era">
+                        <thead>
+                            <tr>
+                                <th scope="col">Era / Milestone Date</th>
+                                <th scope="col">Monthly Active (MAU)</th>
+                                <th scope="col">Total Registered</th>
+                                <th scope="col">Engagement Ratio</th>
+                                <th scope="col">Network Context &amp; Significance</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Sep 30, 2022</strong> (Archive Baseline)</td>
+                                <td class="tabular-stat">470,403</td>
+                                <td class="tabular-stat">3,605,039</td>
+                                <td class="tabular-stat">13.05%</td>
+                                <td>Baseline decentralized fediverse size prior to mainstream social migrations.</td>
+                            </tr>
+                            <tr class="highlight-row">
+                                <td><strong>Nov 30, 2022</strong> (Twitter / X Exodus Peak)</td>
+                                <td class="tabular-stat"><strong>2,624,121</strong></td>
+                                <td class="tabular-stat">5,387,503</td>
+                                <td class="tabular-stat"><strong>48.71%</strong></td>
+                                <td>Historic all-time peak active engagement during the major platform migration wave.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Jul 31, 2023</strong> (Meta Threads / Fediverse Wave)</td>
+                                <td class="tabular-stat">2,058,942</td>
+                                <td class="tabular-stat">7,931,659</td>
+                                <td class="tabular-stat">25.96%</td>
+                                <td>Secondary signup and active user surge coinciding with Threads launch and ActivityPub adoption.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Jul 31, 2024</strong> (Decentralized Consolidation)</td>
+                                <td class="tabular-stat">850,601</td>
+                                <td class="tabular-stat">8,778,498</td>
+                                <td class="tabular-stat">9.69%</td>
+                                <td>Transition into mature, sustained open-source protocol infrastructure with niche community hubs.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Jul 31, 2025</strong> (Annual Federation Growth)</td>
+                                <td class="tabular-stat">765,714</td>
+                                <td class="tabular-stat">9,807,061</td>
+                                <td class="tabular-stat">7.81%</td>
+                                <td>Steady-state network expansion across 10,000+ federated servers worldwide.</td>
+                            </tr>
+                            <tr class="current-row">
+                                <td><strong>Sep 06, 2026</strong> (Current Benchmark)</td>
+                                <td class="tabular-stat">667,015</td>
+                                <td class="tabular-stat">10,143,687</td>
+                                <td class="tabular-stat">6.58%</td>
+                                <td>Over 10.1M cumulative registered accounts with a resilient core active monthly user base.</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
 

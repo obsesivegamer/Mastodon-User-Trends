@@ -106,6 +106,44 @@ async function updateData() {
         fs.writeFileSync(FILE_PATH, jsContent);
 
         console.log(`Successfully merged and saved ${finalData.length} total records to historicalData.js!`);
+
+        // Pre-render latest metrics into index.html for static search engine indexing
+        const indexPath = path.join(__dirname, 'index.html');
+        if (fs.existsSync(indexPath) && finalData.length >= 2) {
+            let indexContent = fs.readFileSync(indexPath, 'utf8');
+            const latestRec = finalData[finalData.length - 1];
+            const prevRec = finalData[finalData.length - 2];
+
+            const activeFormatted = latestRec.active.toLocaleString();
+            const totalFormatted = latestRec.total.toLocaleString();
+            const engRatio = ((latestRec.active / latestRec.total) * 100).toFixed(2) + '%';
+
+            const activeDiff = latestRec.active - prevRec.active;
+            const activeDiffSign = activeDiff >= 0 ? '+' : '';
+            const activeArrow = activeDiff >= 0 ? '▲' : '▼';
+            const activePct = prevRec.active > 0 ? ((activeDiff / prevRec.active) * 100).toFixed(2) : '0.00';
+            const activeTrendStr = `${activeArrow} ${activeDiffSign}${activeDiff.toLocaleString()} (${activeDiffSign}${activePct}%)`;
+
+            const totalDiff = latestRec.total - prevRec.total;
+            const totalDiffSign = totalDiff >= 0 ? '+' : '';
+            const totalArrow = totalDiff >= 0 ? '▲' : '▼';
+            const totalPct = prevRec.total > 0 ? ((totalDiff / prevRec.total) * 100).toFixed(2) : '0.00';
+            const totalTrendStr = `${totalArrow} ${totalDiffSign}${totalDiff.toLocaleString()} (${totalDiffSign}${totalPct}%)`;
+
+            const dateObj = new Date(latestRec.date + 'T12:00:00Z');
+            const dateStr = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+
+            indexContent = indexContent.replace(/<span id="last-updated-time" class="tabular-stat">[^<]*<\/span>/, `<span id="last-updated-time" class="tabular-stat">${dateStr}</span>`);
+            indexContent = indexContent.replace(/<span class="value tabular-stat" id="val-active-users">[^<]*<\/span>/, `<span class="value tabular-stat" id="val-active-users">${activeFormatted}</span>`);
+            indexContent = indexContent.replace(/<div class="trend[^"]*" id="trend-active">[^<]*<\/div>/, `<div class="trend ${activeDiff >= 0 ? 'up' : 'down'}" id="trend-active">${activeTrendStr}</div>`);
+            indexContent = indexContent.replace(/<span class="value tabular-stat" id="val-total-users">[^<]*<\/span>/, `<span class="value tabular-stat" id="val-total-users">${totalFormatted}</span>`);
+            indexContent = indexContent.replace(/<div class="trend[^"]*" id="trend-total">[^<]*<\/div>/, `<div class="trend ${totalDiff >= 0 ? 'up' : 'down'}" id="trend-total">${totalTrendStr}</div>`);
+            indexContent = indexContent.replace(/<span class="value tabular-stat" id="val-engagement-ratio">[^<]*<\/span>/, `<span class="value tabular-stat" id="val-engagement-ratio">${engRatio}</span>`);
+
+            fs.writeFileSync(indexPath, indexContent);
+            console.log(`Pre-rendered latest metrics (${dateStr}: Active ${activeFormatted}, Total ${totalFormatted}) into index.html.`);
+        }
+
         console.log(`Data archival complete.`);
 
     } catch (error) {
