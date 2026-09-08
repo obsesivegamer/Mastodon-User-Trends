@@ -60,4 +60,5 @@
 - 2026-09-08T17:34Z [CODE] Diagnosed Google Search visibility factors and executed on-page ranking hardening: pre-rendered live metric values into raw HTML; added historical milestones summary table (2022-2026) for Google Featured Snippets; added Schema.org Dataset structured data; automated index.html pre-rendering in updateData.js and update-data.yml. Verified with 27/27 unit tests and Playwright test harness (captured table-proof.png).
 - 2026-09-08T17:46Z [USER] Published public launch post on mastodon.social (https://mastodon.social/@obsesivegamer/117237609170801164) establishing first high-authority inbound backlink and ActivityPub crawler signals.
 - 2026-09-08T17:58Z [CODE] Deployed Mastodon rel="me" verification links across head and footer of index.html. Pushed to GitHub master (14f37fd), synced to Synology NAS, and verified live on GitHub Pages.
+- 2026-09-08T18:00Z [CODE] Consolidated duplicate rel attributes in footer to single valid `rel="me noopener"` (commit 9059f91). Synced to Synology NAS and verified live.
 
