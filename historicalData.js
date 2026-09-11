@@ -5593,5 +5593,10 @@ const historicalData = [
     "date": "2026-09-09",
     "total": 10130347,
     "active": 668881
+  },
+  {
+    "date": "2026-09-10",
+    "total": 10146411,
+    "active": 672080
   }
 ];
