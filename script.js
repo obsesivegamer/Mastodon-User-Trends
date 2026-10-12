@@ -278,7 +278,8 @@
         const before = rows[prev];
         const elapsed = readingTime(row) - readingTime(before);
         if (!isFlagged(row, 'statuses') && !isFlagged(before, 'statuses') && elapsed >= MIN_READING_GAP_MS) {
-          const rate = (row.statuses - before.statuses) / (elapsed / DAY_MS);
+          const hours = elapsed / 3600e3;
+          const rate = (row.statuses - before.statuses) / (hours / 24);
           if (rate >= 0) out[i] = rate;
         }
       }
@@ -2142,7 +2143,12 @@
         notes.push('FediDB status counter: change since the previous reading ÷ time between them');
         if (s.statuses_at[gi]) notes.push(`Reading taken ${formatUtcStamp(s.statuses_at[gi])}`);
         if (s.posts[gi] == null && !s.missing[gi] && !s.flags[gi].includes('statuses')) {
-          notes.push(s.statuses[gi] == null ? 'No FediDB reading for this day' : 'No rate: needs a usable reading at least 6 hours earlier');
+          let pj = gi - 1;
+          while (pj >= 0 && !(num(s.statuses[pj]) > 0)) pj -= 1;
+          let why = 'No rate: needs a usable reading at least 6 hours earlier';
+          if (s.statuses[gi] == null) why = 'No FediDB reading for this day';
+          else if (pj >= 0 && s.statuses[gi] < s.statuses[pj]) why = 'No rate: the counter fell since the previous reading';
+          notes.push(why);
         }
       }
       if (chartKey === 'rat' && app.state.rm === 'posts_per_mau') notes.push('FediDB posts ÷ joinmastodon MAU: two sources');

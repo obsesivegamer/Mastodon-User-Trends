@@ -45,9 +45,10 @@ account), so readings are not at a fixed hour, and that is why posts per day div
 time between two readings instead of assuming 24 hours. A day whose reading was missed has no
 reading (a gap), and the next figure then averages over the longer interval.
 
-A reading is rejected, with a log line, when `statuses` is more than 20 percent per elapsed day
-above the last stored reading, or below it when that reading is at most 7 days old (a cumulative
-count cannot fall). Elapsed time is measured from the last stored reading's `statuses_at`, at
+A reading is rejected, with a log line, when `statuses` is more than 3 percent per elapsed day
+above the last stored unflagged reading, or more than 2 percent below it when that reading is at
+most 7 days old (a small fall is let through so that one early spike cannot block every later
+reading; posts per day leaves negative changes out). Elapsed time is measured from the last stored reading's `statuses_at`, at
 least one hour. A FediDB failure only logs a warning and the day keeps no reading.
 
 The Mastodon-software total is a count of what FediDB has crawled, not of every Mastodon post, and

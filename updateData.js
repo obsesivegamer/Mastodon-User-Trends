@@ -38,7 +38,8 @@ const SANITY_THRESHOLD = 0.2;
 const SHIFT_MIN_DAYS = 3;
 const SHIFT_TOLERANCE = 0.05;
 const SHIFT_MAX_DROP = 0.5;
-const FEDIDB_MAX_DAILY_GROWTH = 0.2;
+const FEDIDB_MAX_DAILY_GROWTH = 0.03;
+const FEDIDB_FLOOR_TOLERANCE = 0.02;
 const FEDIDB_FLOOR_DAYS = 7;
 const FEDIDB_MIN_ELAPSED_DAYS = 1 / 24;
 
@@ -156,17 +157,20 @@ function parseFedi(json) {
   return Object.values(out).every(isCount) ? out : null;
 }
 
-// Only `statuses` is gated (a cumulative count: it cannot fall, and +20% per elapsed day is far
-// beyond anything real). fedi_users and fedi_instances are informational. Elapsed time is the real
-// time since the last stored reading (its statuses_at, or 03:00 UTC the day after its date). The
-// floor only applies to a stored reading from the last week, so one old row can never block
-// readings for good.
+// Only `statuses` is gated (a cumulative count). Real growth is about 0.1% a day, so +3% per
+// elapsed day is far beyond anything real, and a fall of more than 2% against a reading from the
+// last week is not a crawl wobble. A smaller fall is let through (posts per day leaves negative
+// changes out), so a small spike that got in can never make every later correct reading fail.
+// fedi_users and fedi_instances are informational. Elapsed time is the real time since the last
+// stored, unflagged reading (its statuses_at, or 03:00 UTC the day after its date). The floor only
+// applies to a reading from the last week, so one old row can never block readings for good.
 function fediPlausible(statuses, readAtMs, day, rows) {
-  const prev = [...rows].reverse().find((r) => r.date < day && isCount(r.statuses));
+  const prev = [...rows].reverse().find((r) => r.date < day && isCount(r.statuses)
+    && !(Array.isArray(r.flags) && r.flags.includes('statuses')));
   if (!prev) return true;
   const elapsed = Math.max(FEDIDB_MIN_ELAPSED_DAYS, (readAtMs - rates.readingTime(prev)) / DAY_MS);
   if (statuses > prev.statuses * (1 + FEDIDB_MAX_DAILY_GROWTH * elapsed)) return false;
-  return !(elapsed <= FEDIDB_FLOOR_DAYS && statuses < prev.statuses);
+  return !(elapsed <= FEDIDB_FLOOR_DAYS && statuses < prev.statuses * (1 - FEDIDB_FLOOR_TOLERANCE));
 }
 
 // ISO UTC to the minute, the format of `statuses_at`: 2026-10-12T10:41Z.
