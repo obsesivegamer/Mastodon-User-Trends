@@ -71,7 +71,7 @@ test('range filtering returns only the selected period', () => {
     assert.deepEqual(filterDataByRange('1M', data), data.slice(1));
 });
 
-test('period comparison uses observations immediately before the current range', () => {
+test('period comparison covers the same number of calendar days ending where the current range starts', () => {
     const data = Array.from({ length: 22 }, (_, index) => ({
         date: `2026-07-${String(index + 1).padStart(2, '0')}`,
         total: 100 + index,
@@ -79,7 +79,7 @@ test('period comparison uses observations immediately before the current range',
     }));
     const comparison = calculatePeriodComparison('1W', data);
     assert.ok(comparison);
-    assert.equal(comparison.raw.at(-1).date, '2026-07-14');
+    assert.equal(comparison.raw.at(-1).date, '2026-07-15');
     assert.equal(processData(filterDataByRange('1W', data)).raw[0].date, '2026-07-15');
 });
 
@@ -87,10 +87,10 @@ test('CSV generation contains only the supplied filtered rows', () => {
     const csv = buildChartCSV([
         { date: '2026-07-18', total: 100, active: 50 },
         { date: '2026-07-19', total: 110, active: 55 }
-    ], true);
+    ], ['total']);
     assert.equal(
         csv,
-        'Date,Total Users\n2026-07-18,100\n2026-07-19,110'
+        'date,total\n2026-07-18,100\n2026-07-19,110\n'
     );
 });
 
@@ -300,9 +300,9 @@ test('calculatePeriodComparison produces aligned arrays matching current period 
     const current = filterDataByRange('1W', data);
     const comparison = calculatePeriodComparison('1W', data);
     assert.ok(comparison);
-    assert.equal(comparison.totalUsers.length, current.length);
-    assert.equal(comparison.activeUsers.length, current.length);
-    assert.equal(comparison.labels.length, current.length);
+    assert.equal(comparison.valuesFor('total').length, current.length);
+    assert.equal(comparison.valuesFor('active').length, current.length);
+    assert.equal(comparison.dates.length, current.length);
 });
 
 test('calculatePeriodComparison pads nulls when previous period is truncated at dataset boundary', () => {
@@ -314,12 +314,13 @@ test('calculatePeriodComparison pads nulls when previous period is truncated at 
     const current = filterDataByRange('1W', data);
     const comparison = calculatePeriodComparison('1W', data);
     assert.ok(comparison);
-    assert.equal(comparison.totalUsers.length, current.length);
-    const padCount = current.length - 2;
+    const totals = comparison.valuesFor('total');
+    assert.equal(totals.length, current.length);
+    const padCount = current.length - 3;
     for (let i = 0; i < padCount; i++) {
-        assert.equal(comparison.totalUsers[i], null);
+        assert.equal(totals[i], null);
     }
-    assert.equal(typeof comparison.totalUsers[padCount], 'number');
+    assert.equal(typeof totals[padCount], 'number');
 });
 
 test('calculateGrowthVelocity computes run rate for active metric when key is "active"', () => {

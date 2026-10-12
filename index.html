@@ -2,682 +2,841 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mastodon User Stats, Growth &amp; Trends // Daily Analytics Tracker</title>
-    <meta name="description" content="Track real-time Mastodon user stats, cumulative growth, daily active user trends, and network velocity from 2022 to present. Free historical analytics terminal.">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Mastodon User Stats: Monthly Active Users, Signups &amp; Growth // Network Pulse</title>
+    <meta name="description" content="Mastodon user stats updated twice a day: total users, monthly active users (MAU), net daily change, servers and posts per day, with history back to 2022. Terminal-style charts, CSV downloads.">
     <link rel="canonical" href="https://obsesivegamer.github.io/Mastodon-User-Trends/">
     <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
     <meta name="google-site-verification" content="_81BEB4N-Is_lfr7M82xSeJYes1Rg4vPYw2eOPZMKdM">
+    <meta name="theme-color" content="#080A0E">
+    <meta name="color-scheme" content="dark">
     <link rel="me" href="https://mastodon.social/@obsesivegamer">
-    <a rel="me" href="https://mastodon.social/@obsesivegamer" style="display:none;" aria-hidden="true">Mastodon</a>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
 
-    <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://obsesivegamer.github.io/Mastodon-User-Trends/">
-    <meta property="og:title" content="Mastodon User Stats, Growth &amp; Trends Tracker">
-    <meta property="og:description" content="Interactive quantitative analytics terminal tracking Mastodon user growth, active user retention, and daily network velocity.">
-    <meta property="og:site_name" content="Mastodon Analytics Terminal">
+    <meta property="og:title" content="Mastodon User Stats: Monthly Active Users, Signups &amp; Growth">
+    <meta property="og:description" content="A Bloomberg-style terminal for the Mastodon network: total users, monthly active users, net daily change, servers and posts per day, updated twice a day.">
+    <meta property="og:site_name" content="Mastodon Network Pulse">
+    <meta property="og:image" content="https://obsesivegamer.github.io/Mastodon-User-Trends/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Mastodon Network Pulse terminal: monthly active users, total users, net daily change and servers">
 
-    <!-- Twitter -->
-    <meta name="twitter:card" content="summary">
+    <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:url" content="https://obsesivegamer.github.io/Mastodon-User-Trends/">
-    <meta name="twitter:title" content="Mastodon User Stats, Growth &amp; Trends Tracker">
-    <meta name="twitter:description" content="Interactive quantitative analytics terminal tracking Mastodon user growth, active user retention, and daily network velocity.">
+    <meta name="twitter:title" content="Mastodon User Stats: Monthly Active Users, Signups &amp; Growth">
+    <meta name="twitter:description" content="A Bloomberg-style terminal for the Mastodon network: total users, monthly active users, net daily change, servers and posts per day, updated twice a day.">
+    <meta name="twitter:image" content="https://obsesivegamer.github.io/Mastodon-User-Trends/og-image.png">
 
-    <!-- Structured Data (JSON-LD) for Search Engines & Rich Results -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@graph": [
-        {
-          "@type": "WebApplication",
-          "name": "Mastodon User Stats & Growth Analytics Terminal",
-          "url": "https://obsesivegamer.github.io/Mastodon-User-Trends/",
-          "description": "Institutional-grade analytics terminal displaying Mastodon user growth, daily active retention, and network velocity.",
-          "applicationCategory": "AnalyticsApplication",
-          "operatingSystem": "All",
-          "about": {
-            "@type": "Thing",
-            "name": "Mastodon"
-          }
-        },
-        {
-          "@type": "FAQPage",
-          "mainEntity": [
-            {
-              "@type": "Question",
-              "name": "How many users does Mastodon have right now?",
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Mastodon tracks over 10 million cumulative registered accounts and between 1.0 million and 1.5 million monthly active users across thousands of decentralized federated instances, updated daily with historical records back to September 2022."
-              }
+    <script type="application/ld+json" id="jsonld">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebApplication",
+            "@id": "https://obsesivegamer.github.io/Mastodon-User-Trends/#app",
+            "name": "Mastodon Network Pulse",
+            "alternateName": "Mastodon User Trends",
+            "url": "https://obsesivegamer.github.io/Mastodon-User-Trends/",
+            "description": "Terminal-style dashboard for Mastodon: total users, monthly active users, net daily change, servers and posts per day, updated twice a day from public data.",
+            "applicationCategory": "ReferenceApplication",
+            "operatingSystem": "Any",
+            "isAccessibleForFree": true,
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "USD"
             },
-            {
-              "@type": "Question",
-              "name": "What is the difference between total registered users and active users on Mastodon?",
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Total registered accounts is the cumulative count of all accounts created since instance inception. Active users measures unique accounts that have logged in, posted, or interacted within the trailing 30-day window, providing an accurate view of genuine engagement."
-              }
+            "about": {
+              "@type": "Thing",
+              "name": "Mastodon",
+              "sameAs": "https://joinmastodon.org/"
             },
-            {
-              "@type": "Question",
-              "name": "How is Mastodon daily user growth velocity measured?",
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "Daily growth velocity tracks the net additions or losses per day (new accounts minus deactivated or suspended accounts) over a selected timeframe, smoothed by a trailing 7-day moving average to filter out reporting anomalies."
-              }
-            },
-            {
-              "@type": "Question",
-              "name": "Where can I view historical Mastodon user trends over time?",
-              "acceptedAnswer": {
-                "@type": "Answer",
-                "text": "This Mastodon Analytics Terminal provides continuous historical user growth data from September 2022 to the present, featuring customizable time ranges (1W, 1M, 6M, YTD, 1Y, 2Y, 3Y, ALL), period-over-period comparisons, and CSV data export."
-              }
-            }
-          ]
-        },
-        {
-          "@type": "Dataset",
-          "name": "Mastodon Daily User Growth & Active User Statistics Archive",
-          "description": "Continuous daily time-series dataset tracking Mastodon registered user counts, monthly active users (MAU), and daily net growth velocity from September 30, 2022 to present.",
-          "url": "https://obsesivegamer.github.io/Mastodon-User-Trends/",
-          "keywords": [
-            "Mastodon user stats",
-            "Mastodon user growth",
-            "Mastodon daily active users",
-            "Fediverse statistics",
-            "Mastodon historical data",
-            "ActivityPub statistics"
-          ],
-          "creator": {
-            "@type": "Organization",
-            "name": "Mastodon Analytics Terminal"
+            "dateModified": "2026-10-12T06:11:00.000Z"
           },
-          "temporalCoverage": "2022-09-30/..",
-          "spatialCoverage": "Global",
-          "distribution": [
-            {
-              "@type": "DataDownload",
-              "encodingFormat": "text/csv",
-              "contentUrl": "https://obsesivegamer.github.io/Mastodon-User-Trends/"
-            }
-          ]
-        }
-      ]
-    }
+          {
+            "@type": "FAQPage",
+            "@id": "https://obsesivegamer.github.io/Mastodon-User-Trends/#faq",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "How many users does Mastodon have?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "As of Oct 11, 2026 (UTC), joinmastodon.org’s statistics counted 10,503,903 accounts on the servers that report to it. joinmastodon.org counted 7,384 servers on Oct 11, 2026. The figure is the sum over all reporting servers, so it can fall when a server leaves the count or stops reporting, and it includes accounts that were never active. FediDB crawls Mastodon-software servers on its own and counted 8.82M accounts in its reading for Oct 11, 2026 (taken 2026-10-12 05:17 UTC); the two totals are different bases and are never mixed on this page."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "How many monthly active users does Mastodon have?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "728,997 accounts were active in the 30 days to Oct 11, 2026, which is 6.94% of all counted accounts. Monthly active users (MAU) is a trailing 30-day window, not a daily count, so it moves slowly. The record is 2.62M on Nov 30, 2022, at the height of the Twitter migration."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "How fast is Mastodon growing?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Over the last 7 days total users changed by an average of +3.5K/day and monthly active users by +272/day. The latest day was +2.8K for total users and +792 for MAU. These are net changes, not registrations: deleted accounts and servers that stop reporting are subtracted. The largest single usable day in this data is +135.5K on Nov 7, 2022; days that jump by a step no real event explains are flagged and already left out of that peak (see below)."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "How many servers and posts per day does Mastodon have?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "joinmastodon.org counted 7,384 servers on Oct 11, 2026. Posts per day come from FediDB’s running count of statuses on Mastodon-software servers: this page stores one cumulative reading per day, taken when the update runs, and shows the change between readings divided by the time between them. The first figure appears once two daily readings exist. FediDB counts Mastodon software only, so its numbers are not comparable with the joinmastodon user counts."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Where does this Mastodon data come from?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Total users, monthly active users and server counts come from joinmastodon.org’s public statistics API (api.joinmastodon.org/statistics). That API only returns the most recent 30 days or so, so a GitHub Action reads it twice a day and keeps the history in this repository, which goes back to Sep 30, 2022. Posts per day and the FediDB totals come from FediDB (api.fedidb.org), read by the same Action. When the page loads, your browser also asks the statistics API for the current figure; that is what LIVE means."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Why are some days missing or flagged?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Some days have no reading in the archive. Those days are drawn as gaps and nothing is interpolated. Days where the source jumped by a step that reversed within days, or that no real event explains, are flagged: a flagged value is treated as missing and left out of averages, peaks, comparisons and ratios. Flagged days appear as shaded gaps in the charts and as “flagged” in the data table. Real surges such as the Nov 2022 Twitter wave are not flagged."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Where do the leaderboards, top posts and decentralization figures come from?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Server boards and the decentralization meter come from FediDB’s list of Mastodon servers, ranked by users. Account boards and top posts are built daily from the public directories and trending posts of the largest servers, so they are not an exhaustive list of Mastodon accounts or posts. Only public, discoverable accounts with at least 10,000 followers are named (no bots, locked, group or opted-out accounts), and a top post must be public, not marked sensitive and carry no content warning. Everyone else still counts toward the totals but is never listed."
+                }
+              }
+            ]
+          },
+          {
+            "@type": "Dataset",
+            "@id": "https://obsesivegamer.github.io/Mastodon-User-Trends/#dataset",
+            "name": "Mastodon daily users, monthly active users, servers and posts",
+            "description": "Daily Mastodon time series from 2022-09-30 to 2026-10-11: total users and monthly active users (trailing 30 days) as reported by joinmastodon.org's statistics API, server count, FediDB's status, user and server counts for Mastodon-software servers, net daily changes, and per-day flags for readings treated as unreliable.",
+            "url": "https://obsesivegamer.github.io/Mastodon-User-Trends/",
+            "keywords": [
+              "Mastodon",
+              "Mastodon users",
+              "Mastodon monthly active users",
+              "Mastodon user growth",
+              "Fediverse",
+              "ActivityPub",
+              "social media statistics"
+            ],
+            "creator": {
+              "@type": "Person",
+              "name": "obsesivegamer",
+              "url": "https://github.com/obsesivegamer"
+            },
+            "isAccessibleForFree": true,
+            "isBasedOn": [
+              "https://api.joinmastodon.org/statistics",
+              "https://api.fedidb.org/v1/software/mastodon"
+            ],
+            "creditText": "User, monthly active user and server counts from the joinmastodon.org statistics API; status, user and server totals for Mastodon-software servers from FediDB (fedidb.org).",
+            "license": "https://github.com/obsesivegamer/Mastodon-User-Trends/blob/master/LICENSE",
+            "temporalCoverage": "2022-09-30/2026-10-11",
+            "dateModified": "2026-10-12T06:11:00.000Z",
+            "variableMeasured": [
+              "Total users",
+              "Monthly active users",
+              "Net daily change of total users",
+              "Net daily change of monthly active users",
+              "Servers",
+              "FediDB posts (statuses)",
+              "FediDB users",
+              "FediDB servers"
+            ],
+            "distribution": [
+              {
+                "@type": "DataDownload",
+                "encodingFormat": "text/csv",
+                "contentUrl": "https://obsesivegamer.github.io/Mastodon-User-Trends/data/mastodon-daily.csv"
+              }
+            ]
+          }
+        ]
+      }
     </script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
-    <link rel="stylesheet" href="style.css?v=11">
+    <link rel="stylesheet" href="style.css?v=12">
+    <link rel="stylesheet" href="social.css?v=1">
 </head>
 <body>
-    <div class="background-effects">
+    <a class="skip-link" href="#main">Skip to dashboard</a>
+    <div class="background-effects" aria-hidden="true">
         <div class="grid-overlay"></div>
     </div>
 
     <div class="dashboard-container">
-        <!-- Terminal Header -->
         <header class="dashboard-header terminal-panel">
             <div class="header-brand">
                 <div class="terminal-badge">
-                    <span class="badge-pulse"></span>
-                    <span class="badge-text">FEDIVERSE // MASTODON-HQ</span>
+                    <span class="badge-pulse" aria-hidden="true"></span>
+                    <span class="badge-text">FEDIVERSE // MASTODON</span>
                 </div>
                 <h1>Mastodon <span>Network Pulse</span></h1>
-                <p class="header-subtitle">Quantitative analytics & growth metrics for decentralized social infrastructure</p>
+                <p class="header-subtitle">Total users, monthly active users and servers for the Mastodon network, from joinmastodon.org’s public statistics. Refreshed twice a day.</p>
             </div>
             <div class="header-status-panel">
-                <div class="status-indicator">
-                    <div class="status-dot"></div>
-                    <span id="data-status">Connecting...</span>
+                <div class="clock-block" aria-label="Clock">
+                    <div class="clock-row">
+                        <span class="clock-label">UTC</span>
+                        <span id="clock-utc" class="clock-utc tabular-stat">--:--:--</span>
+                    </div>
+                    <div class="clock-sub tabular-stat">
+                        <span id="clock-date">—</span>
+                        <span class="clock-sep" aria-hidden="true">·</span>
+                        <span class="clock-label">LOCAL</span>
+                        <span id="clock-local">--:--</span>
+                    </div>
                 </div>
-                <div class="last-updated-badge" title="Timestamp of the latest ingested data point">
-                    <span class="update-label">LAST ARCHIVE:</span>
-                    <span id="last-updated-time" class="tabular-stat">Sep 6, 2026</span>
-                    <button id="refresh-data-btn" class="refresh-btn" title="Reload local archive" aria-label="Reload local archive">↻</button>
+                <div class="status-stack">
+                    <div class="status-indicator archive" id="status-indicator" role="status">
+                        <span class="status-dot" aria-hidden="true"></span>
+                        <span id="data-status">ARCHIVE</span>
+                        <span id="status-detail" class="visually-hidden"></span>
+                    </div>
+                    <div class="last-updated-badge">
+                        <span class="update-label">DATA THRU</span>
+                        <span class="tabular-stat update-value amber" id="last-updated-time" data-prerender="last-day">Oct 11, 2026</span>
+                        <span class="update-label">BUILD</span>
+                        <span class="tabular-stat update-value" data-prerender="generated">2026-10-12 06:11 UTC</span>
+                        <button type="button" id="refresh-data-btn" class="refresh-btn" title="Reload the page and data" aria-label="Reload the page and data"><span aria-hidden="true">↻</span></button>
+                    </div>
                 </div>
             </div>
         </header>
 
-        <!-- Sticky Integrated Global Command Bar -->
-        <nav class="terminal-command-bar terminal-panel" aria-label="Analytics controls">
-            <div class="command-group time-ranges" role="toolbar" aria-label="Time scale range">
-                <span class="command-label">RANGE</span>
-                <div class="pill-segmented">
-                    <button class="time-btn" data-range="1W">1W</button>
-                    <button class="time-btn" data-range="1M">1M</button>
-                    <button class="time-btn" data-range="6M">6M</button>
-                    <button class="time-btn" data-range="YTD">YTD</button>
-                    <div id="year-range-container" class="year-range-container"></div>
-                    <button class="time-btn active" data-range="ALL">ALL</button>
+        <section class="ticker terminal-panel" id="ticker" aria-label="Ticker: latest values (users is the current count, the rest the latest day in the archive), with the week-over-week change of each 7-day average">
+            <span class="ticker-tag" aria-hidden="true">MSTDN</span>
+            <button type="button" class="ticker-pause" id="ticker-pause" aria-pressed="false" aria-label="Pause ticker" title="Pause or resume the ticker"><span class="pause-glyph" aria-hidden="true"></span></button>
+            <div class="ticker-viewport">
+                <div class="ticker-track">
+                    <ul class="ticker-items" id="ticker-items">
+<!-- prerender:ticker -->
+<li class="tick" data-tick="mau"><span class="tick-sym">MAU</span><span class="tick-val">729.0K</span><span class="tick-chg up"><span aria-hidden="true">▲</span> +0.27%</span></li>
+<li class="tick" data-tick="users"><span class="tick-sym">USERS</span><span class="tick-val">10,503,903</span><span class="tick-chg up"><span aria-hidden="true">▲</span> +0.12%</span></li>
+<li class="tick" data-tick="mauvel"><span class="tick-sym">MAU/DAY 7D</span><span class="tick-val">+272/day</span><span class="tick-chg up" title="7-day average +272/day against +32/day a week earlier"><span aria-hidden="true">▲</span> +240/day</span></li>
+<li class="tick" data-tick="signups"><span class="tick-sym">NET/DAY 7D</span><span class="tick-val">+3.5K/day</span><span class="tick-chg up" title="7-day average +3.5K/day against +841/day a week earlier"><span aria-hidden="true">▲</span> +2.7K/day</span></li>
+<li class="tick" data-tick="engagement"><span class="tick-sym">ENGAGEMENT</span><span class="tick-val">6.94%</span><span class="tick-chg up"><span aria-hidden="true">▲</span> +0.16%</span></li>
+<li class="tick" data-tick="servers"><span class="tick-sym">SERVERS</span><span class="tick-val">7,384</span><span class="tick-chg down"><span aria-hidden="true">▼</span> -0.48%</span></li>
+<!-- /prerender:ticker -->
+                    </ul>
+                    <ul class="ticker-items ticker-clone" id="ticker-clone" aria-hidden="true"></ul>
                 </div>
             </div>
+        </section>
 
-            <div class="command-group view-toggles" role="toolbar" aria-label="Analysis toggles">
-                <span class="command-label">INDICATORS</span>
-                <div class="pill-segmented">
-                    <button class="control-btn toggle-ma-btn" title="Toggle trailing 7-day moving average" aria-pressed="false">📈 7D MA</button>
-                    <button class="control-btn toggle-velocity-btn active" id="toggle-velocity-btn" title="Toggle daily additions/losses velocity chart" aria-pressed="true">📊 Velocity</button>
-                    <button class="control-btn compare-toggle-btn" title="Toggle period comparison" aria-pressed="false">🔄 Compare</button>
-                    <button class="control-btn guide-toggle-btn" id="open-guide-btn" title="View terminal methodology & tooltip guide" aria-haspopup="dialog">📖 Guide</button>
+        <nav class="terminal-command-bar terminal-panel" aria-label="Dashboard controls">
+            <div class="command-group" role="group" aria-label="Time range">
+                <span class="command-label" aria-hidden="true">RANGE</span>
+                <div class="pill-segmented range-pill">
+                    <button type="button" class="time-btn" data-range="1W" aria-pressed="false" aria-keyshortcuts="1" title="Past week (key 1)">1W</button>
+                    <button type="button" class="time-btn" data-range="1M" aria-pressed="false" aria-keyshortcuts="2" title="Past month (key 2)">1M</button>
+                    <button type="button" class="time-btn" data-range="3M" aria-pressed="false" aria-keyshortcuts="3" title="Past 3 months (key 3)">3M</button>
+                    <button type="button" class="time-btn" data-range="6M" aria-pressed="false" aria-keyshortcuts="4" title="Past 6 months (key 4)">6M</button>
+                    <button type="button" class="time-btn" data-range="YTD" aria-pressed="false" aria-keyshortcuts="5" title="Year to date, from the Dec 31 close (key 5)">YTD</button>
+                    <button type="button" class="time-btn active" data-range="1Y" aria-pressed="true" aria-keyshortcuts="6" title="Past year (key 6)">1Y</button>
+                    <button type="button" class="time-btn" data-range="2Y" aria-pressed="false" aria-keyshortcuts="7" title="Past 2 years (key 7)">2Y</button>
+                    <button type="button" class="time-btn" data-range="3Y" aria-pressed="false" title="Past 3 years">3Y</button>
+                    <button type="button" class="time-btn" data-range="4Y" aria-pressed="false" title="Past 4 years">4Y</button>
+                    <button type="button" class="time-btn" data-range="ALL" aria-pressed="false" aria-keyshortcuts="8" title="All history in the archive (key 8)">ALL</button>
                 </div>
             </div>
-
-            <div class="command-group range-status">
-                <span class="range-display">VIEWING: <strong id="selected-range-label">All Time</strong></span>
+            <div class="command-group" role="group" aria-label="Studies">
+                <span class="command-label" aria-hidden="true">STUDY</span>
+                <div class="pill-segmented">
+                    <button type="button" class="control-btn active" id="toggle-ma-btn" aria-pressed="true" aria-keyshortcuts="M" title="7-day moving average (M)">7D MA</button>
+                    <button type="button" class="control-btn" id="toggle-log-btn" aria-pressed="false" aria-keyshortcuts="L" title="Logarithmic y-axis on the MAU, SRV, REC and TOT charts (L)">LOG</button>
+                    <button type="button" class="control-btn" id="toggle-compare-btn" aria-pressed="false" aria-keyshortcuts="C" title="Overlay the prior period: the same number of days immediately before this range (C)">COMPARE</button>
+                </div>
+                <button type="button" class="control-btn guide-btn" id="open-guide-btn" aria-haspopup="dialog" aria-keyshortcuts="Shift+?" title="Guide: methodology, definitions and shortcuts (?)"><span aria-hidden="true">?</span> GUIDE</button>
+            </div>
+            <div class="command-group range-status" aria-live="polite">
+                <span class="range-display">VIEWING <strong id="selected-range-label">Past Year</strong>
+                    <span id="selected-range-dates" class="range-dates" data-prerender="range-dates">Oct 11, 2025 → Oct 11, 2026 · 366 pts</span>
+                    <span id="prior-range-dates" class="prior-dates" hidden></span>
+                </span>
             </div>
         </nav>
 
-        <main class="dashboard-grid">
-            <!-- 4-Card Quantitative Metrics Grid -->
-            <section class="metrics-row" aria-label="Key quantitative metrics">
-                <!-- Active Users Card (Primary Platform Health) -->
-                <div class="metric-card terminal-panel" id="card-active">
+        <div class="data-error terminal-panel" id="data-error" role="alert" hidden>
+            <strong>DATA ERROR</strong> <span class="data-error-msg"></span>
+        </div>
+        <noscript>
+            <p class="noscript terminal-panel">Charts, ranges and the live user count need JavaScript. The numbers on this page are pre-rendered from the latest daily build.</p>
+        </noscript>
+
+        <p id="chart-live" class="visually-hidden" aria-live="polite"></p>
+        <main id="main" class="dashboard-grid">
+            <section class="metrics-row" aria-label="Key metrics">
+                <article class="metric-card terminal-panel" id="card-mau">
                     <div class="card-header">
-                        <span class="metric-title">ACTIVE USERS</span>
-                        <span class="metric-chip chip-cyan">MONTHLY MAU</span>
+                        <h2 class="metric-title">MONTHLY ACTIVE USERS</h2>
+                        <span class="metric-chip chip-blue" title="Accounts that were active in the trailing 30 days, as reported by joinmastodon.org. A rolling window, not a daily count.">30-DAY</span>
                     </div>
                     <div class="card-body">
-                        <div class="value-row">
-                            <span class="value tabular-stat" id="val-active-users">667,015</span>
-                            <div class="trend up" id="trend-active">▲ +49 (+0.01%)</div>
-                        </div>
-                        <div class="comparison" id="comparison-active" hidden></div>
+                        <span class="value tabular-stat" id="kpi-mau-value" data-prerender="mau">729.0K</span>
+                        <span class="trend flat" id="kpi-mau-trend">—</span>
+                        <p class="comparison">ATH <span class="c-val" data-prerender="mau-peak">2.62M</span> · <span data-prerender="mau-peak-date">Nov 30, 2022</span></p>
+                        <p class="comparison">ENGAGEMENT <span class="c-val" data-prerender="engagement">6.94%</span> OF TOTAL</p>
+                        <p class="comparison prior-line" id="kpi-mau-prior" hidden></p>
                     </div>
                     <div class="card-footer">
-                        <div class="sparkline-wrapper">
-                            <svg class="sparkline-svg" id="sparkline-active" viewBox="0 0 120 28" preserveAspectRatio="none" aria-hidden="true">
-                                <path class="sparkline-path sparkline-active" d="" />
-                            </svg>
+                        <svg class="sparkline-svg" id="spark-mau" viewBox="0 0 120 28" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path class="sparkline-path sparkline-mau" d=""/></svg>
+                    </div>
+                </article>
+
+                <article class="metric-card terminal-panel card-users" id="card-users">
+                    <div class="card-header">
+                        <h2 class="metric-title">TOTAL USERS</h2>
+                        <span class="card-chips">
+                            <span class="metric-chip chip-amber" id="kpi-users-chip">END OF DAY</span>
+                        </span>
+                    </div>
+                    <div class="card-body">
+                        <span class="value tabular-stat" id="kpi-users-value" data-prerender="total-users">10,503,903</span>
+                        <span class="trend flat" id="kpi-users-trend">—</span>
+                        <p class="comparison" id="kpi-users-comp">—</p>
+                        <p class="comparison note" id="kpi-users-note" hidden></p>
+                        <p class="comparison prior-line" id="kpi-users-prior" hidden></p>
+                    </div>
+                    <div class="card-footer">
+                        <svg class="sparkline-svg" id="spark-users" viewBox="0 0 120 28" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path class="sparkline-path sparkline-total" d=""/></svg>
+                    </div>
+                </article>
+
+                <article class="metric-card terminal-panel" id="card-mauvel">
+                    <div class="card-header">
+                        <h2 class="metric-title">MAU HEALTH</h2>
+                        <span class="metric-chip chip-amber" title="Net daily change of monthly active users, averaged over 7 days">7D AVG</span>
+                    </div>
+                    <div class="card-body">
+                        <span class="value tabular-stat" id="kpi-mauvel-value" data-prerender="mau-velocity-7d">+272/day</span>
+                        <span class="trend flat" id="kpi-mauvel-trend">—</span>
+                        <p class="comparison">LAST DAY <span class="c-val" data-prerender="mau-velocity-last">+792</span> · PEAK <span class="c-val" data-prerender="mau-velocity-peak">+265.5K</span> <span class="nowrap" data-prerender="mau-velocity-peak-date">Nov 19, 2022</span></p>
+                        <p class="comparison prior-line" id="kpi-mauvel-prior" hidden></p>
+                    </div>
+                    <div class="card-footer">
+                        <svg class="sparkline-svg" id="spark-mauvel" viewBox="0 0 120 28" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path class="sparkline-path sparkline-mauvel" d=""/></svg>
+                    </div>
+                </article>
+
+                <article class="metric-card terminal-panel" id="card-signups">
+                    <div class="card-header">
+                        <h2 class="metric-title">NET SIGNUPS</h2>
+                        <span class="metric-chip chip-amber" title="Net daily change of total users (sign-ups minus deletions and servers that stop reporting), averaged over 7 days">7D AVG</span>
+                    </div>
+                    <div class="card-body">
+                        <span class="value tabular-stat" id="kpi-signups-value" data-prerender="signups-7d">+3.5K/day</span>
+                        <span class="trend flat" id="kpi-signups-trend">—</span>
+                        <p class="comparison">LAST DAY <span class="c-val" data-prerender="signups-last">+2.8K</span> · PEAK <span class="c-val" data-prerender="signups-peak">+135.5K</span> <span class="nowrap" data-prerender="signups-peak-date">Nov 7, 2022</span></p>
+                        <p class="comparison prior-line" id="kpi-signups-prior" hidden></p>
+                    </div>
+                    <div class="card-footer">
+                        <svg class="sparkline-svg" id="spark-signups" viewBox="0 0 120 28" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path class="sparkline-path sparkline-signups" d=""/></svg>
+                    </div>
+                </article>
+
+                <article class="metric-card terminal-panel" id="card-servers">
+                    <div class="card-header">
+                        <h2 class="metric-title">SERVERS</h2>
+                        <span class="metric-chip chip-teal" title="Servers that report to joinmastodon.org's statistics">REPORTING</span>
+                    </div>
+                    <div class="card-body">
+                        <span class="value tabular-stat" id="kpi-servers-value" data-prerender="servers">7,384</span>
+                        <span class="trend flat" id="kpi-servers-trend">—</span>
+                        <p class="comparison" id="kpi-servers-comp">—</p>
+                        <p class="comparison prior-line" id="kpi-servers-prior" hidden></p>
+                    </div>
+                    <div class="card-footer">
+                        <svg class="sparkline-svg" id="spark-servers" viewBox="0 0 120 28" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path class="sparkline-path sparkline-servers" d=""/></svg>
+                    </div>
+                </article>
+            </section>
+
+            <section class="index-strip terminal-panel" aria-labelledby="index-strip-title">
+                <h2 class="strip-label" id="index-strip-title"><span class="fn-key" aria-hidden="true"><span class="fn-code">IDX</span></span> FediDB totals <span class="strip-note">Mastodon-software servers only · a different base from the joinmastodon figures above</span></h2>
+                <dl class="index-stats" id="strip-stats">
+<!-- prerender:strip -->
+<div class="index-stat"><dt>SERVERS</dt><dd class="tabular-stat" title="Mastodon-software servers FediDB knows about: 8,694 (FediDB reading stored for Oct 11, 2026, taken 2026-10-12 05:17 UTC)">8,694</dd></div>
+<div class="index-stat"><dt>POSTS</dt><dd class="tabular-stat" title="All-time posts (statuses) on those servers: 1,017,649,837 (FediDB reading stored for Oct 11, 2026, taken 2026-10-12 05:17 UTC)">1.018B</dd></div>
+<div class="index-stat"><dt>USERS</dt><dd class="tabular-stat" title="Accounts on those servers: 8,818,464 (FediDB reading stored for Oct 11, 2026, taken 2026-10-12 05:17 UTC)">8.82M</dd></div>
+<!-- /prerender:strip -->
+                </dl>
+            </section>
+
+            <section class="chart-section terminal-panel chart-wide" id="section-velocity-chart" aria-labelledby="velocity-chart-heading">
+                <div class="panel-bar">
+                    <div class="panel-title">
+                        <span class="fn-key" aria-hidden="true"><span class="fn-code">USR</span><span class="fn-go">GO</span></span>
+                        <h2 id="velocity-chart-heading">MAU health <span class="h-sub">net change of active users per day</span></h2>
+                    </div>
+                    <div class="panel-tools">
+                        <div class="pill-segmented mode-pill" role="group" aria-label="Velocity mode">
+                            <button type="button" class="vel-mode-btn active" data-mode="mau" aria-pressed="true" title="Net daily change of monthly active users">MAU HEALTH</button>
+                            <button type="button" class="vel-mode-btn" data-mode="signups" aria-pressed="false" title="Net daily change of total users">SIGNUPS</button>
+                            <button type="button" class="vel-mode-btn" data-mode="pct" aria-pressed="false" title="Percentage growth per day of the metric you picked last">GROWTH %</button>
                         </div>
+                        <span class="scale-tag" title="Net changes can be negative, so this panel is always linear">LIN</span>
+                        <button type="button" class="tool-btn export-png-btn" data-chart="velocity" aria-label="Export velocity chart as PNG">PNG</button>
+                        <button type="button" class="tool-btn export-csv-btn" data-chart="velocity" aria-label="Export visible velocity data as CSV">CSV</button>
+                        <button type="button" class="tool-btn reset-zoom-btn" data-chart="velocity" aria-label="Reset velocity chart zoom"><span aria-hidden="true">⟲</span> ZOOM</button>
                     </div>
                 </div>
-
-                <!-- Total Users Card (Secondary Network Size) -->
-                <div class="metric-card terminal-panel" id="card-total">
-                    <div class="card-header">
-                        <span class="metric-title">TOTAL USERS</span>
-                        <span class="metric-chip chip-amber">CUMULATIVE</span>
-                    </div>
-                    <div class="card-body">
-                        <div class="value-row">
-                            <span class="value tabular-stat" id="val-total-users">10,143,687</span>
-                            <div class="trend up" id="trend-total">▲ +1,747 (+0.02%)</div>
-                        </div>
-                        <div class="comparison" id="comparison-total" hidden></div>
-                    </div>
-                    <div class="card-footer">
-                        <div class="sparkline-wrapper">
-                            <svg class="sparkline-svg" id="sparkline-total" viewBox="0 0 120 28" preserveAspectRatio="none" aria-hidden="true">
-                                <path class="sparkline-path sparkline-total" d="" />
-                            </svg>
-                        </div>
+                <p class="chart-subtitle" id="velocity-chart-subtitle">Day-over-day net change of monthly active users (30-day window), joinmastodon.org. Bars are gaps on flagged or missing days.</p>
+                <div class="legend-row">
+                    <span class="legend-badge"><span class="legend-swatch sw-velocity" aria-hidden="true"></span>Net change per day</span>
+                    <span class="legend-badge ma-legend"><span class="legend-line line-ma" aria-hidden="true"></span>7D avg</span>
+                    <span class="legend-badge" title="A flagged value is treated as missing: a gap here, and left out of averages, peaks and comparisons."><span class="legend-swatch sw-flagged" aria-hidden="true"></span>FLAGGED (gap)</span>
+                    <span class="legend-badge"><span class="legend-swatch sw-nodata" aria-hidden="true"></span>No data</span>
+                    <button type="button" class="legend-badge chart-comparison-legend open-guide-link" hidden title="How the prior period works"><span class="legend-line line-prior" aria-hidden="true"></span>Prior period</button>
+                </div>
+                <div class="surge-bar" role="group" aria-labelledby="surge-label">
+                    <span class="surge-label" id="surge-label"><span aria-hidden="true">⚡</span> SURGE WINDOWS</span>
+                    <div class="surge-chips">
+                        <button type="button" class="surge-chip" data-surge="SURGE_NOV_2022" aria-pressed="false"><span class="chip-title">Nov 2022 · Musk Twitter takeover</span><span class="chip-val" data-prerender="surge-nov-2022">+1.94M</span></button>
+                        <button type="button" class="surge-chip" data-surge="SURGE_JUL_2023" aria-pressed="false"><span class="chip-title">Jul 2023 · Threads launch</span><span class="chip-val" data-prerender="surge-jul-2023">+889.5K</span></button>
+                        <button type="button" class="surge-chip" data-surge="SURGE_FEB_2024" aria-pressed="false"><span class="chip-title">Feb 2024 · crawler step (flagged)</span><span class="chip-val" data-prerender="surge-feb-2024">FLAGGED</span></button>
+                        <button type="button" class="surge-chip" data-surge="SURGE_SEP_2024" aria-pressed="false"><span class="chip-title">Sep 2024 · crawler step (flagged)</span><span class="chip-val" data-prerender="surge-sep-2024">FLAGGED</span></button>
+                        <button type="button" class="surge-reset" id="reset-surge-btn" hidden><span aria-hidden="true">✕</span> RESET</button>
                     </div>
                 </div>
+                <div class="chart-container chart-tall">
+                    <canvas id="velocityChart" role="img" tabindex="0" aria-label="Velocity chart. Daily values are in the data table below."></canvas>
+                </div>
+                <p class="chart-foot">CTRL + SCROLL OR PINCH: ZOOM · DRAG: PAN · FOCUS A CHART AND USE ← → TO STEP DAYS</p>
+            </section>
 
-                <!-- Engagement Ratio Card -->
-                <div class="metric-card terminal-panel" id="card-engagement">
-                    <div class="card-header">
-                        <span class="metric-title">ENGAGEMENT RATIO</span>
-                        <span class="metric-chip chip-violet">ACTIVE / TOTAL</span>
+            <section class="chart-section terminal-panel chart-wide" id="section-mau-chart" aria-labelledby="mau-chart-heading">
+                <div class="panel-bar">
+                    <div class="panel-title">
+                        <span class="fn-key" aria-hidden="true"><span class="fn-code">MAU</span><span class="fn-go">GO</span></span>
+                        <h2 id="mau-chart-heading">Monthly active users <span class="h-sub">trailing 30 days</span></h2>
                     </div>
-                    <div class="card-body">
-                        <div class="value-row">
-                            <span class="value tabular-stat" id="val-engagement-ratio">6.58%</span>
-                            <div class="trend" id="trend-engagement">0.00%</div>
-                        </div>
-                        <div class="comparison" id="comparison-engagement" hidden></div>
-                    </div>
-                    <div class="card-footer">
-                        <div class="sparkline-wrapper">
-                            <svg class="sparkline-svg" id="sparkline-engagement" viewBox="0 0 120 28" preserveAspectRatio="none" aria-hidden="true">
-                                <path class="sparkline-path sparkline-engagement" d="" />
-                            </svg>
-                        </div>
+                    <div class="panel-tools">
+                        <span class="scale-tag log-capable" title="Linear y-axis (press L for logarithmic)">LIN</span>
+                        <button type="button" class="tool-btn export-png-btn" data-chart="mau" aria-label="Export monthly active users chart as PNG">PNG</button>
+                        <button type="button" class="tool-btn export-csv-btn" data-chart="mau" aria-label="Export visible monthly active users data as CSV">CSV</button>
+                        <button type="button" class="tool-btn reset-zoom-btn" data-chart="mau" aria-label="Reset monthly active users chart zoom"><span aria-hidden="true">⟲</span> ZOOM</button>
                     </div>
                 </div>
-
-                <!-- MAU Health & Velocity Card -->
-                <div class="metric-card terminal-panel" id="card-net-growth">
-                    <div class="card-header">
-                        <span class="metric-title">MAU HEALTH &amp; VELOCITY</span>
-                        <span class="metric-chip chip-cyan">ACTIVE PACE</span>
-                    </div>
-                    <div class="card-body">
-                        <div class="value-row">
-                            <span class="value tabular-stat" id="val-net-growth">+49</span>
-                            <div class="trend up" id="trend-net-growth">▲ +49 (Day)</div>
-                        </div>
-                        <div class="velocity-pace-stat">
-                            <span class="velocity-label">RUN RATE:</span>
-                            <span class="velocity-val tabular-stat" id="val-growth-velocity">+1,747 / day</span>
-                        </div>
-                        <div class="comparison" id="comparison-net-growth" hidden></div>
-                    </div>
-                    <div class="card-footer">
-                        <div class="sparkline-wrapper">
-                            <svg class="sparkline-svg" id="sparkline-velocity" viewBox="0 0 120 28" preserveAspectRatio="none" aria-hidden="true">
-                                <path class="sparkline-path sparkline-velocity" d="" />
-                            </svg>
-                        </div>
-                    </div>
+                <p class="chart-subtitle">Accounts active in the 30 days up to each UTC day, as reported by joinmastodon.org. A rolling window, so it moves slowly.</p>
+                <div class="legend-row">
+                    <span class="legend-badge"><span class="legend-line line-active" aria-hidden="true"></span>Monthly active users</span>
+                    <span class="legend-badge ma-legend"><span class="legend-note">faint = daily · solid = 7D avg</span></span>
+                    <span class="legend-badge" title="A flagged value is treated as missing: a gap here, and left out of averages, peaks and comparisons."><span class="legend-swatch sw-flagged" aria-hidden="true"></span>FLAGGED (gap)</span>
+                    <span class="legend-badge"><span class="legend-swatch sw-nodata" aria-hidden="true"></span>No data</span>
+                    <button type="button" class="legend-badge chart-comparison-legend open-guide-link" hidden title="How the prior period works"><span class="legend-line line-prior" aria-hidden="true"></span>Prior period</button>
+                </div>
+                <div class="chart-container chart-mid">
+                    <canvas id="mauChart" role="img" tabindex="0" aria-label="Monthly active users chart. Daily values are in the data table below."></canvas>
                 </div>
             </section>
 
-            <!-- Charts Section -->
-            <section class="charts-grid" aria-label="Time series charts">
-                <!-- Daily Net Velocity Histogram Chart (Centerpiece: Dual-Mode MAU Health vs. Signups) -->
-                <div class="chart-section terminal-panel" id="section-velocity-chart">
-                    <div class="chart-header">
-                        <div class="chart-title-group">
-                            <div class="velocity-title-row">
-                                <h2 id="velocity-chart-heading">Daily Active User Velocity</h2>
-                                <div class="pill-segmented velocity-mode-pill" role="group" aria-label="Velocity mode selector">
-                                    <button class="velocity-mode-btn active" id="vel-mode-active" data-mode="active" title="Primary: Day-over-day active user expansion &amp; churn">⚡ MAU Health</button>
-                                    <button class="velocity-mode-btn" id="vel-mode-total" data-mode="total" title="Secondary: Day-over-day new registrations &amp; signups">👥 Signups</button>
-                                </div>
-                            </div>
-                            <span class="chart-subtitle" id="velocity-chart-subtitle">Day-over-day net active user expansion (+) &amp; contraction (-)</span>
+            <div class="charts-quad">
+                <section class="chart-section terminal-panel" id="section-srv-chart" aria-labelledby="srv-chart-heading">
+                    <div class="panel-bar">
+                        <div class="panel-title">
+                            <span class="fn-key" aria-hidden="true"><span class="fn-code">SRV</span><span class="fn-go">GO</span></span>
+                            <h2 id="srv-chart-heading">Servers <span class="h-sub">reporting to joinmastodon.org</span></h2>
                         </div>
-                        <div class="chart-actions">
-                            <button class="control-btn export-png-btn" data-chart="velocityChart" title="Export as PNG">📥 PNG</button>
-                            <button class="control-btn export-csv-btn" data-chart="velocityChart" title="Export data as CSV">📥 CSV</button>
-                            <button class="control-btn reset-zoom-btn" data-chart="velocityChart" title="Reset Zoom">Reset Zoom</button>
+                        <div class="panel-tools">
+                            <span class="scale-tag log-capable" title="Linear y-axis (press L for logarithmic)">LIN</span>
+                            <button type="button" class="tool-btn export-png-btn" data-chart="srv" aria-label="Export servers chart as PNG">PNG</button>
+                            <button type="button" class="tool-btn export-csv-btn" data-chart="srv" aria-label="Export visible servers data as CSV">CSV</button>
+                            <button type="button" class="tool-btn reset-zoom-btn" data-chart="srv" aria-label="Reset servers chart zoom"><span aria-hidden="true">⟲</span></button>
                         </div>
                     </div>
+                    <p class="chart-subtitle" id="srv-chart-subtitle">Servers that report to joinmastodon.org. Dots: FediDB’s count of Mastodon-software servers (a different base).</p>
+                    <div class="legend-row">
+                        <div class="pill-segmented mode-pill rat-pill" role="group" aria-label="Servers view">
+                            <button type="button" class="srv-mode-btn active" data-mode="servers" aria-pressed="true">SERVERS</button>
+                            <button type="button" class="srv-mode-btn" data-mode="users_per_server" aria-pressed="false">USERS/SERVER</button>
+                        </div>
+                        <span class="legend-badge" title="A flagged value is treated as missing: a gap here, and left out of averages, peaks and comparisons."><span class="legend-swatch sw-flagged" aria-hidden="true"></span>FLAGGED (gap)</span>
+                    </div>
+                    <div class="chart-container chart-quad">
+                        <canvas id="srvChart" role="img" tabindex="0" aria-label="Servers chart. Daily values are in the data table below."></canvas>
+                    </div>
+                </section>
 
-                    <!-- Peak Signup Surges Strip -->
-                    <div class="peak-surges-bar" id="peak-surges-bar">
-                        <span class="peak-surges-label">⚡ PEAK SIGNUP SURGES:</span>
-                        <div class="peak-surges-chips">
-                            <button class="peak-chip" data-surge="SURGE_NOV_2022" title="Nov 2022 Musk/Twitter takeover surge: +2.25M new users (Oct 20 – Dec 15, 2022)">
-                                <span class="chip-title">Nov 2022 Musk Wave</span>
-                                <span class="chip-val">+2.25M</span>
-                            </button>
-                            <button class="peak-chip" data-surge="SURGE_JUL_2023" title="Jul 2023 Meta Threads launch &amp; Twitter rate limits: +1.18M new users (Jun 25 – Aug 15, 2023)">
-                                <span class="chip-title">Jul 2023 Threads Wave</span>
-                                <span class="chip-val">+1.18M</span>
-                            </button>
-                            <button class="peak-chip" data-surge="SURGE_FEB_2024" title="Feb 2024 Federation crawl expansion: +1.18M total jump (Jan 20 – Mar 5, 2024)">
-                                <span class="chip-title">Feb 2024 Fed Surge</span>
-                                <span class="chip-val">+1.18M</span>
-                            </button>
-                            <button class="peak-chip" data-surge="SURGE_SEP_2024" title="Sep 2024 Brazil X ban migration wave: +1.0M+ new accounts (Aug 20 – Oct 10, 2024)">
-                                <span class="chip-title">Sep 2024 Brazil Wave</span>
-                                <span class="chip-val">+1.0M+</span>
-                            </button>
-                            <button class="peak-chip-reset" id="reset-surge-filter-btn" title="Exit surge focus and return to All Time timeline" hidden>
-                                ✕ Reset to All Time
-                            </button>
+                <section class="chart-section terminal-panel" id="section-rec-chart" aria-labelledby="rec-chart-heading">
+                    <div class="panel-bar">
+                        <div class="panel-title">
+                            <span class="fn-key" aria-hidden="true"><span class="fn-code">REC</span><span class="fn-go">GO</span></span>
+                            <h2 id="rec-chart-heading">Posts per day <span class="h-sub">FediDB, Mastodon servers</span></h2>
+                        </div>
+                        <div class="panel-tools">
+                            <span class="scale-tag log-capable" title="Linear y-axis (press L for logarithmic)">LIN</span>
+                            <button type="button" class="tool-btn export-png-btn" data-chart="rec" aria-label="Export posts per day chart as PNG">PNG</button>
+                            <button type="button" class="tool-btn export-csv-btn" data-chart="rec" aria-label="Export visible posts per day data as CSV">CSV</button>
+                            <button type="button" class="tool-btn reset-zoom-btn" data-chart="rec" aria-label="Reset posts per day chart zoom"><span aria-hidden="true">⟲</span></button>
                         </div>
                     </div>
+                    <p class="chart-subtitle">Change in FediDB’s status counter for Mastodon-software servers between two readings, divided by the time between them. A different source and base from the user counts.</p>
+                    <div class="legend-row">
+                        <span class="legend-badge"><span class="legend-line line-posts" aria-hidden="true"></span>Posts per day</span>
+                        <span class="legend-badge ma-legend"><span class="legend-note">faint = daily · solid = 7D avg</span></span>
+                        <span class="legend-badge" title="A flagged reading is treated as missing: a gap here."><span class="legend-swatch sw-flagged" aria-hidden="true"></span>FLAGGED (gap)</span>
+                    </div>
+                    <div class="chart-container chart-quad">
+                        <canvas id="recChart" role="img" tabindex="0" aria-label="Posts per day chart. Daily values are in the data table below."></canvas>
+                    </div>
+                </section>
 
-                    <div class="chart-container">
-                        <canvas id="velocityChart" aria-label="Daily net change velocity chart" role="img"></canvas>
+                <section class="chart-section terminal-panel" id="section-rat-chart" aria-labelledby="rat-chart-heading">
+                    <div class="panel-bar">
+                        <div class="panel-title">
+                            <span class="fn-key" aria-hidden="true"><span class="fn-code">RAT</span><span class="fn-go">GO</span></span>
+                            <h2 id="rat-chart-heading">Ratios</h2>
+                        </div>
+                        <div class="panel-tools">
+                            <span class="scale-tag" title="Ratios always use a linear scale">LIN</span>
+                            <button type="button" class="tool-btn export-png-btn" data-chart="rat" aria-label="Export ratios chart as PNG">PNG</button>
+                            <button type="button" class="tool-btn export-csv-btn" data-chart="rat" aria-label="Export visible ratio data as CSV">CSV</button>
+                            <button type="button" class="tool-btn reset-zoom-btn" data-chart="rat" aria-label="Reset ratios chart zoom"><span aria-hidden="true">⟲</span></button>
+                        </div>
+                    </div>
+                    <p class="chart-subtitle" id="rat-chart-subtitle">Monthly active users ÷ total users: the share of accounts that were active in the last 30 days</p>
+                    <div class="legend-row">
+                        <div class="pill-segmented mode-pill rat-pill" role="group" aria-label="Ratio">
+                            <button type="button" class="rat-mode-btn active" data-mode="engagement" aria-pressed="true">MAU/TOTAL</button>
+                            <button type="button" class="rat-mode-btn" data-mode="posts_per_mau" aria-pressed="false">POSTS/MAU</button>
+                            <button type="button" class="rat-mode-btn" data-mode="users_per_server" aria-pressed="false">USERS/SERVER</button>
+                        </div>
+                    </div>
+                    <div class="chart-container chart-quad">
+                        <canvas id="ratChart" role="img" tabindex="0" aria-label="Ratios chart. Daily values are in the data table below."></canvas>
+                    </div>
+                </section>
+
+                <section class="chart-section terminal-panel" id="section-tot-chart" aria-labelledby="tot-chart-heading">
+                    <div class="panel-bar">
+                        <div class="panel-title">
+                            <span class="fn-key" aria-hidden="true"><span class="fn-code">TOT</span><span class="fn-go">GO</span></span>
+                            <h2 id="tot-chart-heading">Total users <span class="h-sub">end of UTC day</span></h2>
+                        </div>
+                        <div class="panel-tools">
+                            <span class="scale-tag log-capable" title="Linear y-axis (press L for logarithmic)">LIN</span>
+                            <button type="button" class="tool-btn export-png-btn" data-chart="tot" aria-label="Export total users chart as PNG">PNG</button>
+                            <button type="button" class="tool-btn export-csv-btn" data-chart="tot" aria-label="Export visible total users data as CSV">CSV</button>
+                            <button type="button" class="tool-btn reset-zoom-btn" data-chart="tot" aria-label="Reset total users chart zoom"><span aria-hidden="true">⟲</span></button>
+                        </div>
+                    </div>
+                    <p class="chart-subtitle">Accounts on all servers that report to joinmastodon.org for each UTC day. The count can fall when servers leave it. Dots: FediDB users (a different base).</p>
+                    <div class="legend-row">
+                        <span class="legend-badge"><span class="legend-line line-total" aria-hidden="true"></span>Total users</span>
+                        <span class="legend-badge" title="A flagged value is treated as missing: a gap here, and left out of averages, peaks and comparisons."><span class="legend-swatch sw-flagged" aria-hidden="true"></span>FLAGGED (gap)</span>
+                        <button type="button" class="legend-badge chart-comparison-legend open-guide-link" hidden title="How the prior period works"><span class="legend-line line-prior" aria-hidden="true"></span>Prior period</button>
+                    </div>
+                    <div class="chart-container chart-quad">
+                        <canvas id="totChart" role="img" tabindex="0" aria-label="Total users chart. Daily values are in the data table below."></canvas>
+                    </div>
+                </section>
+            </div>
+
+            <section class="chart-section terminal-panel chart-wide social-panel" id="section-ldr" aria-label="Leaderboards"><div id="social-ldr-root"></div></section>
+            <section class="chart-section terminal-panel chart-wide social-panel" id="section-pst" aria-label="Top posts"><div id="social-pst-root"></div></section>
+            <section class="chart-section terminal-panel chart-wide social-panel" id="section-dec" aria-label="Decentralization"><div id="social-dec-root"></div></section>
+
+            <section class="terminal-panel table-panel" id="section-table" aria-labelledby="table-heading">
+                <div class="panel-bar">
+                    <div class="panel-title">
+                        <span class="fn-key" aria-hidden="true"><span class="fn-code">TBL</span><span class="fn-go">GO</span></span>
+                        <h2 id="table-heading">Daily data <span class="h-sub" id="table-range-label">last 30 days of the range</span></h2>
+                    </div>
+                    <div class="panel-tools">
+                        <a class="tool-btn" href="data/mastodon-daily.csv" download>FULL CSV</a>
                     </div>
                 </div>
-
-                <!-- Active Users Chart (Primary Platform Health) -->
-                <div class="chart-section terminal-panel" id="section-active-chart">
-                    <div class="chart-header">
-                        <div class="chart-title-group">
-                            <h2>Active Users Over Time</h2>
-                            <span class="chart-subtitle">Observed monthly active accounts (Primary platform health)</span>
-                            <div class="chart-comparison-legend" hidden>
-                                <span class="legend-badge"><span class="legend-line line-cyan"></span> Current</span>
-                                <span class="legend-badge"><span class="legend-line line-prior"></span> Prior Period</span>
-                            </div>
-                        </div>
-                        <div class="chart-actions">
-                            <button class="control-btn toggle-ma-btn" title="Toggle trailing 7-day moving average" aria-pressed="false">📈 MA</button>
-                            <button class="control-btn export-png-btn" data-chart="activeChart" title="Export as PNG">📥 PNG</button>
-                            <button class="control-btn export-csv-btn" data-chart="activeChart" title="Export data as CSV">📥 CSV</button>
-                            <button class="control-btn reset-zoom-btn" data-chart="activeChart" title="Reset Zoom">Reset Zoom</button>
-                        </div>
-                    </div>
-                    <div class="chart-container">
-                        <canvas id="activeChart" aria-label="Active users chart" role="img"></canvas>
-                    </div>
-                </div>
-
-                <!-- Total Users Chart (Secondary Cumulative Network Size) -->
-                <div class="chart-section terminal-panel" id="section-total-chart">
-                    <div class="chart-header">
-                        <div class="chart-title-group">
-                            <h2>Total Users Over Time</h2>
-                            <span class="chart-subtitle">Cumulative registered network population (Secondary network size)</span>
-                            <div class="chart-comparison-legend" hidden>
-                                <span class="legend-badge"><span class="legend-line line-amber"></span> Current</span>
-                                <span class="legend-badge"><span class="legend-line line-prior"></span> Prior Period</span>
-                            </div>
-                        </div>
-                        <div class="chart-actions">
-                            <button class="control-btn toggle-ma-btn" title="Toggle trailing 7-day moving average" aria-pressed="false">📈 MA</button>
-                            <button class="control-btn export-png-btn" data-chart="totalChart" title="Export as PNG">📥 PNG</button>
-                            <button class="control-btn export-csv-btn" data-chart="totalChart" title="Export data as CSV">📥 CSV</button>
-                            <button class="control-btn reset-zoom-btn" data-chart="totalChart" title="Reset Zoom">Reset Zoom</button>
-                        </div>
-                    </div>
-                    <div class="chart-container">
-                        <canvas id="totalChart" aria-label="Total users chart" role="img"></canvas>
-                    </div>
+                <p class="chart-subtitle">The last 30 days of the selected range, newest first. “flagged” marks a reading treated as missing; a dash means no value that day (no row, or no source for it yet). Net columns are today minus yesterday, shown only when both days are usable. Full history since <span data-prerender="first-day">Sep 30, 2022</span>: <a href="data/mastodon-daily.csv">data/mastodon-daily.csv</a> (<a href="https://github.com/obsesivegamer/Mastodon-User-Trends/blob/master/data/README.md" target="_blank" rel="noopener">sources and terms</a>).</p>
+                <div class="table-responsive" tabindex="0" role="region" aria-labelledby="table-heading">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Date</th>
+                                <th scope="col">Total users</th>
+                                <th scope="col">Net</th>
+                                <th scope="col">MAU</th>
+                                <th scope="col">MAU Δ</th>
+                                <th scope="col">Servers</th>
+                                <th scope="col">Posts/day</th>
+                            </tr>
+                        </thead>
+                        <tbody id="data-table-body"></tbody>
+                    </table>
                 </div>
             </section>
         </main>
 
-        <!-- Terminal Insights & SEO Knowledge Base -->
         <section class="terminal-panel insights-panel" id="insights-section" aria-labelledby="insights-heading">
             <div class="insights-header">
                 <div class="terminal-badge">
-                    <span class="badge-pulse"></span>
+                    <span class="badge-pulse" aria-hidden="true"></span>
                     <span class="badge-text">NETWORK INTELLIGENCE // RESEARCH BRIEF</span>
                 </div>
-                <h2 id="insights-heading">Mastodon User Trends, Stats &amp; Historical Growth</h2>
-                <p class="insights-summary">
-                    Continuous quantitative analysis tracking Mastodon user growth, daily active user retention, and historical network adoption across federated instances since September 2022.
-                </p>
+                <h2 id="insights-heading">Mastodon user stats, growth &amp; monthly activity</h2>
+                <p class="insights-summary">Mastodon has <strong data-prerender="total-users-compact">10.50M</strong> accounts on the servers that report to joinmastodon.org, and <strong data-prerender="mau">729.0K</strong> of them were active in the last 30 days. This brief tracks how those two numbers move, with daily history since <span data-prerender="first-day">Sep 30, 2022</span> from joinmastodon.org’s public statistics and the archive kept here. Daily data runs through <span data-prerender="last-day">Oct 11, 2026</span>.</p>
             </div>
 
             <div class="insights-grid">
                 <div class="insight-card">
-                    <div class="insight-card-header">
-                        <span class="insight-icon">📈</span>
-                        <h3>Mastodon User Growth</h3>
-                    </div>
-                    <p>
-                        Tracking cumulative registered accounts across all federated Mastodon servers. The platform experienced monumental adoption surges during late 2022 and 2023, expanding from an open-source experiment into the foundation of the decentralized Fediverse.
-                    </p>
+                    <h3 class="insight-title"><span class="insight-code" aria-hidden="true">MAU</span> Monthly active users</h3>
+                    <p><strong data-prerender="mau-full">728,997</strong> accounts were active in the 30 days to <span data-prerender="mau-day">Oct 11, 2026</span>: <strong data-prerender="engagement">6.94%</strong> of all counted accounts. The record is <strong data-prerender="mau-peak">2.62M</strong> on <span data-prerender="mau-peak-date">Nov 30, 2022</span>, during the Twitter migration.</p>
                 </div>
-
                 <div class="insight-card">
-                    <div class="insight-card-header">
-                        <span class="insight-icon">👥</span>
-                        <h3>Daily &amp; Monthly Active Users</h3>
-                    </div>
-                    <p>
-                        Active users measure unique accounts active within rolling 30-day windows. Comparing daily active user retention against cumulative registrations computes the <strong>Engagement Ratio</strong>, revealing authentic long-term community participation.
-                    </p>
+                    <h3 class="insight-title"><span class="insight-code" aria-hidden="true">USR</span> Net daily change</h3>
+                    <p>Total users changed by an average of <strong data-prerender="signups-7d">+3.5K/day</strong> over the last 7 days and monthly active users by <strong data-prerender="mau-velocity-7d">+272/day</strong>. These are net figures: a day can be negative when servers leave the count or accounts are removed.</p>
                 </div>
-
                 <div class="insight-card">
-                    <div class="insight-card-header">
-                        <span class="insight-icon">⚡</span>
-                        <h3>Daily Net Change Velocity</h3>
-                    </div>
-                    <p>
-                        Monitors day-over-day net user change volume (new account registrations minus deactivations). Trailing 7-day moving averages (7D MA) smooth transient weekend variations and API reporting delays to surface clear growth velocity trends.
-                    </p>
+                    <h3 class="insight-title"><span class="insight-code" aria-hidden="true">SRV</span> Servers &amp; posts</h3>
+                    <p><span data-prerender="servers-sentence">joinmastodon.org counted 7,384 servers on Oct 11, 2026.</span> <span data-prerender="posts-sentence">The first figure appears once two daily readings exist.</span> Posts come from FediDB, which counts Mastodon-software servers only.</p>
                 </div>
             </div>
 
-            <!-- Historical Milestones & Growth Summary Table (Structured Data for Crawlers) -->
             <div class="insights-table-wrap">
                 <div class="table-header-group">
-                    <span class="table-tag">ARCHIVAL DIGEST // 2022–2026</span>
-                    <h3 class="insights-table-title">Historical Mastodon User Growth &amp; Active Retention Milestones</h3>
+                    <span class="table-tag">ARCHIVAL DIGEST // 2022–PRESENT</span>
+                    <h3 class="insights-table-title" id="milestones-heading">Mastodon growth milestones</h3>
                 </div>
-                <div class="table-responsive">
-                    <table class="insights-data-table" aria-label="Historical Mastodon user statistics by era">
+                <div class="table-responsive" tabindex="0" role="region" aria-labelledby="milestones-heading">
+                    <table class="insights-data-table">
                         <thead>
                             <tr>
-                                <th scope="col">Era / Milestone Date</th>
-                                <th scope="col">Monthly Active (MAU)</th>
-                                <th scope="col">Total Registered</th>
-                                <th scope="col">Engagement Ratio</th>
-                                <th scope="col">Network Context &amp; Significance</th>
+                                <th scope="col">Date</th>
+                                <th scope="col">Total users</th>
+                                <th scope="col">MAU</th>
+                                <th scope="col">Net/day (7D avg)</th>
+                                <th scope="col">MAU ÷ total</th>
+                                <th scope="col">Context</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr>
-                                <td><strong>Sep 30, 2022</strong> (Archive Baseline)</td>
-                                <td class="tabular-stat">470,403</td>
-                                <td class="tabular-stat">3,605,039</td>
-                                <td class="tabular-stat">13.05%</td>
-                                <td>Baseline decentralized fediverse size prior to mainstream social migrations.</td>
-                            </tr>
-                            <tr class="highlight-row">
-                                <td><strong>Nov 30, 2022</strong> (Twitter / X Exodus Peak)</td>
-                                <td class="tabular-stat"><strong>2,624,121</strong></td>
-                                <td class="tabular-stat">5,387,503</td>
-                                <td class="tabular-stat"><strong>48.71%</strong></td>
-                                <td>Historic all-time peak active engagement during the major platform migration wave.</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Jul 31, 2023</strong> (Meta Threads / Fediverse Wave)</td>
-                                <td class="tabular-stat">2,058,942</td>
-                                <td class="tabular-stat">7,931,659</td>
-                                <td class="tabular-stat">25.96%</td>
-                                <td>Secondary signup and active user surge coinciding with Threads launch and ActivityPub adoption.</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Jul 31, 2024</strong> (Decentralized Consolidation)</td>
-                                <td class="tabular-stat">850,601</td>
-                                <td class="tabular-stat">8,778,498</td>
-                                <td class="tabular-stat">9.69%</td>
-                                <td>Transition into mature, sustained open-source protocol infrastructure with niche community hubs.</td>
-                            </tr>
-                            <tr>
-                                <td><strong>Jul 31, 2025</strong> (Annual Federation Growth)</td>
-                                <td class="tabular-stat">765,714</td>
-                                <td class="tabular-stat">9,807,061</td>
-                                <td class="tabular-stat">7.81%</td>
-                                <td>Steady-state network expansion across 10,000+ federated servers worldwide.</td>
-                            </tr>
-                            <tr class="current-row">
-                                <td><strong>Sep 06, 2026</strong> (Current Benchmark)</td>
-                                <td class="tabular-stat">667,015</td>
-                                <td class="tabular-stat">10,143,687</td>
-                                <td class="tabular-stat">6.58%</td>
-                                <td>Over 10.1M cumulative registered accounts with a resilient core active monthly user base.</td>
-                            </tr>
+                        <tbody id="milestones-body">
+<!-- prerender:milestones -->
+<tr><td><strong>Sep 30, 2022</strong></td><td class="num">3,605,039</td><td class="num">470,403</td><td class="num">—</td><td class="num">13.05%</td><td>Archive begins (first day in the statistics archive kept here)</td></tr>
+<tr class="highlight-row"><td><strong>Nov 30, 2022</strong></td><td class="num">5,387,503</td><td class="num">2,624,121</td><td class="num">+19.8K</td><td class="num">48.71%</td><td>Monthly active users reach their all-time peak during the Twitter/X migration</td></tr>
+<tr class="highlight-row"><td><strong>Jul 31, 2023</strong></td><td class="num">7,931,659</td><td class="num">2,058,942</td><td class="num">+7.0K</td><td class="num">25.96%</td><td>The month of the Twitter reading limits and the Threads launch</td></tr>
+<tr><td><strong>Jul 31, 2024</strong></td><td class="num">8,778,498</td><td class="num">850,601</td><td class="num">+2.0K</td><td class="num">9.69%</td><td>Mid-year checkpoint, a year after the Threads wave</td></tr>
+<tr><td><strong>Jul 31, 2025</strong></td><td class="num">9,807,061</td><td class="num">765,714</td><td class="num">+3.2K</td><td class="num">7.81%</td><td>Mid-year checkpoint, two years after the Threads wave</td></tr>
+<tr class="current-row"><td><strong>Oct 11, 2026</strong></td><td class="num">10,503,903</td><td class="num">728,997</td><td class="num">+3.5K</td><td class="num">6.94%</td><td>Latest day in the archive</td></tr>
+<!-- /prerender:milestones -->
                         </tbody>
                     </table>
                 </div>
+                <p class="chart-subtitle table-note">A dash means no usable value that day (no row in the archive, or the reading is flagged).</p>
             </div>
 
-            <!-- FAQ Accordion for Search Engines & Visitors -->
             <div class="insights-faq-wrap">
-                <h3 class="faq-section-title">Frequently Asked Questions // Mastodon User Stats &amp; Trends</h3>
+                <h3 class="faq-section-title">Frequently asked questions // Mastodon user stats</h3>
                 <div class="faq-accordion">
                     <details class="faq-item" open>
-                        <summary class="faq-question">
-                            <span>How many users does Mastodon have right now?</span>
-                            <span class="faq-arrow">▼</span>
-                        </summary>
-                        <div class="faq-answer">
-                            <p>
-                                Mastodon tracks over <strong>10 million total registered accounts</strong> and between <strong>1.0M and 1.5M monthly active users</strong> across thousands of independent servers. Live figures, day-over-day changes, and multi-year historical run-rates are updated daily on this dashboard.
-                            </p>
-                        </div>
+                        <summary class="faq-question"><span>How many users does Mastodon have?</span><span class="faq-arrow" aria-hidden="true">▼</span></summary>
+                        <div class="faq-answer"><p>As of <span data-prerender="last-day">Oct 11, 2026</span> (UTC), joinmastodon.org’s statistics counted <strong data-prerender="total-users">10,503,903</strong> accounts on the servers that report to it. <span data-prerender="servers-sentence">joinmastodon.org counted 7,384 servers on Oct 11, 2026.</span> The figure is the sum over all reporting servers, so it can fall when a server leaves the count or stops reporting, and it includes accounts that were never active. <span data-prerender="fedidb-sentence">FediDB crawls Mastodon-software servers on its own and counted 8.82M accounts in its reading for Oct 11, 2026 (taken 2026-10-12 05:17 UTC); the two totals are different bases and are never mixed on this page.</span></p></div>
                     </details>
-
                     <details class="faq-item">
-                        <summary class="faq-question">
-                            <span>What is the difference between total registered users and daily active users?</span>
-                            <span class="faq-arrow">▼</span>
-                        </summary>
-                        <div class="faq-answer">
-                            <p>
-                                <strong>Total Registered Users</strong> counts every account created across federated instances since launch. <strong>Active Users</strong> measures accounts that actively interacted, logged in, or posted within the trailing 30-day window, providing a realistic view of daily community activity.
-                            </p>
-                        </div>
+                        <summary class="faq-question"><span>How many monthly active users does Mastodon have?</span><span class="faq-arrow" aria-hidden="true">▼</span></summary>
+                        <div class="faq-answer"><p><strong data-prerender="mau-full">728,997</strong> accounts were active in the 30 days to <span data-prerender="mau-day">Oct 11, 2026</span>, which is <strong data-prerender="engagement">6.94%</strong> of all counted accounts. Monthly active users (MAU) is a trailing 30-day window, not a daily count, so it moves slowly. The record is <strong data-prerender="mau-peak">2.62M</strong> on <span data-prerender="mau-peak-date">Nov 30, 2022</span>, at the height of the Twitter migration.</p></div>
                     </details>
-
                     <details class="faq-item">
-                        <summary class="faq-question">
-                            <span>How is Mastodon user growth velocity calculated?</span>
-                            <span class="faq-arrow">▼</span>
-                        </summary>
-                        <div class="faq-answer">
-                            <p>
-                                Daily velocity measures the net change between consecutive archive dates: <code>Users(today) - Users(yesterday)</code>. Over custom ranges (1W, 1M, 6M, YTD, 1Y, 2Y, 3Y), the terminal calculates the daily run rate and plots trailing 7-day moving averages to isolate sustained momentum.
-                            </p>
-                        </div>
+                        <summary class="faq-question"><span>How fast is Mastodon growing?</span><span class="faq-arrow" aria-hidden="true">▼</span></summary>
+                        <div class="faq-answer"><p>Over the last 7 days total users changed by an average of <strong data-prerender="signups-7d">+3.5K/day</strong> and monthly active users by <strong data-prerender="mau-velocity-7d">+272/day</strong>. The latest day was <strong data-prerender="signups-last">+2.8K</strong> for total users and <strong data-prerender="mau-velocity-last">+792</strong> for MAU. These are net changes, not registrations: deleted accounts and servers that stop reporting are subtracted. The largest single usable day in this data is <strong data-prerender="signups-peak">+135.5K</strong> on <span data-prerender="signups-peak-date">Nov 7, 2022</span>; days that jump by a step no real event explains are flagged and already left out of that peak (see below).</p></div>
                     </details>
-
                     <details class="faq-item">
-                        <summary class="faq-question">
-                            <span>Where does this Mastodon statistics data come from?</span>
-                            <span class="faq-arrow">▼</span>
-                        </summary>
-                        <div class="faq-answer">
-                            <p>
-                                Data is ingested daily from the official Mastodon API statistics endpoint (<code>https://api.joinmastodon.org/statistics</code>) and preserved in this open-source repository with records starting in September 2022. You can download the filtered dataset anytime via the <strong>📥 CSV</strong> export buttons.
-                            </p>
-                        </div>
+                        <summary class="faq-question"><span>How many servers and posts per day does Mastodon have?</span><span class="faq-arrow" aria-hidden="true">▼</span></summary>
+                        <div class="faq-answer"><p><span data-prerender="servers-sentence">joinmastodon.org counted 7,384 servers on Oct 11, 2026.</span> Posts per day come from FediDB’s running count of statuses on Mastodon-software servers: this page stores one cumulative reading per day, taken when the update runs, and shows the change between readings divided by the time between them. <span data-prerender="posts-sentence">The first figure appears once two daily readings exist.</span> FediDB counts Mastodon software only, so its numbers are not comparable with the joinmastodon user counts.</p></div>
+                    </details>
+                    <details class="faq-item">
+                        <summary class="faq-question"><span>Where does this Mastodon data come from?</span><span class="faq-arrow" aria-hidden="true">▼</span></summary>
+                        <div class="faq-answer"><p>Total users, monthly active users and server counts come from joinmastodon.org’s public statistics API (api.joinmastodon.org/statistics). That API only returns the most recent 30 days or so, so a GitHub Action reads it twice a day and keeps the history in this repository, which goes back to <span data-prerender="first-day">Sep 30, 2022</span>. Posts per day and the FediDB totals come from FediDB (api.fedidb.org), read by the same Action. When the page loads, your browser also asks the statistics API for the current figure; that is what LIVE means.</p></div>
+                    </details>
+                    <details class="faq-item">
+                        <summary class="faq-question"><span>Why are some days missing or flagged?</span><span class="faq-arrow" aria-hidden="true">▼</span></summary>
+                        <div class="faq-answer"><p>Some days have no reading in the archive. <span data-prerender="gaps-sentence"></span> Those days are drawn as gaps and nothing is interpolated. Days where the source jumped by a step that reversed within days, or that no real event explains, are flagged: a flagged value is treated as missing and left out of averages, peaks, comparisons and ratios. Flagged days appear as shaded gaps in the charts and as “flagged” in the data table. Real surges such as the Nov 2022 Twitter wave are not flagged.</p></div>
+                    </details>
+                    <details class="faq-item">
+                        <summary class="faq-question"><span>Where do the leaderboards, top posts and decentralization figures come from?</span><span class="faq-arrow" aria-hidden="true">▼</span></summary>
+                        <div class="faq-answer"><p>Server boards and the decentralization meter come from FediDB’s list of Mastodon servers, ranked by users. Account boards and top posts are built daily from the public directories and trending posts of the largest servers, so they are not an exhaustive list of Mastodon accounts or posts. Only public, discoverable accounts with at least 10,000 followers are named (no bots, locked, group or opted-out accounts), and a top post must be public, not marked sensitive and carry no content warning. Everyone else still counts toward the totals but is never listed.</p></div>
                     </details>
                 </div>
+            </div>
+
+            <div class="notes-grid">
+                <section class="notes-block" aria-labelledby="footnotes-heading">
+                    <h3 class="faq-section-title" id="footnotes-heading">Definitions &amp; caveats</h3>
+                    <ul class="notes-list">
+                        <li><strong>Total users</strong> is joinmastodon.org’s <code>user_count</code>: accounts on all servers that report to its statistics. It is not registrations: it falls when a server stops reporting or accounts are removed, and it includes accounts that never became active. Each day’s value is the figure the API gives for that UTC day.</li>
+                        <li><strong>Monthly active users (MAU)</strong> is <code>active_user_count</code>: accounts active in the trailing 30 days. Because the window rolls, a day’s change is the activity of the day that entered minus the day that left, not new activity. It is not a daily active count.</li>
+                        <li><strong>MAU health</strong> and <strong>net signups</strong> are the day-over-day change of MAU and of total users. Both are net: sign-ups minus deletions and servers leaving the count. MAU health is the primary view because total users also moves when servers join or leave. Growth % is the change as a share of the previous day’s value, for the metric you picked last.</li>
+                        <li><strong>Servers</strong> is <code>server_count</code> from the same API. The archive holds it only for the days the updater (or a backfill) could read it, so its history is shorter than the user counts. <span data-prerender="servers-history-sentence">The server series starts on Dec 1, 2022.</span></li>
+                        <li><strong>Posts per day</strong> is a rate from FediDB’s cumulative status counter for Mastodon software. The archive keeps one reading per day, taken when the update runs (the time is not fixed), with its timestamp. A day’s figure is the change since the previous reading divided by the time between the two readings, so uneven gaps do not distort it. It is left out when a reading is missing or flagged, when the readings are less than 6 hours apart, or when the counter moved backwards.</li>
+                        <li><strong>Ratios:</strong> MAU ÷ total users (engagement); posts per MAU divides FediDB posts by joinmastodon MAU, two sources, so read its trend, not its level; users per server divides total users by servers. <strong>FediDB totals</strong> (servers, posts, users) cover Mastodon-software servers only and are a different base from joinmastodon’s: they are labelled and never mixed into the joinmastodon series.</li>
+                        <li><strong>Flagged and missing days:</strong> a flagged value is treated as missing everywhere (gap, averages, net changes, peaks, ATH, comparisons, ratios). A day without a row is also a gap; nothing is interpolated. <span data-prerender="gaps-sentence"></span></li>
+                        <li><strong>Leaderboards (LDR), top posts (PST) and decentralization (DEC):</strong> server boards use FediDB’s server list; account boards use server directories and trending posts of the largest servers and list only public, discoverable accounts with 10,000+ followers. Gainers and losers are the net change since an earlier daily snapshot, so they need history. The list is a sample of the network, not a ranking of every account.</li>
+                        <li><strong>Trend badges</strong> compare 7-day averages at the start and end of the selected range (1W = week over week, 1M = month over month, 1Y = year over year). <strong>COMPARE</strong> overlays the same number of calendar days immediately before the range.</li>
+                        <li><strong>Not available:</strong> Mastodon has no public per-day counts of likers, posters or blockers and no global account index, so this page has no daily active users, posters or block leaderboards like its Bluesky sibling.</li>
+                        <li><strong>Surge windows</strong> are editorial. The Nov 2022 and Jul 2023 chips show the net change in total users the data records for the window, flagged steps excluded. The Feb 2024 and Sep 2024 windows each hold a one-day step in joinmastodon’s crawler sum that was reversed later while monthly active users did not follow it: they are flagged as artifacts, not sign-ups, so their chips say FLAGGED (hover a chip for the raw figures).</li>
+                    </ul>
+                </section>
+                <section class="notes-block" aria-labelledby="sources-heading">
+                    <h3 class="faq-section-title" id="sources-heading">Sources &amp; credits</h3>
+                    <ul class="notes-list">
+                        <li>Users, monthly active users and servers: the <a href="https://api.joinmastodon.org/statistics" target="_blank" rel="noopener">joinmastodon.org statistics API</a>, archived here since <span data-prerender="first-day">Sep 30, 2022</span>.</li>
+                        <li>Posts, users and servers on Mastodon-software servers, and the server list behind the leaderboards: <a href="https://fedidb.com/" target="_blank" rel="noopener">FediDB</a> (<code>api.fedidb.org</code>).</li>
+                        <li>Account directories and trending posts: each server’s own public Mastodon API (no sign-in).</li>
+                        <li>Charts by <a href="https://www.chartjs.org/" target="_blank" rel="noopener">Chart.js</a> 4.5.1 with chartjs-plugin-zoom 2.0.1 and Hammer.js 2.0.8. Fonts: IBM Plex Sans and JetBrains Mono. Labels on the surge chips are editorial.</li>
+                        <li>Sibling project for Bluesky: <a href="https://obsesivegamer.github.io/Bluesky-User-Trends/" target="_blank" rel="noopener">Bluesky Network Pulse</a>. Source: <a href="https://github.com/obsesivegamer/Mastodon-User-Trends" target="_blank" rel="noopener">obsesivegamer/Mastodon-User-Trends</a>.</li>
+                    </ul>
+                </section>
             </div>
         </section>
 
         <footer class="dashboard-footer">
             <div class="footer-left">
-                <span class="footer-dot"></span>
-                <span>Mastodon Statistics Terminal</span>
-                <span class="footer-sep">•</span>
-                <a rel="me noopener" href="https://mastodon.social/@obsesivegamer" target="_blank">Mastodon (@obsesivegamer)</a>
+                <span class="footer-dot" aria-hidden="true"></span>
+                <span>Mastodon Network Pulse</span>
+                <span class="footer-sep" aria-hidden="true">•</span>
+                <a href="https://github.com/obsesivegamer/Mastodon-User-Trends" target="_blank" rel="noopener">Source on GitHub</a>
+                <span class="footer-sep" aria-hidden="true">•</span>
+                <a href="data/mastodon-daily.csv">Dataset (CSV)</a>
+                <span class="footer-sep" aria-hidden="true">•</span>
+                <a rel="me noopener" href="https://mastodon.social/@obsesivegamer" target="_blank">@obsesivegamer on Mastodon</a>
             </div>
             <div class="footer-right">
-                <p>Data provided by <a href="https://api.joinmastodon.org/statistics" target="_blank" rel="noopener">Mastodon API</a>. Updates automated via GitHub Actions.</p>
+                <p>Independent project, not affiliated with Mastodon gGmbH or FediDB. Data: <a href="https://api.joinmastodon.org/statistics" target="_blank" rel="noopener">joinmastodon.org statistics</a> and <a href="https://fedidb.com/" target="_blank" rel="noopener">FediDB</a>. Updated by GitHub Actions. No analytics or cookies; your browser loads Chart.js and Hammer.js from jsDelivr, fonts from Google Fonts, the live user count from api.joinmastodon.org and, in the leaderboards, profile pictures from an allow-list of Mastodon media hosts.</p>
             </div>
         </footer>
     </div>
 
-    <!-- Terminal Methodology & Tooltip Guide Modal -->
     <dialog id="guide-dialog" class="guide-dialog" aria-labelledby="guide-dialog-title">
         <div class="guide-dialog-container">
             <div class="guide-dialog-header">
                 <div class="guide-header-title-wrap">
-                    <span class="guide-header-tag">METHODOLOGY &amp; REFERENCE</span>
-                    <h2 id="guide-dialog-title">Terminal Guide // Tooltips &amp; Prior Periods</h2>
+                    <span class="guide-header-tag">HELP &lt;GO&gt; // METHODOLOGY &amp; REFERENCE</span>
+                    <h2 id="guide-dialog-title">Terminal guide</h2>
                 </div>
-                <button class="guide-close-btn" id="close-guide-btn" aria-label="Close guide dialog">✕</button>
+                <button type="button" class="guide-close-btn" id="close-guide-btn" data-close-guide aria-label="Close guide"><span aria-hidden="true">✕</span></button>
             </div>
 
             <div class="guide-dialog-body">
-                <!-- Section 1: Period Comparison -->
-                <section class="guide-section">
-                    <div class="guide-section-header">
-                        <span class="guide-section-icon">🔄</span>
-                        <h3>Period Comparison &amp; Prior Period</h3>
-                    </div>
-                    <p class="guide-section-desc">
-                        When you click <strong>🔄 Compare</strong>, the terminal overlays a dashed amber baseline showing the contiguous historical period immediately preceding your active time range.
-                    </p>
+                <section class="guide-section" aria-labelledby="g-keys">
+                    <h3 id="g-keys"><span class="guide-code" aria-hidden="true">KEY</span> Keyboard</h3>
                     <div class="guide-table-wrap">
                         <table class="guide-table">
-                            <thead>
-                                <tr>
-                                    <th>Range</th>
-                                    <th>Current Window</th>
-                                    <th>Prior Period Baseline</th>
-                                </tr>
-                            </thead>
                             <tbody>
-                                <tr>
-                                    <td><span class="range-chip">1W</span></td>
-                                    <td>Past 7 days</td>
-                                    <td>The 7 days immediately before the current week</td>
-                                </tr>
-                                <tr>
-                                    <td><span class="range-chip">1M</span></td>
-                                    <td>Past 30 days</td>
-                                    <td>The 30 days immediately before the current month</td>
-                                </tr>
-                                <tr>
-                                    <td><span class="range-chip">6M</span></td>
-                                    <td>Past 180 days</td>
-                                    <td>The 180 days immediately before the current 6 months</td>
-                                </tr>
-                                <tr>
-                                    <td><span class="range-chip">YTD</span></td>
-                                    <td>Jan 1 to today</td>
-                                    <td>Same elapsed calendar span starting from Jan 1 of previous year</td>
-                                </tr>
-                                <tr>
-                                    <td><span class="range-chip">1Y</span></td>
-                                    <td>Past 12 months</td>
-                                    <td>The 12 months prior (e.g. Sep 2024 to Sep 2025)</td>
-                                </tr>
-                                <tr>
-                                    <td><span class="range-chip">2Y</span></td>
-                                    <td>Past 24 months</td>
-                                    <td>The 24 months prior (e.g. Sep 2022 to Sep 2024)</td>
-                                </tr>
-                                <tr>
-                                    <td><span class="range-chip">3Y</span></td>
-                                    <td>Past 36 months</td>
-                                    <td>Padded from the Sep 30, 2022 public archive start date</td>
-                                </tr>
-                                <tr>
-                                    <td><span class="range-chip disabled">ALL</span></td>
-                                    <td>Complete dataset</td>
-                                    <td>Unavailable (preceding data does not exist before Sep 2022)</td>
-                                </tr>
+                                <tr><td><kbd>1</kbd>–<kbd>8</kbd></td><td>Ranges 1W, 1M, 3M, 6M, YTD, 1Y, 2Y, ALL (3Y and 4Y by click)</td></tr>
+                                <tr><td><kbd>M</kbd></td><td>Toggle the 7-day moving average</td></tr>
+                                <tr><td><kbd>L</kbd></td><td>Toggle the logarithmic y-axis (MAU, SRV, REC, TOT)</td></tr>
+                                <tr><td><kbd>C</kbd></td><td>Toggle the prior-period comparison</td></tr>
+                                <tr><td><kbd>?</kbd></td><td>Open or close this guide (<kbd>Esc</kbd> also closes it)</td></tr>
+                                <tr><td><kbd>←</kbd> <kbd>→</kbd> <kbd>Home</kbd> <kbd>End</kbd></td><td>On a focused chart: step through days</td></tr>
                             </tbody>
                         </table>
                     </div>
+                    <p class="guide-section-desc">The range and studies are saved in the address bar (for example <code>#r=1Y&amp;ma=1&amp;log=0&amp;cmp=0</code>), so a copied link opens the same view.</p>
                 </section>
 
-                <!-- Section 2: Chart Tooltips -->
-                <section class="guide-section">
-                    <div class="guide-section-header">
-                        <span class="guide-section-icon">🎯</span>
-                        <h3>Reading Interactive Chart Tooltips</h3>
+                <section class="guide-section" aria-labelledby="g-ranges">
+                    <h3 id="g-ranges"><span class="guide-code" aria-hidden="true">RNG</span> Ranges &amp; the prior period</h3>
+                    <p class="guide-section-desc">Every range ends on the latest day in the archive and includes its baseline day (1W is 8 daily points; YTD starts at the Dec 31 close; a surge window starts at the close of the day before it). <strong>COMPARE</strong> overlays a dashed ochre line for the prior period: the same number of calendar days, ending where the current range starts. Point <em>n</em> of the prior period lines up with point <em>n</em> of the current one.</p>
+                    <div class="guide-table-wrap">
+                        <table class="guide-table">
+                            <thead><tr><th scope="col">Range</th><th scope="col">Current window</th><th scope="col">Prior period</th></tr></thead>
+                            <tbody id="guide-ranges-body"></tbody>
+                        </table>
                     </div>
-                    <div class="guide-tooltip-demo">
-                        <div class="demo-tooltip-box">
-                            <div class="demo-tooltip-title">Current Date: Sep 5, 26</div>
-                            <div class="demo-tooltip-line line-curr">
-                                <span class="demo-dot dot-curr"></span>
-                                <span class="demo-label">Total Users:</span>
-                                <span class="demo-val">10,140,000</span>
-                            </div>
-                            <div class="demo-tooltip-line line-comp">
-                                <span class="demo-dot dot-comp"></span>
-                                <span class="demo-label">Prior Period (Sep 5, 25):</span>
-                                <span class="demo-val">9,842,965</span>
-                            </div>
-                            <div class="demo-tooltip-footer">Parentheses show equivalent historical date</div>
+                    <p class="guide-section-desc">Card trend badges compare the 7-day average at the start of the range with the 7-day average at the end, so 1W reads week over week and 1Y year over year. With COMPARE on, cards also show the prior period’s average and how the current period differs.</p>
+                </section>
+
+                <section class="guide-section" aria-labelledby="g-hud">
+                    <h3 id="g-hud"><span class="guide-code" aria-hidden="true">HUD</span> Reading the chart readout</h3>
+                    <div class="guide-tooltip-demo" aria-hidden="true">
+                        <div class="hud demo visible">
+                            <div class="hud-title" id="hud-demo-title">—</div>
+                            <div class="hud-row"><span class="hud-key" style="--key: var(--series-active)"></span><span class="hud-label">Monthly active users</span><span class="hud-value" id="hud-demo-value">—</span><span class="hud-sub" id="hud-demo-sub">Δ — · 7D —</span></div>
+                            <div class="hud-row"><span class="hud-key dash" style="--key: var(--series-prior)"></span><span class="hud-label" id="hud-demo-prior-label">Prior · —</span><span class="hud-value" id="hud-demo-prior-value">—</span></div>
+                            <div class="hud-note" id="hud-demo-note">Prior period date: —</div>
                         </div>
                     </div>
                     <ul class="guide-feature-list">
-                        <li><strong>Solid Line (Violet / Cyan):</strong> Current observation date and recorded value for your selected timeframe.</li>
-                        <li><strong>Dashed Amber Line:</strong> Day-for-day historical observation from the prior period. The date in parentheses tells you the exact historical calendar day being compared.</li>
-                        <li><strong>Metric Card Chips:</strong> Green (▲) and red (▼) chips show percentage change and absolute count change across the entire prior period.</li>
+                        <li><strong>Value</strong> for the day, <strong>Δ</strong> against the previous day and the <strong>7D</strong> average, for the series in the panel.</li>
+                        <li><strong><span aria-hidden="true">⚠</span> FLAGGED</strong> marks a reading treated as missing: it is drawn as a shaded gap, not a zero, and left out of averages, peaks and comparisons. A faint shade with no hint means the archive has no row for that day.</li>
+                        <li>Hovering one panel draws the same date’s hairline on every panel.</li>
                     </ul>
                 </section>
 
-                <!-- Section 3: Technical Indicators -->
-                <section class="guide-section">
-                    <div class="guide-section-header">
-                        <span class="guide-section-icon">📈</span>
-                        <h3>Analytical Indicators &amp; Velocity Modes</h3>
-                    </div>
+                <section class="guide-section" aria-labelledby="g-studies">
+                    <h3 id="g-studies"><span class="guide-code" aria-hidden="true">STU</span> Studies &amp; modes</h3>
                     <ul class="guide-feature-list">
-                        <li><strong>MAU Health Velocity (⚡ MAU Health - Primary):</strong> Day-over-day net active user expansion (+) and contraction (-) in the observed 30-day active population. Directly reveals platform health, community retention, and user churn.</li>
-                        <li><strong>Signups Velocity (👥 Signups - Secondary):</strong> Day-over-day net registered account creations and federated server additions. Useful for examining migration waves and viral signup surges.</li>
-                        <li><strong>Historical Signup Surges:</strong> One-click era shortcuts (Nov '22 Musk Wave, Jul '23 Threads Launch, Sep '24 Brazil X Ban) that allow instant inspection of peak user growth events.</li>
-                        <li><strong>7-Day Moving Average (📈 7D MA):</strong> Trailing 7-observation arithmetic mean that filters transient weekend fluctuations and API reporting anomalies.</li>
-                        <li><strong>Engagement Ratio:</strong> Percentage of cumulative registered users active within the trailing 30 days (<code>Active Users / Total Users</code>).</li>
+                        <li><strong>7D MA</strong>: a trailing 7-calendar-day average. Missing and flagged days are skipped (a window needs at least 4 good days), so gaps never pull the average toward zero. With MA on, daily lines turn faint and the average is drawn solid.</li>
+                        <li><strong>LOG</strong>: a logarithmic y-axis for MAU, SRV, REC and TOT. The velocity panel stays linear because net changes can be negative.</li>
+                        <li><strong>MAU HEALTH · SIGNUPS · GROWTH %</strong> (USR): the net daily change of monthly active users, the net daily change of total users, or the percentage growth of whichever of the two you picked last.</li>
+                        <li><strong>SERVERS · USERS/SERVER</strong> (SRV) and <strong>MAU/TOTAL · POSTS/MAU · USERS/SERVER</strong> (RAT) switch what those panels plot.</li>
+                        <li><strong>Surge windows</strong>: one click filters every panel to a historical window and shows signups; the chip shows the net change in total users the data records there, flagged steps excluded. Click it again, press <strong>✕ RESET</strong> or pick any range to return to your previous view. The labels are editorial. The two 2024 windows are flagged crawler steps, not sign-ups: open them to see the shaded gaps.</li>
+                        <li><strong>Zoom</strong>: Ctrl + scroll or pinch to zoom, drag to pan, <strong>⟲</strong> to reset. PNG and CSV exports cover the visible window.</li>
+                    </ul>
+                </section>
+
+                <section class="guide-section" aria-labelledby="g-defs">
+                    <h3 id="g-defs"><span class="guide-code" aria-hidden="true">DEF</span> Definitions</h3>
+                    <ul class="guide-feature-list">
+                        <li><strong>Total users</strong>: accounts on all servers that report to joinmastodon.org’s statistics. Net, not registrations: it can fall when servers leave or accounts are removed.</li>
+                        <li><strong>Monthly active users</strong>: accounts active in the trailing 30 days, as joinmastodon.org reports it. A rolling window, not a daily count.</li>
+                        <li><strong>Net signups / MAU health</strong>: today’s value minus yesterday’s, for total users and for monthly active users.</li>
+                        <li><strong>Servers</strong>: servers reporting to joinmastodon.org. <strong>Posts per day</strong>: the change between two readings of FediDB’s status counter divided by the time between them (Mastodon software only).</li>
+                        <li><strong>FediDB figures</strong> are a different base from joinmastodon’s and are always labelled; there are no per-day likers, posters or blockers on Mastodon.</li>
+                    </ul>
+                </section>
+
+                <section class="guide-section" aria-labelledby="g-social">
+                    <h3 id="g-social"><span class="guide-code" aria-hidden="true">LDR</span> Leaderboards, top posts &amp; decentralization</h3>
+                    <ul class="guide-feature-list">
+                        <li><strong>LDR &lt;GO&gt;</strong>: top 25 <strong>servers</strong> (largest, most active, gainers and losers) or <strong>accounts</strong> (most followed, gainers and losers, most active). Pick SERVERS or ACCOUNTS, then a board and a window (24H, 7D). Gainers and losers are net changes since an earlier daily snapshot and stay empty until two snapshots that far apart exist. An account row shows followers, posts, last post, account age and its server.</li>
+                        <li><strong>PST &lt;GO&gt;</strong>: the 10 most-favourited posts among the trending candidates of the scanned servers, created on the reported UTC day, with favourites, boosts and replies. These are trending candidates, not all posts.</li>
+                        <li><strong>DEC &lt;GO&gt;</strong>: how concentrated Mastodon users are: the share held by the largest server, the top 5 and the top 10, and how many servers hold half of all users. Base: FediDB, Mastodon servers.</li>
+                        <li><strong>Sources</strong>: FediDB (server list and totals) and each server’s public Mastodon API (directories and trending posts). The account list is not exhaustive: accounts are found through server directories and trending posts.</li>
+                        <li><strong>Guardrails</strong>: only public, discoverable accounts with at least 10,000 followers are named; bots, locked, group, opted-out and moved accounts are left out. A top post must be public, not sensitive and without a content warning. Everyone else still counts toward the totals.</li>
+                    </ul>
+                </section>
+
+                <section class="guide-section" aria-labelledby="g-data">
+                    <h3 id="g-data"><span class="guide-code" aria-hidden="true">SRC</span> Data &amp; status</h3>
+                    <ul class="guide-feature-list">
+                        <li>A GitHub Action reads joinmastodon.org’s statistics and FediDB twice a day and commits the dataset; the page reads that file. <strong>ARCHIVE</strong> means you are seeing the committed snapshot.</li>
+                        <li><strong>LIVE</strong> means your browser read a newer figure from api.joinmastodon.org/statistics. It is the newest day the API has complete numbers for (it can be the UTC day in progress) and shows on the total users card and the ticker; the charts keep using the archive’s end-of-day values.</li>
+                        <li>Sources, flagged and missing days are listed under “Definitions &amp; caveats” on the page.</li>
                     </ul>
                 </section>
             </div>
 
             <div class="guide-dialog-footer">
-                <span class="guide-shortcut-hint">Press <kbd>Esc</kbd> or click outside to dismiss</span>
-                <button class="control-btn" id="guide-dismiss-btn">Close Guide</button>
+                <span class="guide-shortcut-hint">Press <kbd>Esc</kbd> or click outside to close</span>
+                <button type="button" class="control-btn" id="guide-dismiss-btn" data-close-guide>CLOSE</button>
             </div>
         </div>
     </dialog>
 
-    <script src="historicalData.js?v=10"></script>
-    <script src="script.js?v=10"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js" integrity="sha384-jb8JQMbMoBUzgWatfe6COACi2ljcDdZQ2OxczGA3bGNeWe+6DChMTBJemed7ZnvJ" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8/hammer.min.js" integrity="sha384-Cs3dgUx6+jDxxuqHvVH8Onpyj2LF1gKZurLDlhqzuJmUqVYMJ0THTWpxK5Z086Zm" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js" integrity="sha384-zPzbVRXfR492Sd5D+HydTYCxxgHAfgVO8KERbLlpeH5unsmbAEXrscGUUqLZG9BM" crossorigin="anonymous"></script>
+    <script src="historicalData.js?v=202610120611"></script>
+    <script src="script.js?v=12"></script>
+    <script src="data/servers.js"></script>
+    <script src="data/social.js"></script>
+    <script src="social.js?v=1"></script>
 </body>
 </html>

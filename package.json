@@ -1,0 +1,20 @@
+{
+  "name": "mastodon-user-trends",
+  "private": true,
+  "description": "Mastodon user stats terminal: total users, monthly active users, net velocity, servers and posts per day.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/obsesivegamer/Mastodon-User-Trends.git"
+  },
+  "homepage": "https://obsesivegamer.github.io/Mastodon-User-Trends/",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "test": "node --test script.test.js",
+    "update": "node updateData.js",
+    "prerender": "node lib/prerender.js",
+    "servers": "node scripts/collect-servers.js",
+    "social": "node scripts/collect-social.js",
+    "serve": "python3 -m http.server 8000"
+  }
+}

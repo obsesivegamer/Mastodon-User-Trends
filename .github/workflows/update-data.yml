@@ -2,36 +2,77 @@ name: Update Mastodon Data
 
 on:
   schedule:
-    # Run daily at 06:00 UTC (after the previous day's data has fully settled)
-    - cron: '0 6 * * *'
-  workflow_dispatch: # Allow manual trigger from the Actions tab
+    # Nominally 03:17 and 15:17 UTC, off the hour to dodge GitHub's top-of-hour backlog. GitHub
+    # starts this account's scheduled runs hours late (4 to 8 h observed), so a run lands at
+    # whatever hour it lands. Correctness does not depend on that: updateData.js takes the FediDB
+    # reading for the newest complete day whenever a run first sees that day without one, stores
+    # the time of the reading (statuses_at), and posts per day divides by the real time between
+    # readings (lib/rates.js).
+    - cron: '17 3,15 * * *'
+  workflow_dispatch:
 
 permissions:
   contents: write
 
+concurrency:
+  group: update-data
+  cancel-in-progress: false
+
 jobs:
   update-data:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      # Check out the branch head, not the commit that triggered the run: a run queued behind
+      # another (concurrency below) must start from that run's data commit, or its rebase conflicts.
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          node-version: '20'
+          ref: ${{ github.ref }}
 
-      - name: Fetch latest Mastodon statistics
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '24'
+
+      - name: Fetch data and rebuild the archive
         run: node updateData.js
 
-      - name: Commit and push if data changed
+      - name: Check script.js parses
+        run: node --check script.js
+
+      # Runs after the update, so a broken committed data file can never keep the next run from
+      # replacing it. What it covers: the page logic in script.js and the updater's guards through
+      # its mocked-fetch seam (a temporary archive, never this one). No test reads
+      # historicalData.js, so it is not a check on the data; the updater's own guards and
+      # lib/flags.js are.
+      - name: Run tests
+        run: npm test
+
+      # Warn-only: a page problem must never stop the data commit below (test.yml keeps the
+      # strict pre-render check).
+      - name: Pre-render index.html and sitemap.xml
+        run: npm run prerender || echo "::warning::pre-render found problems; data still committed"
+
+      - name: Commit and push if anything changed
+        env:
+          BRANCH: ${{ github.ref_name }}
         run: |
           git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add historicalData.js
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add historicalData.js data index.html sitemap.xml
           if git diff --cached --quiet; then
-            echo "No new data to commit."
-          else
-            git commit -m "chore: daily data update (automated)"
-            git push
+            echo "No changes to commit."
+            exit 0
           fi
+          git commit -m "chore: data update (automated)"
+          for attempt in 1 2; do
+            if git pull --rebase --autostash origin "$BRANCH" && git push origin "HEAD:$BRANCH"; then
+              exit 0
+            fi
+            git rebase --abort 2>/dev/null || true
+            echo "Push attempt $attempt failed."
+            if [ "$attempt" -eq 1 ]; then sleep 15; fi
+          done
+          echo "::error::Could not push the data update after 2 attempts."
+          exit 1
