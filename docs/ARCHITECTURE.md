@@ -5,12 +5,20 @@ GitHub Actions read public data, rewrite committed data files and commit them; t
 those files. The only request the page makes to a third party for data is an optional, best-effort
 read of the current figure from the joinmastodon.org statistics API (the LIVE badge).
 
-| Action | When (UTC) | Reads | Commits |
+| Action | Nominal cron (UTC) | Reads | Commits |
 |---|---|---|---|
 | `update-data.yml` "Update Mastodon Data" | `17 3,15 * * *` and manual | joinmastodon.org statistics API, FediDB `software/mastodon` | `historicalData.js`, `data/`, `index.html`, `sitemap.xml` |
 | `collect-servers.yml` "Collect Mastodon Server Data" | `37 2 * * *` and manual | FediDB `software/mastodon` and `servers` | `data/servers.js` |
 | `collect-social.yml` "Collect Mastodon Social Data" | `07 4 * * *` and manual | FediDB `servers`, then the public API of the largest servers | `data/social.js` |
 | `test.yml` "Tests" | every push, pull request, manual | the repository | nothing |
+
+The cron times are nominal. GitHub starts this account's scheduled runs hours late: the 06:00 UTC
+schedule this workflow had before (`0 6 * * *`) started its runs between 10:24 and 13:40 UTC
+(measured in October 2026; the resulting data commits on `master` landed between
+10:43 and 12:50 UTC from 2026-09-30 to 2026-10-11), and the Bluesky sibling's 03:17 runs started
+between 09:45 and 10:45 UTC. Nothing in the pipeline depends on the hour: a FediDB reading carries
+the time it was taken, posts per day divides by the real time between two readings, and every
+snapshot of the other two workflows carries its own time.
 
 ## Data flow
 
@@ -21,16 +29,22 @@ read of the current figure from the joinmastodon.org statistics API (the LIVE ba
 2. `normalizeStats` drops today's partial day, future and invalid records. `mergeRows` appends new
    days; a day already in the archive keeps its values and only gains `servers` if it lacked it.
    A 20 percent outlier guard rejects partial aggregates (see "Schedule and failure handling").
-3. Once per run, only when the newest complete day (yesterday, UTC) has no FediDB reading yet and the
-   run starts before 12:00 UTC, it GETs `https://api.fedidb.org/v1/software/mastodon` and stores
-   `status_count`, `user_count` and `instance_count` on that day's row as `statuses`, `fedi_users`,
-   `fedi_instances`. An existing reading is never overwritten; a FediDB failure only logs a warning.
+3. Once per run, only when the newest complete day (yesterday, UTC) has no FediDB reading yet, at any
+   hour, it GETs `https://api.fedidb.org/v1/software/mastodon` and stores `status_count`,
+   `user_count` and `instance_count` on that day's row as `statuses`, `fedi_users`,
+   `fedi_instances`, together with the time the answer was read as `statuses_at` (UTC to the
+   minute). An existing reading is never overwritten; a FediDB failure only logs a warning and that
+   day has no reading.
 4. `lib/flags.js` recomputes `flags` for the whole archive.
-5. `historicalData.js` and `data/mastodon-daily.csv` are written, then `lib/prerender.js` re-renders
-   `index.html` and `sitemap.xml` from the final rows. Files are written only if their text changed.
+5. `historicalData.js` and `data/mastodon-daily.csv` are written (the CSV adds `net_total`,
+   `net_active` and `posts_per_day`, the last computed by `lib/rates.js`), then `lib/prerender.js`
+   re-renders `index.html` and `sitemap.xml` from the final rows. Files are written only if their text
+   changed.
 6. The workflow then runs `node --check script.js`, `npm test` and `npm run prerender` (a second,
-   idempotent pass), and commits `historicalData.js data index.html sitemap.xml` if anything changed.
-   A failing test commits nothing.
+   idempotent pass that is warn-only here: a page problem becomes a warning annotation and the data
+   is still committed; `test.yml` keeps the strict `--dry-run`), and commits
+   `historicalData.js data index.html sitemap.xml` if anything changed. A failing test commits
+   nothing.
 
 ### Server data
 
@@ -81,6 +95,9 @@ LIVE figure on the total users card and the ticker; any failure leaves the page 
 charts always use the archive's values. `lib/format.js` is not loaded by the browser: `script.js` and
 `social.js` each carry an identical copy of the formatters so the pre-rendered strings and the painted
 strings match.
+The same holds for posts per day: `lib/rates.js` is the reference (`postsPerDay`, used by the CSV),
+and `script.js` carries a copy of the arithmetic for the REC chart, the ticker and the chart CSV
+export. `scripts/verify-dashboard.py` recomputes it independently from `historicalData.js`.
 
 ## File map
 
@@ -93,11 +110,12 @@ strings match.
 | `favicon.svg`, `og-image.png`, `robots.txt` | Icon, social card (1200 x 630), crawler file. |
 | `sitemap.xml` | `<lastmod>` follows the last complete day in the archive. |
 | `historicalData.js` | The archive the page loads (Contract R). Generated; one row per UTC day. |
-| `data/mastodon-daily.csv` | The same rows as CSV, plus net changes; the downloadable dataset. |
+| `data/mastodon-daily.csv` | The same rows as CSV, plus the reading time, net changes and posts per day; the downloadable dataset. |
 | `data/servers.js` | Server boards and decentralization (Contract S). Generated by `scripts/collect-servers.js`. |
 | `data/social.js` | Account boards and top posts (Contract A). Generated by `scripts/collect-social.js`. |
 | `data/README.md` | Sources, terms, changes made to the data, the Wayback gap-fill note. |
 | `updateData.js` | The updater the `update-data.yml` Action runs (fetch, merge, flag, write CSV, pre-render). Also exports `main`, `normalizeStats`, `mergeRows`, `parseFedi`, `serializeJs`, `serializeCsv`, `parseArchive`. |
+| `lib/rates.js` | Posts per day from FediDB's cumulative post counts, divided by the real time between two readings (`postsPerDay`, `readingTime`). Used by the CSV writer and exported for browsers as `window.MastodonRates`; `script.js` keeps a copy of the same arithmetic for the page (see "Browser"). |
 | `lib/format.js` | Number and date formatters (`window.MastodonFormat` or `require`). The contract for the strings; `script.js` and `social.js` mirror it. |
 | `lib/flags.js` | Pure flag rules: `KNOWN_STEPS`, `ROLLING`, `detect`, `flagRows`, `isFlagged`. |
 | `lib/prerender.js` | Pure pre-render: `prerenderIndex`, `buildJsonLd`, `updateSitemap`, plus a CLI (`npm run prerender`). |
@@ -129,6 +147,7 @@ const historicalData = [
     "active": 728997,
     "servers": 7384,
     "statuses": 1017649837,
+    "statuses_at": "2026-10-12T05:17Z",
     "fedi_users": 8818464,
     "fedi_instances": 8694
   }
@@ -145,9 +164,10 @@ kept after them.
 | `total` | joinmastodon `user_count` for that day: accounts on all servers that report. Required. |
 | `active` | joinmastodon `active_user_count`: monthly active users (trailing 30 days). Required. |
 | `servers` | Optional. joinmastodon `server_count`. Present only where the live API window or a Wayback capture carried it (first on 2022-12-01). |
-| `statuses` | Optional. FediDB cumulative post count for Mastodon software: one reading, the first after that day ended, taken by the 03:17 UTC run (or a manual run before 12:00 UTC). Never overwritten. Accepted only if it is not below the last stored reading from the previous 7 days and has not grown by more than 20 percent per elapsed day. |
+| `statuses` | Optional. FediDB cumulative post count for Mastodon software: one reading, attached to the newest complete day when that day has none, whenever a run first sees it (any hour of the next UTC day). Never overwritten. Accepted only if it has not grown by more than 20 percent per elapsed day since the last stored reading and, when that reading is at most 7 days old, is not below it (elapsed time is at least 1 hour). |
+| `statuses_at` | Optional, present with `statuses`. When that reading was taken: ISO UTC to the minute, `YYYY-MM-DDTHH:MMZ`. A row that has `statuses` but no `statuses_at` is read as taken at 03:00 UTC on the day after its `date` (`lib/rates.js`, `FALLBACK_HOUR_UTC`). The 2026-10-11 row's value was set afterwards from a bound (between 05:09 and 05:25 UTC on 2026-10-12, stored as the midpoint 05:17), not recorded at the time. |
 | `fedi_users`, `fedi_instances` | Optional. FediDB `user_count` and `instance_count` from the same reading. A different base from `total` and `servers`: never mixed. |
-| `flags` | Optional. Subset of `total`, `active`, `servers`, `statuses` (in that order) naming metrics unreliable that day. `statuses` covers `fedi_users` and `fedi_instances` too (`FLAG_OF` in `script.js`). Absent when nothing is flagged. |
+| `flags` | Optional. Subset of `total`, `active`, `servers`, `statuses` (in that order) naming metrics unreliable that day. `statuses` covers the whole FediDB reading (`statuses_at`, `fedi_users`, `fedi_instances`; `FLAG_OF` in `script.js`). Absent when nothing is flagged. |
 
 Consumer rules (`script.js`, `lib/prerender.js`, the CSV):
 
@@ -157,16 +177,20 @@ Consumer rules (`script.js`, `lib/prerender.js`, the CSV):
   day so every index step is one UTC day. Nothing is interpolated.
 - A net change (`value[d] - value[d-1]`) exists only when both days are present and usable. A flagged
   day therefore also removes the following day's net change.
-- Posts per day is `statuses[d] - statuses[d-1]`, needing both readings; a negative difference is
-  dropped as a bad reading.
+- Posts per day is a rate: `(statuses[d] - statuses[prev]) / elapsed days`, where `prev` is the
+  nearest earlier row with a reading and elapsed is the difference of the two reading times
+  (`lib/rates.js` `postsPerDay`). The value belongs to the later row only. It is absent when either
+  reading is missing or flagged, when fewer than 6 hours separate them (`MIN_ELAPSED_HOURS`), or
+  when the count fell. After a missed reading it is an average over the longer interval.
 
 ### `data/mastodon-daily.csv`
 
-Header `date,total,active,servers,statuses,fedi_users,fedi_instances,net_total,net_active,flags`.
+Header `date,total,active,servers,statuses,statuses_at,fedi_users,fedi_instances,net_total,net_active,posts_per_day,flags`.
 Every archive row, in date order, with `\n` line endings. Empty cells for absent values. `net_total`
 and `net_active` are blank unless the previous calendar day has a row and both values are present and
-unflagged. `flags` are joined with `|`. Flagged values themselves are written as stored. Only
-numbers, dates and flag keys can appear, so no cell needs quoting.
+unflagged. `posts_per_day` is `lib/rates.js` `postsPerDay` rounded to a whole number (the rules in
+the previous section). `flags` are joined with `|`. Flagged values themselves are written as
+stored. Only numbers, dates, ISO times and flag keys can appear, so no cell needs quoting.
 
 ## Data contract S: `data/servers.js`
 
@@ -208,7 +232,7 @@ snapshot that is not `day`.
 window.MASTODON_SOCIAL = {"schema":1, ...};
 ```
 
-`<`, U+2028 and U+2029 are escaped so the JSON can never close its script element.
+`<`, U+2028 and U+2029 are written as `\u003c`, `\u2028` and `\u2029` so the JSON can never close its script element.
 
 | Field | Meaning |
 |---|---|
@@ -432,8 +456,8 @@ renderer does not know are left alone and reported as `unknown`. Values are HTML
 | `servers` | Newest usable `servers` |
 | `servers-sentence` | `joinmastodon.org counted N servers on <day>.` |
 | `servers-history-sentence` | `The server series starts on <day>.` |
-| `posts-sentence` | `The latest figure is N posts on <day>.` or "The first figure appears once two consecutive daily readings exist." |
-| `fedidb-sentence` | The FediDB users reading and its day, labelled as a different base |
+| `posts-sentence` | `The latest rate is about N posts a day, from the reading stored for <day>.` (N compact), or "The first figure appears once two daily readings exist." |
+| `fedidb-sentence` | The FediDB users reading, its row day and, when known, the UTC time it was taken, labelled as a different base |
 | `range-dates` | The default view's `start → end · N pts` |
 | `gaps-sentence` | Up to the three longest archive gaps of more than 30 days; empty when there are none |
 | `surge-nov-2022`, `surge-jul-2023`, `surge-feb-2024`, `surge-sep-2024` | Surge chip text: the net change in total users the data records for the window with flagged steps excluded, or `FLAGGED` for the two windows marked `artifact` |
@@ -450,15 +474,16 @@ the new lines take the indentation of the opening marker. Blocks are `ticker`, `
 `buildIndexStripHTML`, the same functions the page calls after load.
 
 - `ticker`: one `<li class="tick">` per item: MAU, USERS, MAU/DAY 7D, NET/DAY 7D, ENGAGEMENT, SERVERS,
-  and POSTS/DAY once a posts-per-day figure exists, each with the week-over-week change of its 7-day
-  average (a percentage, or an absolute change per day for the net series when a percentage is not
+  and POSTS/DAY (the latest rate) once a posts-per-day figure exists, each with the week-over-week
+  change of its 7-day average (a percentage, or an absolute change per day for the net series when a percentage is not
   meaningful). Items with no value are left out.
 - `milestones`: the rows of the milestones table: the editorial dates in `MILESTONES` (2022-09-30,
   2022-11-30, 2023-07-31, 2024-07-31, 2025-07-31, those not after the last day) and the latest day
   (`current-row`). Columns: Date, Total users, MAU, Net/day (7D avg), MAU / total, Context.
 - `strip`: the FediDB totals strip: SERVERS (`fedi_instances`), POSTS (`statuses`) and USERS
-  (`fedi_users`) from the newest reading of each, parts without data left out; a "Collecting" line
-  when there is no reading at all.
+  (`fedi_users`) from the newest reading of each, parts without data left out, each with a tooltip
+  naming the row day and the time the reading was taken; a "Collecting" line when there is no
+  reading at all.
 
 ### JSON-LD, cache-bust and sitemap
 
@@ -466,7 +491,7 @@ the new lines take the indentation of the opening marker. Blocks are `ticker`, `
   `WebApplication`, a `FAQPage` and a `Dataset` (`temporalCoverage` first day/last day, `dateModified`,
   `isBasedOn` the two APIs, `distribution.contentUrl` the CSV). The FAQ entries are read from the
   page's own visible FAQ (`<details class="faq-...">` with a `<summary>`) after the inline values are
-  filled in, so structured data always matches what readers see. `<` is escaped as `<`.
+  filled in, so structured data always matches what readers see. `<` is written as `\u003c` so the JSON can never close its script element.
   `script.js` copies the painted FAQ back into the JSON-LD after load (`syncFaqJsonLd`) so the two
   agree even if the page and the archive came from different builds.
 - `<script src="historicalData.js?v=STAMP">`: STAMP is the build time as `YYYYMMDDHHmm`.
@@ -501,12 +526,15 @@ exits 0: `test.yml` therefore checks that every slot exists, not that the commit
 
 ## Schedule and failure handling
 
-### `update-data.yml` (03:17 and 15:17 UTC)
+### `update-data.yml` (nominally 03:17 and 15:17 UTC)
 
-- The 03:17 run lands after joinmastodon has closed the previous UTC day and takes that day's FediDB
-  reading about 3 hours after it ended. The 15:17 run picks up late joinmastodon rows only: it never
-  attaches a FediDB reading (the 12:00 UTC limit, `FEDIDB_LAST_HOUR_UTC`), so a day whose 03:17 call
-  failed has no reading, not a late one. GitHub may start scheduled runs late.
+- GitHub starts this account's scheduled runs 4 to 8 hours late (see the table at the top), so a run
+  lands at whatever hour it lands. Correctness does not depend on that: both runs behave the same.
+  Whichever run first sees the newest complete day without a FediDB reading takes one, at any hour,
+  and stores its time; later runs that day find the reading and do not fetch FediDB again. There is
+  no hour cut-off any more. A day whose FediDB call failed has no reading (a gap) and the next
+  posts-per-day value averages over the longer interval. The later run of a day also picks up late
+  joinmastodon rows.
 - The checkout is the branch head (`ref: ${{ github.ref }}`), so a run that waited behind another
   starts from that run's commit. `concurrency: update-data` (no cancel) keeps runs from racing.
   `timeout-minutes: 15`; Node 24; `contents: write`.
@@ -521,11 +549,18 @@ exits 0: `test.yml` therefore checks that every slot exists, not that the commit
   API day (`SHIFT_MIN_DAYS`, `SHIFT_TOLERANCE`) and sit less than 50 percent below (`SHIFT_MAX_DROP`),
   they are a level shift (a block of accounts left the sum for good) and are accepted and logged;
   flags decide whether they are shown. A fall of half or more is never accepted.
-- FediDB: attached only if the newest archive day is exactly yesterday (UTC), has no reading, and the
-  run starts before 12:00 UTC; 2 attempts, no retry on 5xx; a bad shape, a timeout or a failed
-  plausibility check only warns and the run continues with joinmastodon data.
-- `npm test` runs after the update, so the gate checks the code and the data about to be committed,
-  and a bad committed file can never stop the next run from replacing it.
+- FediDB: attached only if the newest archive day is exactly yesterday (UTC) and has no reading; 2
+  attempts, no retry on 5xx; a bad shape, a timeout or a failed plausibility check only warns and the
+  run continues with joinmastodon data. Plausibility is judged by elapsed time since the last stored
+  reading (`FEDIDB_MAX_DAILY_GROWTH` 0.2 a day, `FEDIDB_FLOOR_DAYS` 7, at least `FEDIDB_MIN_ELAPSED_DAYS`
+  1/24).
+- `npm test` runs after the update, and a failing test commits nothing. It covers the page logic in
+  `script.js` and the updater's guards through its mocked-fetch seam (a temporary archive, never the
+  real one); no test reads `historicalData.js`, so it is not a check on the committed data. The data
+  is guarded by the updater's own outlier guard and plausibility gate and by `lib/flags.js`. A bad
+  committed file can never stop the next run from replacing it.
+- `npm run prerender` runs after the tests and is warn-only (`|| echo "::warning::..."`): a problem
+  with the page must not stop the data commit. `test.yml` keeps the strict `--dry-run`.
 - The commit step does nothing if no file changed. Otherwise it commits `chore: data update
   (automated)`, runs `git pull --rebase --autostash` and pushes, retrying once after 15 seconds. A
   conflicting concurrent change fails the run instead of overwriting; the next run rebuilds from
@@ -533,7 +568,11 @@ exits 0: `test.yml` therefore checks that every slot exists, not that the commit
 - `collect-servers.yml` and `collect-social.yml` commit only `data/servers.js` and `data/social.js`,
   which this job never changes, so concurrent pushes rebase cleanly.
 
-### `collect-servers.yml` (02:37 UTC, `timeout-minutes: 15`, group `collect-servers`)
+### `collect-servers.yml` (nominally 02:37 UTC, `timeout-minutes: 15`, group `collect-servers`)
+
+Like the other workflows it starts hours after its cron time. Each snapshot stores `at`, the time it
+was taken, and the baselines are chosen by age (20 to 36 hours, 6 to 8 days), so a late or uneven
+start only moves the snapshot time.
 
 `scripts/collect-servers.js` makes 1 totals request and 3 server pages (at most 5), one request
 per 3 seconds, honouring `Retry-After` and waiting 20 seconds when `x-ratelimit-remaining` is 2 or
@@ -547,11 +586,12 @@ existing file stops the run rather than silently dropping history. A real drop c
 with the manual run's `accept_drop` input (`SERVERS_ACCEPT_DROP=1` or `--accept-drop`), which skips
 only the level-change rules. The workflow then runs `node --check data/servers.js` before committing.
 
-### `collect-social.yml` (04:07 UTC, `timeout-minutes: 60`, group `collect-social`)
+### `collect-social.yml` (nominally 04:07 UTC, `timeout-minutes: 60`, group `collect-social`)
 
-04:07 lets the previous UTC day finish so its top posts are ranked on near-final counts, and the
-follower snapshot is taken at about the same time every day (the 24h baseline needs one 20 to 36
-hours old). Steps: `node --check` of the collector and `lib/social.js`, the collector (it budgets
+04:07 was chosen to let the previous UTC day finish so its top posts are ranked on near-final counts,
+with the follower snapshot taken at about the same time every day (the 24h baseline needs one 20 to
+36 hours old). GitHub's lateness moves both; the snapshot's `at` and the age-based baselines absorb
+it, and the reported day is always the UTC day before the run's own date. Steps: `node --check` of the collector and `lib/social.js`, the collector (it budgets
 itself to 35 minutes, `timeBudgetMs`, inside a 45-minute step timeout), a validation step that parses
 the written `data/social.js` and runs `validateSocial` on it again, then the commit. `npm test` is
 deliberately not run here: an unrelated page failure must not block a daily snapshot that exists
@@ -569,8 +609,17 @@ It exits non-zero and leaves `data/social.js` untouched when: fewer than 5 serve
 fewer than 20 accounts are eligible, the eligible count fell below half of the last snapshot's (when
 that had 50 or more), no server list could be found, or `validateSocial` finds a problem. A FediDB
 failure falls back to the servers of already listed accounts (when the previous file is in the
-current format). An unreadable existing file only warns
-and the run starts without history (the one case that loses the baseline).
+current format). An unreadable existing file only warns and the run starts without history (the one
+case that loses the baseline).
+
+First scheduled run: every real collection so far ran from a developer machine. The first scheduled
+run is the first time Mastodon servers see GitHub's runner IP addresses, and some may refuse or
+throttle them (403, 429 or timeouts). The collector then abandons those hosts and carries on with the
+rest, and it refuses to publish when fewer than 5 servers answered or fewer than 20 accounts are
+eligible, so a hostile network shows up as a failed run or as fewer accounts, never as a bad file.
+Read that run's log: the `discovery: N of M servers answered` and `eligible:` lines, the per-host
+`429` and "given up" lines, and the `done:` summary. FediDB has likewise not been called from
+GitHub's addresses by the new workflows yet.
 
 ### Retry and recovery
 
@@ -584,17 +633,17 @@ and the run starts without history (the one case that loses the baseline).
 
 ## Local scheduled runs
 
-`updateDaily.sh` runs `node updateData.js` and then, if `historicalData.js` changed, commits only
-`historicalData.js` (`chore: daily data update`), runs `git pull --rebase --autostash` (failure
-ignored), pushes, and sets `chmod 644 *.js *.html *.css`. It does not stage `data/mastodon-daily.csv`,
-`index.html` or `sitemap.xml`, which `updateData.js` also rewrites, and it does not run tests, so a
-local run leaves those files modified and uncommitted. `installLaunchAgent.sh` installs a macOS
+`updateDaily.sh` runs `node updateData.js` and then, if `historicalData.js`, `data`, `index.html` or
+`sitemap.xml` changed, stages those four, commits `chore: daily data update`, runs
+`git pull --rebase --autostash` (failure ignored), pushes, and sets `chmod 644 *.js *.html *.css`.
+Staging `data` also stages `data/servers.js` or `data/social.js` if you have run those collectors
+locally. It does not run tests or the collectors. `installLaunchAgent.sh` installs a macOS
 LaunchAgent `com.eagerbardeen.updateData` that runs it at 03:00 local time and at load, logging to
 `updateData.log` (git-ignored). `updateDaily.ps1` only runs `node updateData.js` and logs to
 `updateData.log` (it commits nothing); `installTaskScheduler.ps1` registers the Windows task
 `EagerBardeenUpdateData` for 03:00 local time. These predate the Actions. If installed alongside
-them they race the 03:17 run and, at 03:00 local time, can take the FediDB reading at a different
-hour. The Actions are the maintained path.
+them they run the same updater and push to the same branch, so use one or the other. Because a
+FediDB reading carries its own time, the hour a local run happens at no longer matters for the data.
 
 ## Verification
 
@@ -604,9 +653,10 @@ hour. The Actions are the maintained path.
   rows win). It touches no real file and no network: the updater tests set `HIST_FILE_OVERRIDE`,
   which also stops the CSV, the page and the sitemap being written (`CSV_FILE_OVERRIDE`,
   `INDEX_FILE_OVERRIDE`, `SITEMAP_FILE_OVERRIDE` and `NOW` are the other test hooks).
-- `updateData.js` runs `main()` when required without a script path (`node -e`), because the existing
-  tests load it that way: do not `require('./updateData.js')` from a one-liner in the repository
-  unless you mean to run an update.
+- `updateData.js` runs `main()` when it is loaded without a script path (`node -e`, `node -p`, the
+  REPL), on purpose, because the existing tests drive it that way with a mocked fetch. A one-liner
+  that requires it in the repository therefore runs a live update (network and real files). Use
+  `HIST_FILE_OVERRIDE` and the other hooks when experimenting.
 - `test.yml` runs on Node 22 and 24: `node --check` on `script.js`, `social.js`, `updateData.js`,
   `lib/*.js` and `scripts/*.js`, `npm test`, and `node lib/prerender.js --dry-run`.
 - `scripts/verify-dashboard.py` drives the real page in Chromium with Playwright: `doctor`, `smoke`,

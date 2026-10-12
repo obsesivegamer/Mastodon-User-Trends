@@ -9,10 +9,10 @@ One script drives the actual page (served from the repo root on a free local por
 
 ## Run it
 
-Use the maintainer's Python that already has Playwright (the `-I` flag keeps the repo from shadowing standard modules):
+Use a Python that has Playwright installed (the `-I` flag keeps the repo from shadowing standard modules):
 
 ```bash
-PY=/Users/jeremylichtman/Documents/amber-archive/.venv/bin/python
+PY=python3   # any Python 3 with `playwright` installed and its Chromium (pip install playwright && playwright install chromium)
 $PY -I scripts/verify-dashboard.py doctor     # files, node, npm test, pre-render dry run, pinned libs, Chromium
 $PY -I scripts/verify-dashboard.py smoke      # one feature suite
 $PY -I scripts/verify-dashboard.py all        # doctor + every suite, about 40 seconds

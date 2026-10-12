@@ -1,24 +1,27 @@
 #!/usr/bin/env node
 'use strict';
-// Updater (.github/workflows/update-data.yml runs it twice a day):
+// Updater (.github/workflows/update-data.yml runs it twice a day; GitHub starts those runs hours
+// late, so nothing here depends on the hour):
 //   1. GET joinmastodon /statistics: the last ~30 UTC days of {user_count, active_user_count,
-//      server_count}. New days are appended; days already archived keep their values and only
-//      gain `servers` if it is missing (the API has not revised a day in the 29 we compared).
-//   2. GET FediDB software/mastodon once, and only when the newest complete day (yesterday) has
-//      no reading yet and the run happens before 12:00 UTC: statuses, fedi_users and
-//      fedi_instances go on that row and are never overwritten. The reading is taken when the run
-//      happens, not at 24:00 of that day, so it is 3 h after the day ended for the 03:17 run and
-//      at most 12 h for a manual run. The 15:17 run never attaches one: a reading 15 h or more
-//      after the day ended would make posts per day lopsided, so a day whose 03:17 call failed
-//      has no reading (a gap) rather than a late one. A FediDB failure only logs a warning.
+//      server_count}. New days are appended; days already archived are kept as stored and only
+//      gain `servers` if it is missing. The API can revise its own history (32 of 512 overlapping
+//      archived days differ in the Wayback captures, data/README.md), so a stored day may differ
+//      from what the API shows now; this updater never overwrites one.
+//   2. GET FediDB software/mastodon once, and only when the newest complete day (yesterday UTC)
+//      has no reading yet: statuses, statuses_at (the time of the reading, UTC to the minute),
+//      fedi_users and fedi_instances go on that row together and are never overwritten. Whatever
+//      the hour, posts per day divides by the real time between readings (lib/rates.js). A
+//      FediDB failure only logs a warning; that day then has no reading.
 //   3. Recompute `flags` for the whole archive (lib/flags.js) and write historicalData.js and
 //      data/mastodon-daily.csv.
+// Loading this file with node -e / -p or the REPL runs a live update on purpose (see the bottom).
 // Env (test hooks): HIST_FILE_OVERRIDE (also stops the CSV being written unless CSV_FILE_OVERRIDE
-// is set), CSV_FILE_OVERRIDE, NOW (ISO time used as "now").
+// is set), CSV_FILE_OVERRIDE, NOW (ISO time used as "now" and as the reading time).
 
 const fs = require('fs');
 const path = require('path');
 const flagsLib = require('./lib/flags.js');
+const rates = require('./lib/rates.js');
 const fmt = require('./lib/format.js');
 
 const ROOT = __dirname;
@@ -37,14 +40,14 @@ const SHIFT_TOLERANCE = 0.05;
 const SHIFT_MAX_DROP = 0.5;
 const FEDIDB_MAX_DAILY_GROWTH = 0.2;
 const FEDIDB_FLOOR_DAYS = 7;
-const FEDIDB_LAST_HOUR_UTC = 12;
+const FEDIDB_MIN_ELAPSED_DAYS = 1 / 24;
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const DAY_MS = 86400e3;
 const dayNum = (d) => Date.parse(d + 'T00:00:00Z') / DAY_MS;
 const isCount = (n) => Number.isSafeInteger(n) && n > 0;
-const ROW_KEYS = ['date', 'total', 'active', 'servers', 'statuses', 'fedi_users', 'fedi_instances', 'flags'];
-const CSV_COLUMNS = ['date', 'total', 'active', 'servers', 'statuses', 'fedi_users', 'fedi_instances', 'net_total', 'net_active', 'flags'];
+const ROW_KEYS = ['date', 'total', 'active', 'servers', 'statuses', 'statuses_at', 'fedi_users', 'fedi_instances', 'flags'];
+const CSV_COLUMNS = ['date', 'total', 'active', 'servers', 'statuses', 'statuses_at', 'fedi_users', 'fedi_instances', 'net_total', 'net_active', 'posts_per_day', 'flags'];
 
 function retryAfterMs(res) {
   const h = res.headers && res.headers.get && res.headers.get('retry-after');
@@ -154,14 +157,21 @@ function parseFedi(json) {
 }
 
 // Only `statuses` is gated (a cumulative count: it cannot fall, and +20% per elapsed day is far
-// beyond anything real). fedi_users and fedi_instances are informational. The floor only applies
-// to a stored reading from the last week, so one old row can never block readings for good.
-function fediPlausible(statuses, day, rows) {
+// beyond anything real). fedi_users and fedi_instances are informational. Elapsed time is the real
+// time since the last stored reading (its statuses_at, or 03:00 UTC the day after its date). The
+// floor only applies to a stored reading from the last week, so one old row can never block
+// readings for good.
+function fediPlausible(statuses, readAtMs, day, rows) {
   const prev = [...rows].reverse().find((r) => r.date < day && isCount(r.statuses));
   if (!prev) return true;
-  const elapsed = Math.max(1, dayNum(day) - dayNum(prev.date));
+  const elapsed = Math.max(FEDIDB_MIN_ELAPSED_DAYS, (readAtMs - rates.readingTime(prev)) / DAY_MS);
   if (statuses > prev.statuses * (1 + FEDIDB_MAX_DAILY_GROWTH * elapsed)) return false;
   return !(elapsed <= FEDIDB_FLOOR_DAYS && statuses < prev.statuses);
+}
+
+// ISO UTC to the minute, the format of `statuses_at`: 2026-10-12T10:41Z.
+function minuteStamp(ms) {
+  return new Date(ms).toISOString().slice(0, 16) + 'Z';
 }
 
 // rejected: API records the 20% guard refused, ascending. Returns those that form a run of at
@@ -192,6 +202,7 @@ function serializeJs(rows) {
 function serializeCsv(rows) {
   const lines = [CSV_COLUMNS.join(',')];
   const num = (v) => (Number.isFinite(v) ? String(v) : '');
+  const perDay = new Map(rates.postsPerDay(rows).map((x) => [x.date, Math.round(x.value)]));
   rows.forEach((r, i) => {
     const prev = i ? rows[i - 1] : null;
     const adjacent = prev && dayNum(r.date) - dayNum(prev.date) === 1;
@@ -201,8 +212,8 @@ function serializeCsv(rows) {
       return String(r[m] - prev[m]);
     };
     lines.push([
-      r.date, num(r.total), num(r.active), num(r.servers), num(r.statuses), num(r.fedi_users), num(r.fedi_instances),
-      net('total'), net('active'), (r.flags || []).join('|'),
+      r.date, num(r.total), num(r.active), num(r.servers), num(r.statuses), r.statuses_at || '', num(r.fedi_users), num(r.fedi_instances),
+      net('total'), net('active'), perDay.has(r.date) ? String(perDay.get(r.date)) : '', (r.flags || []).join('|'),
     ].join(','));
   });
   return lines.join('\n') + '\n';
@@ -287,17 +298,17 @@ async function main({
     log.warn(`FediDB: newest complete day is ${latest.date}, not ${yesterday}; not attaching a reading to an older day.`);
   } else if (isCount(latest.statuses)) {
     log.log(`FediDB: ${latest.date} already has a reading; not fetched again.`);
-  } else if (new Date(nowMs).getUTCHours() >= FEDIDB_LAST_HOUR_UTC) {
-    log.warn(`FediDB: it is past ${FEDIDB_LAST_HOUR_UTC}:00 UTC, so a reading would be over ${FEDIDB_LAST_HOUR_UTC} h after ${latest.date} ended; not attached.`);
   } else {
     try {
       const reading = parseFedi(await fetchJson(fetchImpl, FEDIDB_URL, { attempts: 2, sleep, log, retry5xx: false }));
+      const readAtMs = env.NOW ? nowMs : Date.now();
       if (!reading) log.warn('warning: FediDB response lacks valid status_count / user_count / instance_count; skipped.');
-      else if (!fediPlausible(reading.statuses, latest.date, rows)) log.warn('warning: FediDB status_count is below the last stored reading or grew more than 20% a day; skipped.');
+      else if (!fediPlausible(reading.statuses, readAtMs, latest.date, rows)) log.warn('warning: FediDB status_count is below the last stored reading or grew more than 20% a day; skipped.');
       else {
-        Object.assign(latest, reading);
+        // Key order is the contract's: statuses, statuses_at, fedi_users, fedi_instances.
+        Object.assign(latest, { statuses: reading.statuses, statuses_at: minuteStamp(readAtMs), fedi_users: reading.fedi_users, fedi_instances: reading.fedi_instances });
         fediStored = true;
-        log.log(`FediDB: ${latest.date} statuses ${fmt.formatInteger(reading.statuses)}, users ${fmt.formatInteger(reading.fedi_users)}, instances ${fmt.formatInteger(reading.fedi_instances)}`);
+        log.log(`FediDB: ${latest.date} statuses ${fmt.formatInteger(reading.statuses)} at ${latest.statuses_at}, users ${fmt.formatInteger(reading.fedi_users)}, instances ${fmt.formatInteger(reading.fedi_instances)}`);
       }
     } catch (err) {
       log.warn(`warning: FediDB unavailable (${err.message}); continuing with joinmastodon data only.`);
@@ -361,6 +372,7 @@ async function main({
 
 // Runs on load, as the original file did: script.test.js drives the updater with
 // `node -e "require('./updateData.js')"` (no script path) and a mocked fetch, and depends on it.
+// So loading this file with node -e / -p or in the REPL runs a live update, on purpose.
 if (require.main === module || !process.argv[1]) {
   main().catch((err) => {
     console.error(`updateData failed: ${err.message}`);

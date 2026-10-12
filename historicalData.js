@@ -8663,6 +8663,7 @@ const historicalData = [
     "active": 728997,
     "servers": 7384,
     "statuses": 1017649837,
+    "statuses_at": "2026-10-12T05:17Z",
     "fedi_users": 8818464,
     "fedi_instances": 8694
   }

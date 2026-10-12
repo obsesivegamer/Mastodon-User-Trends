@@ -2,10 +2,12 @@ name: Update Mastodon Data
 
 on:
   schedule:
-    # 03:17 and 15:17 UTC. The 03:17 run lands after joinmastodon has closed the previous UTC day
-    # and takes that day's FediDB reading 3 h after it ended; the 15:17 run only picks up late
-    # joinmastodon rows (updateData.js attaches no FediDB reading after 12:00 UTC, so a failed
-    # 03:17 call leaves a gap, not a late reading). Off the hour to avoid the top-of-hour backlog.
+    # Nominally 03:17 and 15:17 UTC, off the hour to dodge GitHub's top-of-hour backlog. GitHub
+    # starts this account's scheduled runs hours late (4 to 8 h observed), so a run lands at
+    # whatever hour it lands. Correctness does not depend on that: updateData.js takes the FediDB
+    # reading for the newest complete day whenever a run first sees that day without one, stores
+    # the time of the reading (statuses_at), and posts per day divides by the real time between
+    # readings (lib/rates.js).
     - cron: '17 3,15 * * *'
   workflow_dispatch:
 
@@ -39,13 +41,18 @@ jobs:
       - name: Check script.js parses
         run: node --check script.js
 
-      # After the update, so the gate checks the code and the data about to be committed. A bad
-      # committed file can then never stop the next run from replacing it.
+      # Runs after the update, so a broken committed data file can never keep the next run from
+      # replacing it. What it covers: the page logic in script.js and the updater's guards through
+      # its mocked-fetch seam (a temporary archive, never this one). No test reads
+      # historicalData.js, so it is not a check on the data; the updater's own guards and
+      # lib/flags.js are.
       - name: Run tests
         run: npm test
 
+      # Warn-only: a page problem must never stop the data commit below (test.yml keeps the
+      # strict pre-render check).
       - name: Pre-render index.html and sitemap.xml
-        run: npm run prerender
+        run: npm run prerender || echo "::warning::pre-render found problems; data still committed"
 
       - name: Commit and push if anything changed
         env:

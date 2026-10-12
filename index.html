@@ -64,7 +64,7 @@
                 "name": "How many users does Mastodon have?",
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": "As of Oct 11, 2026 (UTC), joinmastodon.org’s statistics counted 10,503,903 accounts on the servers that report to it. joinmastodon.org counted 7,384 servers on Oct 11, 2026. The figure is the sum over all reporting servers, so it can fall when a server leaves the count or stops reporting, and it includes accounts that were never active. FediDB crawls Mastodon-software servers on its own and counted 8.82M accounts in its reading after Oct 11, 2026 ended; the two totals are different bases and are never mixed on this page."
+                  "text": "As of Oct 11, 2026 (UTC), joinmastodon.org’s statistics counted 10,503,903 accounts on the servers that report to it. joinmastodon.org counted 7,384 servers on Oct 11, 2026. The figure is the sum over all reporting servers, so it can fall when a server leaves the count or stops reporting, and it includes accounts that were never active. FediDB crawls Mastodon-software servers on its own and counted 8.82M accounts in its reading for Oct 11, 2026 (taken 2026-10-12 05:17 UTC); the two totals are different bases and are never mixed on this page."
                 }
               },
               {
@@ -88,7 +88,7 @@
                 "name": "How many servers and posts per day does Mastodon have?",
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": "joinmastodon.org counted 7,384 servers on Oct 11, 2026. Posts per day come from FediDB’s running count of statuses on Mastodon-software servers: this page stores one reading per day and shows the difference between consecutive days. The first figure appears once two consecutive daily readings exist. FediDB counts Mastodon software only, so its numbers are not comparable with the joinmastodon user counts."
+                  "text": "joinmastodon.org counted 7,384 servers on Oct 11, 2026. Posts per day come from FediDB’s running count of statuses on Mastodon-software servers: this page stores one cumulative reading per day, taken when the update runs, and shows the change between readings divided by the time between them. The first figure appears once two daily readings exist. FediDB counts Mastodon software only, so its numbers are not comparable with the joinmastodon user counts."
                 }
               },
               {
@@ -373,9 +373,9 @@
                 <h2 class="strip-label" id="index-strip-title"><span class="fn-key" aria-hidden="true"><span class="fn-code">IDX</span></span> FediDB totals <span class="strip-note">Mastodon-software servers only · a different base from the joinmastodon figures above</span></h2>
                 <dl class="index-stats" id="strip-stats">
 <!-- prerender:strip -->
-<div class="index-stat"><dt>SERVERS</dt><dd class="tabular-stat" title="Mastodon-software servers FediDB knows about: 8,694, reading after Oct 11, 2026 ended">8,694</dd></div>
-<div class="index-stat"><dt>POSTS</dt><dd class="tabular-stat" title="All-time posts (statuses) on those servers: 1,017,649,837, reading after Oct 11, 2026 ended">1.018B</dd></div>
-<div class="index-stat"><dt>USERS</dt><dd class="tabular-stat" title="Accounts on those servers: 8,818,464, reading after Oct 11, 2026 ended">8.82M</dd></div>
+<div class="index-stat"><dt>SERVERS</dt><dd class="tabular-stat" title="Mastodon-software servers FediDB knows about: 8,694 (FediDB reading stored for Oct 11, 2026, taken 2026-10-12 05:17 UTC)">8,694</dd></div>
+<div class="index-stat"><dt>POSTS</dt><dd class="tabular-stat" title="All-time posts (statuses) on those servers: 1,017,649,837 (FediDB reading stored for Oct 11, 2026, taken 2026-10-12 05:17 UTC)">1.018B</dd></div>
+<div class="index-stat"><dt>USERS</dt><dd class="tabular-stat" title="Accounts on those servers: 8,818,464 (FediDB reading stored for Oct 11, 2026, taken 2026-10-12 05:17 UTC)">8.82M</dd></div>
 <!-- /prerender:strip -->
                 </dl>
             </section>
@@ -488,7 +488,7 @@
                             <button type="button" class="tool-btn reset-zoom-btn" data-chart="rec" aria-label="Reset posts per day chart zoom"><span aria-hidden="true">⟲</span></button>
                         </div>
                     </div>
-                    <p class="chart-subtitle">Difference between two consecutive daily readings of FediDB’s status counter for Mastodon-software servers. A different source and base from the user counts.</p>
+                    <p class="chart-subtitle">Change in FediDB’s status counter for Mastodon-software servers between two readings, divided by the time between them. A different source and base from the user counts.</p>
                     <div class="legend-row">
                         <span class="legend-badge"><span class="legend-line line-posts" aria-hidden="true"></span>Posts per day</span>
                         <span class="legend-badge ma-legend"><span class="legend-note">faint = daily · solid = 7D avg</span></span>
@@ -605,7 +605,7 @@
                 </div>
                 <div class="insight-card">
                     <h3 class="insight-title"><span class="insight-code" aria-hidden="true">SRV</span> Servers &amp; posts</h3>
-                    <p><span data-prerender="servers-sentence">joinmastodon.org counted 7,384 servers on Oct 11, 2026.</span> <span data-prerender="posts-sentence">The first figure appears once two consecutive daily readings exist.</span> Posts come from FediDB, which counts Mastodon-software servers only.</p>
+                    <p><span data-prerender="servers-sentence">joinmastodon.org counted 7,384 servers on Oct 11, 2026.</span> <span data-prerender="posts-sentence">The first figure appears once two daily readings exist.</span> Posts come from FediDB, which counts Mastodon-software servers only.</p>
                 </div>
             </div>
 
@@ -646,7 +646,7 @@
                 <div class="faq-accordion">
                     <details class="faq-item" open>
                         <summary class="faq-question"><span>How many users does Mastodon have?</span><span class="faq-arrow" aria-hidden="true">▼</span></summary>
-                        <div class="faq-answer"><p>As of <span data-prerender="last-day">Oct 11, 2026</span> (UTC), joinmastodon.org’s statistics counted <strong data-prerender="total-users">10,503,903</strong> accounts on the servers that report to it. <span data-prerender="servers-sentence">joinmastodon.org counted 7,384 servers on Oct 11, 2026.</span> The figure is the sum over all reporting servers, so it can fall when a server leaves the count or stops reporting, and it includes accounts that were never active. <span data-prerender="fedidb-sentence">FediDB crawls Mastodon-software servers on its own and counted 8.82M accounts in its reading after Oct 11, 2026 ended; the two totals are different bases and are never mixed on this page.</span></p></div>
+                        <div class="faq-answer"><p>As of <span data-prerender="last-day">Oct 11, 2026</span> (UTC), joinmastodon.org’s statistics counted <strong data-prerender="total-users">10,503,903</strong> accounts on the servers that report to it. <span data-prerender="servers-sentence">joinmastodon.org counted 7,384 servers on Oct 11, 2026.</span> The figure is the sum over all reporting servers, so it can fall when a server leaves the count or stops reporting, and it includes accounts that were never active. <span data-prerender="fedidb-sentence">FediDB crawls Mastodon-software servers on its own and counted 8.82M accounts in its reading for Oct 11, 2026 (taken 2026-10-12 05:17 UTC); the two totals are different bases and are never mixed on this page.</span></p></div>
                     </details>
                     <details class="faq-item">
                         <summary class="faq-question"><span>How many monthly active users does Mastodon have?</span><span class="faq-arrow" aria-hidden="true">▼</span></summary>
@@ -658,7 +658,7 @@
                     </details>
                     <details class="faq-item">
                         <summary class="faq-question"><span>How many servers and posts per day does Mastodon have?</span><span class="faq-arrow" aria-hidden="true">▼</span></summary>
-                        <div class="faq-answer"><p><span data-prerender="servers-sentence">joinmastodon.org counted 7,384 servers on Oct 11, 2026.</span> Posts per day come from FediDB’s running count of statuses on Mastodon-software servers: this page stores one reading per day and shows the difference between consecutive days. <span data-prerender="posts-sentence">The first figure appears once two consecutive daily readings exist.</span> FediDB counts Mastodon software only, so its numbers are not comparable with the joinmastodon user counts.</p></div>
+                        <div class="faq-answer"><p><span data-prerender="servers-sentence">joinmastodon.org counted 7,384 servers on Oct 11, 2026.</span> Posts per day come from FediDB’s running count of statuses on Mastodon-software servers: this page stores one cumulative reading per day, taken when the update runs, and shows the change between readings divided by the time between them. <span data-prerender="posts-sentence">The first figure appears once two daily readings exist.</span> FediDB counts Mastodon software only, so its numbers are not comparable with the joinmastodon user counts.</p></div>
                     </details>
                     <details class="faq-item">
                         <summary class="faq-question"><span>Where does this Mastodon data come from?</span><span class="faq-arrow" aria-hidden="true">▼</span></summary>
@@ -683,7 +683,7 @@
                         <li><strong>Monthly active users (MAU)</strong> is <code>active_user_count</code>: accounts active in the trailing 30 days. Because the window rolls, a day’s change is the activity of the day that entered minus the day that left, not new activity. It is not a daily active count.</li>
                         <li><strong>MAU health</strong> and <strong>net signups</strong> are the day-over-day change of MAU and of total users. Both are net: sign-ups minus deletions and servers leaving the count. MAU health is the primary view because total users also moves when servers join or leave. Growth % is the change as a share of the previous day’s value, for the metric you picked last.</li>
                         <li><strong>Servers</strong> is <code>server_count</code> from the same API. The archive holds it only for the days the updater (or a backfill) could read it, so its history is shorter than the user counts. <span data-prerender="servers-history-sentence">The server series starts on Dec 1, 2022.</span></li>
-                        <li><strong>Posts per day</strong> is the difference between consecutive daily readings of FediDB’s status counter for Mastodon software. The reading is the first one after each UTC day ended, so a day’s figure can be off by the hours between readings. A counter that moved backwards is dropped.</li>
+                        <li><strong>Posts per day</strong> is a rate from FediDB’s cumulative status counter for Mastodon software. The archive keeps one reading per day, taken when the update runs (the time is not fixed), with its timestamp. A day’s figure is the change since the previous reading divided by the time between the two readings, so uneven gaps do not distort it. It is left out when a reading is missing or flagged, when the readings are less than 6 hours apart, or when the counter moved backwards.</li>
                         <li><strong>Ratios:</strong> MAU ÷ total users (engagement); posts per MAU divides FediDB posts by joinmastodon MAU, two sources, so read its trend, not its level; users per server divides total users by servers. <strong>FediDB totals</strong> (servers, posts, users) cover Mastodon-software servers only and are a different base from joinmastodon’s: they are labelled and never mixed into the joinmastodon series.</li>
                         <li><strong>Flagged and missing days:</strong> a flagged value is treated as missing everywhere (gap, averages, net changes, peaks, ATH, comparisons, ratios). A day without a row is also a gap; nothing is interpolated. <span data-prerender="gaps-sentence"></span></li>
                         <li><strong>Leaderboards (LDR), top posts (PST) and decentralization (DEC):</strong> server boards use FediDB’s server list; account boards use server directories and trending posts of the largest servers and list only public, discoverable accounts with 10,000+ followers. Gainers and losers are the net change since an earlier daily snapshot, so they need history. The list is a sample of the network, not a ranking of every account.</li>
@@ -797,7 +797,7 @@
                         <li><strong>Total users</strong>: accounts on all servers that report to joinmastodon.org’s statistics. Net, not registrations: it can fall when servers leave or accounts are removed.</li>
                         <li><strong>Monthly active users</strong>: accounts active in the trailing 30 days, as joinmastodon.org reports it. A rolling window, not a daily count.</li>
                         <li><strong>Net signups / MAU health</strong>: today’s value minus yesterday’s, for total users and for monthly active users.</li>
-                        <li><strong>Servers</strong>: servers reporting to joinmastodon.org. <strong>Posts per day</strong>: the difference of two daily readings of FediDB’s status counter (Mastodon software only).</li>
+                        <li><strong>Servers</strong>: servers reporting to joinmastodon.org. <strong>Posts per day</strong>: the change between two readings of FediDB’s status counter divided by the time between them (Mastodon software only).</li>
                         <li><strong>FediDB figures</strong> are a different base from joinmastodon’s and are always labelled; there are no per-day likers, posters or blockers on Mastodon.</li>
                     </ul>
                 </section>

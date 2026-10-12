@@ -250,6 +250,43 @@
     return values.map((v, i) => (i > 0 && v != null && values[i - 1] != null ? v - values[i - 1] : null));
   }
 
+  // FediDB's status counter is cumulative and read once per row, when the update runs, which is
+  // not a fixed hour. Posts per day is therefore a rate: the change since the previous reading
+  // divided by the time between the two readings, assigned to the day of the later one.
+  // A reading's time is `statuses_at` (ISO UTC) or, for rows without it, 03:00 UTC on the next day.
+  // No value when either reading is absent or flagged, when the readings are less than 6 hours
+  // apart, or when the counter moved backwards (a bad reading, not negative posting).
+  const MIN_READING_GAP_MS = 6 * 3600e3;
+  const FALLBACK_READING_MS = DAY_MS + 3 * 3600e3;
+
+  const READING_AT = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})Z$/;
+
+  function readingTime(row) {
+    const m = READING_AT.exec(row && row.statuses_at || '');
+    if (m) return Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5]);
+    const d = row && ISO_DAY.test(row.date) ? Date.parse(`${row.date}T00:00:00Z`) : NaN;
+    return Number.isFinite(d) ? d + FALLBACK_READING_MS : NaN;
+  }
+
+  // `rows` ascending by date (rows without a reading are skipped); result aligned with `rows`.
+  function postsPerDay(rows) {
+    const out = (rows || []).map(() => null);
+    let prev = -1;
+    (rows || []).forEach((row, i) => {
+      if (!row || row.missing === true || !(num(row.statuses) > 0)) return;
+      if (prev >= 0) {
+        const before = rows[prev];
+        const elapsed = readingTime(row) - readingTime(before);
+        if (!isFlagged(row, 'statuses') && !isFlagged(before, 'statuses') && elapsed >= MIN_READING_GAP_MS) {
+          const rate = (row.statuses - before.statuses) / (elapsed / DAY_MS);
+          if (rate >= 0) out[i] = rate;
+        }
+      }
+      prev = i;
+    });
+    return out;
+  }
+
   // Everything the page plots, one entry per UTC calendar day from the first archive row to the last.
   function buildSeries(rawDays) {
     const rows = normalizeDays(rawDays);
@@ -257,9 +294,8 @@
     FIELDS.forEach((k) => { s[k] = rows.map((r) => metricValue(r, k)); });
     s.net_total = dailyDeltas(s.total);
     s.net_active = dailyDeltas(s.active);
-    // FediDB's status counter is cumulative; consecutive daily readings give posts per day. A
-    // counter that moved backwards is a bad reading, not negative posting.
-    s.posts = dailyDeltas(s.statuses).map((v) => (v != null && v >= 0 ? v : null));
+    s.statuses_at = rows.map((r) => (READING_AT.test(r.statuses_at || '') && !isFlagged(r, 'statuses') && !r.missing ? r.statuses_at : null));
+    s.posts = postsPerDay(rows);
     s.growth_signups = s.net_total.map((v, i) => (v != null && i > 0 && s.total[i - 1] > 0 ? (v / s.total[i - 1]) * 100 : null));
     s.growth_mau = s.net_active.map((v, i) => (v != null && i > 0 && s.active[i - 1] > 0 ? (v / s.active[i - 1]) * 100 : null));
     s.engagement = ratioSeries(s.active, s.total, 100);
@@ -536,11 +572,22 @@
     return `${lines.join('\n')}\n`;
   }
 
-  // One column per key, named like the dataset CSV (data/mastodon-daily.csv); flagged values are blank.
+  // One column per key, named like the dataset CSV (data/mastodon-daily.csv); flagged values are
+  // blank. `statuses_at` is the reading time and `posts_per_day` the rate between readings
+  // (computed over the rows given, so pass whole days).
   function buildChartCSV(rows, keys) {
-    const columns = [{ header: 'date', value: (r) => r.date }].concat(
-      keys.map((k) => ({ header: k, value: (r) => (k === 'flags' ? r.flags || [] : metricValue(r, k)) }))
-    );
+    let rates = null;
+    if (keys.includes('posts_per_day')) {
+      const list = postsPerDay(rows);
+      rates = new Map(rows.map((r, i) => [r, list[i]]));
+    }
+    const value = (r, k) => {
+      if (k === 'flags') return r.flags || [];
+      if (k === 'statuses_at') return READING_AT.test(r.statuses_at || '') && !isFlagged(r, 'statuses') ? r.statuses_at : null;
+      if (k === 'posts_per_day') return rates.get(r);
+      return metricValue(r, k);
+    };
+    const columns = [{ header: 'date', value: (r) => r.date }].concat(keys.map((k) => ({ header: k, value: (r) => value(r, k) })));
     return buildCSV(columns, rows);
   }
 
@@ -661,7 +708,7 @@
 
   function sentenceOfLatest(s, key, make, none) {
     const i = latestIndex(s[key]);
-    return i >= 0 ? make(s[key][i], s.dates[i]) : none;
+    return i >= 0 ? make(s[key][i], s.dates[i], i) : none;
   }
 
   // Keys for `data-prerender="KEY"` elements. `generated` (the build stamp) cannot be derived
@@ -703,14 +750,14 @@
       (n, d) => `joinmastodon.org counted ${formatInteger(n)} servers on ${formatDay(d)}.`,
       'Server counts start with the next daily update.');
     v['posts-sentence'] = sentenceOfLatest(s, 'posts',
-      (n, d) => `The latest figure is ${formatInteger(n)} posts on ${formatDay(d)}.`,
-      'The first figure appears once two consecutive daily readings exist.');
+      (n, d) => `The latest rate is about ${formatCompact(n)} posts a day, from the reading stored for ${formatDay(d)}.`,
+      'The first figure appears once two daily readings exist.');
     const iSv = s.servers.findIndex((x) => x != null);
     v['servers-history-sentence'] = iSv >= 0
       ? `The server series starts on ${formatDay(s.dates[iSv])}.`
       : 'The server series starts with the next daily update.';
     v['fedidb-sentence'] = sentenceOfLatest(s, 'fedi_users',
-      (n, d) => `FediDB crawls Mastodon-software servers on its own and counted ${formatCompact(n)} accounts in its reading after ${formatDay(d)} ended; the two totals are different bases and are never mixed on this page.`,
+      (n, d, i) => `FediDB crawls Mastodon-software servers on its own and counted ${formatCompact(n)} accounts in its reading for ${formatDay(d)}${s.statuses_at[i] ? ` (taken ${formatUtcStamp(s.statuses_at[i])})` : ''}; the two totals are different bases and are never mixed on this page.`,
       'FediDB also counts Mastodon-software servers on its own; its totals are a different base and are never mixed with these figures.');
     v['first-day'] = formatDay(s.length ? s.dates[0] : null);
     const bounds = s.length ? getRangeBounds(DEFAULT_STATE.range, s.dates[0], s.dates[last]) : null;
@@ -830,7 +877,8 @@
     parts.forEach(([label, key, fmt, what]) => {
       const i = latestIndex(s[key]);
       if (i < 0) return;
-      const title = `${what}: ${formatInteger(s[key][i])}, reading after ${formatDay(s.dates[i])} ended`;
+      const taken = s.statuses_at[i] ? `, taken ${formatUtcStamp(s.statuses_at[i])}` : '';
+      const title = `${what}: ${formatInteger(s[key][i])} (FediDB reading stored for ${formatDay(s.dates[i])}${taken})`;
       out.push(`<div class="index-stat"><dt>${label}</dt><dd class="tabular-stat" title="${escapeHtml(title)}">${escapeHtml(fmt(s[key][i]))}</dd></div>`);
     });
     if (!out.length) {
@@ -1092,7 +1140,7 @@
     generateSparklineSVG, downsample, findSurge, isValidRange, getRangeBounds, getPriorBounds, yearRanges,
     filterDataByRange, calculatePeriodComparison, processData, getRangeLabel, getTrendTag, parseHashState,
     serializeHashState, csvCell, buildCSV, buildChartCSV, resetChartZoom, formatTimestamp, formatTooltip,
-    computePrerenderValues, computeTickerItems, buildTickerHTML, buildMilestoneRows, buildMilestoneRowsHTML,
+    postsPerDay, readingTime, computePrerenderValues, computeTickerItems, buildTickerHTML, buildMilestoneRows, buildMilestoneRowsHTML,
     buildIndexStripHTML, computeSurgeStats, parseLiveStats, acceptLiveStats, pickLiveReading, syncFaqJsonLd, trendClass,
     formatChange, formatAxisCompact, pickDateTicks, formatDateTick, logTicks, linearTicks, collectingText,
     netPctChange, nearestValidIndex, flaggedStepSum, steppedChange, archiveGaps, surgeChipValue, surgeKey,
@@ -2090,7 +2138,13 @@
       if (chartKey === 'srv' && app.state.sm === 'servers' && s.fedi_instances[gi] != null) {
         rows.push({ color: app.colors.fedi, line: true, label: 'FediDB servers', value: formatInteger(s.fedi_instances[gi]), sub: 'Mastodon software only' });
       }
-      if (chartKey === 'rec') notes.push('FediDB statuses, difference of two daily readings');
+      if (chartKey === 'rec') {
+        notes.push('FediDB status counter: change since the previous reading ÷ time between them');
+        if (s.statuses_at[gi]) notes.push(`Reading taken ${formatUtcStamp(s.statuses_at[gi])}`);
+        if (s.posts[gi] == null && !s.missing[gi] && !s.flags[gi].includes('statuses')) {
+          notes.push(s.statuses[gi] == null ? 'No FediDB reading for this day' : 'No rate: needs a usable reading at least 6 hours earlier');
+        }
+      }
       if (chartKey === 'rat' && app.state.rm === 'posts_per_mau') notes.push('FediDB posts ÷ joinmastodon MAU: two sources');
     }
     if (priorIdx != null && priorIdx >= 0) notes.push(`Prior period date: ${formatDay(s.dates[priorIdx])}`);
@@ -2446,7 +2500,7 @@
     }
     if (key === 'mau') return [col('date', s.dates), col('active', s.active), col('active_7d_avg', ma('active')), flagsCol];
     if (key === 'srv') return [col('date', s.dates), col('servers', s.servers), col('fedi_instances', s.fedi_instances), col('users_per_server', s.users_per_server), flagsCol];
-    if (key === 'rec') return [col('date', s.dates), col('statuses', s.statuses), col('posts', s.posts), col('posts_7d_avg', ma('posts')), flagsCol];
+    if (key === 'rec') return [col('date', s.dates), col('statuses', s.statuses), col('statuses_at', s.statuses_at), col('posts_per_day', s.posts), col('posts_per_day_7d_avg', ma('posts')), flagsCol];
     if (key === 'rat') return [col('date', s.dates), col('engagement_pct', s.engagement), col('posts_per_mau', s.posts_per_mau), col('users_per_server', s.users_per_server), flagsCol];
     return [col('date', s.dates), col('total', s.total), col('fedi_users', s.fedi_users), col('net_total', s.net_total), flagsCol];
   }

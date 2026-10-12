@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 """End-to-end checks for the Mastodon Network Pulse dashboard (Playwright, Chromium).
 
-Run with any Python that has Playwright installed (on the maintainer's Mac that is
-~/Documents/amber-archive/.venv/bin/python), for example:
+Run with any Python that has Playwright installed, for example:
 
-    /Users/jeremylichtman/Documents/amber-archive/.venv/bin/python -I scripts/verify-dashboard.py all
+    python3 -I scripts/verify-dashboard.py all
     python3 -m pip install playwright && python3 -m playwright install chromium   # elsewhere
 
 Without --url the repo root is served on a free 127.0.0.1 port. With --url every subcommand
@@ -71,7 +70,7 @@ SURGES = {
     "SURGE_FEB_2024": ("2024-01-20", "2024-03-05", True),
     "SURGE_SEP_2024": ("2024-08-20", "2024-10-10", True),
 }
-CSV_HEADER = "date,total,active,servers,statuses,fedi_users,fedi_instances,net_total,net_active,flags"
+CSV_HEADER = "date,total,active,servers,statuses,statuses_at,fedi_users,fedi_instances,net_total,net_active,posts_per_day,flags"
 CHART_KEYS = ["velocity", "mau", "srv", "rec", "rat", "tot"]
 CANVAS_IDS = {"velocity": "velocityChart", "mau": "mauChart", "srv": "srvChart", "rec": "recChart", "rat": "ratChart", "tot": "totChart"}
 LOG_CHARTS = {"mau", "srv", "rec", "tot"}
@@ -80,7 +79,7 @@ CHART_CSV = {
                               "growth_total_pct", "growth_active_pct", "flags"]),
     "mau": ("monthly-active-users", ["date", "active", "active_7d_avg", "flags"]),
     "srv": ("servers", ["date", "servers", "fedi_instances", "users_per_server", "flags"]),
-    "rec": ("posts-per-day", ["date", "statuses", "posts", "posts_7d_avg", "flags"]),
+    "rec": ("posts-per-day", ["date", "statuses", "statuses_at", "posts_per_day", "posts_per_day_7d_avg", "flags"]),
     "rat": ("ratios", ["date", "engagement_pct", "posts_per_mau", "users_per_server", "flags"]),
     "tot": ("total-users", ["date", "total", "fedi_users", "net_total", "flags"]),
 }
@@ -251,7 +250,7 @@ class Archive:
 
         s = self.s
         s["net_total"], s["net_active"] = delta(s["total"]), delta(s["active"])
-        s["posts"] = [v if v is not None and v >= 0 else None for v in delta(s["statuses"])]
+        s["posts"] = self._posts_per_day(by)
         s["growth_signups"] = [None if v is None or i == 0 or not (s["total"][i - 1] or 0) > 0 else v / s["total"][i - 1] * 100
                                for i, v in enumerate(s["net_total"])]
         s["growth_mau"] = [None if v is None or i == 0 or not (s["active"][i - 1] or 0) > 0 else v / s["active"][i - 1] * 100
@@ -260,6 +259,35 @@ class Archive:
         s["engagement"] = ratio(s["active"], s["total"], 100)
         s["users_per_server"] = ratio(s["total"], s["servers"], 1)
         s["posts_per_mau"] = ratio(s["posts"], s["active"], 1)
+
+    def _posts_per_day(self, by: dict) -> list:
+        """Rate between consecutive readings / elapsed days, on the later day (lib/rates.js)."""
+        import datetime as _dt
+
+        def when(d: str, row: dict):
+            at = row.get("statuses_at")
+            if isinstance(at, str) and re.fullmatch(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}Z", at):
+                return _dt.datetime.strptime(at, "%Y-%m-%dT%H:%MZ")
+            return _dt.datetime.strptime(d, "%Y-%m-%d") + _dt.timedelta(days=1, hours=3)
+
+        def num(v):
+            return isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(v)
+
+        out, prev = [], None
+        for d in self.dates:
+            row = by.get(d)
+            raw = row.get("statuses") if row else None
+            val = None
+            if row is not None and num(raw):
+                cur_flagged = "statuses" in set(row.get("flags") or [])
+                if prev is not None and not cur_flagged and not prev["flagged"]:
+                    hours = (when(d, row) - prev["t"]).total_seconds() / 3600
+                    diff = raw - prev["v"]
+                    if hours >= 6 and diff >= 0:
+                        val = diff / (hours / 24)
+                prev = {"v": raw, "t": when(d, row), "flagged": cur_flagged}
+            out.append(val)
+        return out
 
     @property
     def n(self) -> int:
@@ -2234,7 +2262,7 @@ def main(argv=None) -> int:
     if names:
         if sync_playwright is None:
             print(f"Playwright is not installed for {sys.executable}. Use a Python that has it, e.g.\n"
-                  "  /Users/jeremylichtman/Documents/amber-archive/.venv/bin/python -I scripts/verify-dashboard.py all", file=sys.stderr)
+                  "  python3 -I scripts/verify-dashboard.py all", file=sys.stderr)
             return 2
         try:
             with Dashboard(args) as dash:

@@ -35,7 +35,7 @@ the data and commit it: the main data twice a day, the server data and the accou
   - `MAU` monthly active users.
   - `SRV` servers reporting to joinmastodon.org, or users per server; dots show FediDB's count of
     Mastodon-software servers.
-  - `REC` posts per day, from consecutive daily readings of FediDB's post counter.
+  - `REC` posts per day, the rate between consecutive readings of FediDB's post counter.
   - `RAT` ratios: MAU / total users (engagement), posts per MAU, users per server.
   - `TOT` total users; dots show FediDB's user count.
 - **Command bar**: ranges `1W 1M 3M 6M YTD 1Y 2Y 3Y 4Y ALL` (default 1Y; one button per full year of
@@ -68,11 +68,15 @@ the data and commit it: the main data twice a day, the server data and the accou
   share of the previous day's value, for the metric you picked last.
 - **Servers**: joinmastodon.org's `server_count`. The archive holds it only for days where a source
   carried it (from 2022-12-01, with holes), so its history is shorter than the user counts.
-- **Posts per day**: the difference between two consecutive daily readings of FediDB's cumulative
-  status counter for servers running Mastodon software. One reading is stored per day, taken about
-  3 hours after the day ended, so a day's figure can be off by the hours between readings. A counter
-  that moved backwards is dropped. The first figure appears once two consecutive readings exist
-  (the first reading is from 2026-10-11).
+- **Posts per day**: a rate from FediDB's cumulative status counter for servers running Mastodon
+  software. One reading is stored per day, taken after that UTC day ended, at whatever hour the
+  update ran, together with the time it was taken (`statuses_at`). A day's figure is the change
+  since the previous reading divided by the real time between the two readings, so uneven gaps do
+  not distort it; after a missed reading it is an average over the longer interval. It is left out
+  when a reading is missing or flagged, when fewer than 6 hours separate the readings, or when the
+  counter moved backwards. It is a rate between readings, not a count of one calendar day's posts.
+  The first figure appears once two readings exist: the first reading is on the 2026-10-11 row (its
+  time was set afterwards from a bound, see [data/README.md](data/README.md)).
 - **Ratios**: MAU / total users (engagement); posts per MAU divides FediDB posts by joinmastodon MAU,
   two sources, so read its trend, not its level; users per server divides total users by servers.
 - **FediDB totals** (servers, posts, users) cover Mastodon-software servers only and are a different
@@ -169,9 +173,16 @@ Enforced in `lib/social.js`, re-checked in `social.js` before drawing:
 
 ### Schedule
 
-`collect-servers.yml` runs at **02:37 UTC**, `collect-social.yml` at **04:07 UTC**, each once a day,
-and each commits only its own file (`data/servers.js`, `data/social.js`). A failed or clearly worse
-run writes nothing and leaves the previous file on the page. Details: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+`collect-servers.yml` is set for **02:37 UTC**, `collect-social.yml` for **04:07 UTC**, each once a
+day, and each commits only its own file (`data/servers.js`, `data/social.js`). These are nominal:
+GitHub starts this account's scheduled runs hours late (see "How it works"), and each snapshot
+records the time it was taken, so the boards do not depend on the hour. A failed or clearly worse run
+writes nothing and leaves the previous file on the page. Details:
+[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+
+The first scheduled run of the account collector is the first time Mastodon servers see GitHub's
+runner IP addresses, and some may refuse them. Check that run's log (servers answered, eligible
+accounts, hosts given up); the collector refuses to publish when too little was found.
 
 ## Data sources and credits
 
@@ -199,17 +210,23 @@ changed and the terms.
 ## How it works
 
 ```
-GitHub Action (03:17 and 15:17 UTC)
-  node updateData.js → node --check script.js → npm test → npm run prerender
+GitHub Action (nominally 03:17 and 15:17 UTC)
+  node updateData.js → node --check script.js → npm test → npm run prerender (warn-only)
   → commit historicalData.js, data/, index.html, sitemap.xml → GitHub Pages
-GitHub Action (02:37 UTC)
+GitHub Action (nominally 02:37 UTC)
   node scripts/collect-servers.js → commit data/servers.js
-GitHub Action (04:07 UTC)
+GitHub Action (nominally 04:07 UTC)
   node --check → node scripts/collect-social.js → validate data/social.js → commit data/social.js
 Browser
   index.html (numbers already filled in) → historicalData.js → script.js
   → data/servers.js, data/social.js → social.js
 ```
+
+The scheduled times are nominal. GitHub starts this account's scheduled runs 4 to 8 hours late
+(measured in October 2026: this workflow's earlier 06:00 UTC runs started between 10:24 and 13:40
+UTC, the Bluesky sibling's 03:17 runs between 09:45 and 10:45 UTC), so a run happens at whatever
+hour it happens. Correctness does not depend on the hour: a FediDB reading is stored with the time
+it was taken and posts per day divides by the real time between readings.
 
 The statistics API only keeps the last 30 days, so the archive is built by the Action and committed.
 The updater also writes the latest numbers, milestones, ticker, FediDB strip and structured data into
@@ -242,12 +259,23 @@ Opening `index.html` straight from disk also works: the data files are classic s
 npm test               # node --test script.test.js: 27 cases, no network, never touches the real files
 ```
 
+The tests cover the page logic in `script.js` and the updater's guards through its mocked-fetch seam
+(a temporary archive, never the real one). No test reads `historicalData.js`, so `npm test` is not a
+check on the committed data; the updater's outlier guard and plausibility gate and `lib/flags.js` are.
+
 ### Update the data
 
 ```bash
 npm run update         # node updateData.js: fetch, rebuild historicalData.js and data/mastodon-daily.csv, pre-render index.html and sitemap.xml
 npm run prerender      # re-render index.html and sitemap.xml from the committed archive only (no network)
 ```
+
+Careful with one-liners: `updateData.js` runs a live update whenever it is loaded without a script
+path (`node -e`, `node -p`, the REPL), on purpose, because the tests drive it that way with a mocked
+fetch. `node -e "require('./updateData.js')"` in the repository therefore fetches the real APIs and
+rewrites the real files. Set `HIST_FILE_OVERRIDE` (which also stops the CSV, the page and the
+sitemap being written) when experimenting; `CSV_FILE_OVERRIDE`, `INDEX_FILE_OVERRIDE`,
+`SITEMAP_FILE_OVERRIDE` and `NOW` are the other hooks.
 
 `npm run prerender` takes `--dry-run`, `--data`, `--index`, `--sitemap` and `--generated`
 (`node lib/prerender.js --dry-run` reports without writing).
@@ -303,13 +331,13 @@ Screenshots land in `artifacts/verify-mastodon-trends/`. The project's verify sk
 machine; `installLaunchAgent.sh` and `installTaskScheduler.ps1` schedule them at 03:00 local time.
 They predate the Actions and are not needed. Be aware of what they do:
 
-- `updateDaily.sh` stages and commits only `historicalData.js` (then rebases and pushes). The updater
-  also rewrites `data/mastodon-daily.csv`, `index.html` and `sitemap.xml`; those stay modified and
-  uncommitted, and the CSV on GitHub falls behind until the Action's next run.
+- `updateDaily.sh` stages `historicalData.js data index.html sitemap.xml`, commits
+  `chore: daily data update`, then rebases and pushes. Staging `data` also stages
+  `data/servers.js` and `data/social.js` if you have run those collectors locally.
 - `updateDaily.ps1` only runs the updater and logs to `updateData.log`; it commits nothing.
 - Neither runs the tests, the server collector or the social collector.
-- Run alongside the Actions, they race the 03:17 run and can take the day's FediDB reading at a
-  different hour. Use one or the other.
+- Run alongside the Actions, they run the same updater against the same branch. Use one or the
+  other. The hour of a local run does not matter for the data: a FediDB reading carries its own time.
 
 ## Deploy your own copy
 
@@ -324,7 +352,7 @@ They predate the Actions and are not needed. Be aware of what they do:
 4. Change the site and repository URLs: `SITE_URL`, `CSV_URL` and `REPO_URL` in `lib/prerender.js`,
    `SITE_URL` in `script.js`, every `obsesivegamer` URL in `index.html` (canonical, Open Graph,
    Twitter, footer, the CSV "sources and terms" link, and drop the `google-site-verification` and
-   `rel="me"` tags, which are the maintainer's), `robots.txt`, `sitemap.xml`, and `homepage` and
+   `rel="me"` tags, which verify this site's owner), `robots.txt`, `sitemap.xml`, and `homepage` and
    `repository` in `package.json`. Change the contact URL in the User-Agent of `updateData.js`,
    `scripts/collect-servers.js`, `scripts/collect-social.js` and `scripts/backfill-history.js`.
    `scripts/verify-dashboard.py` reads `SITE_URL` from `lib/prerender.js`. `og-image.png` has the
@@ -343,8 +371,9 @@ They predate the Actions and are not needed. Be aware of what they do:
 - MAU is a trailing 30-day window of accounts joinmastodon.org's crawler could see, not unique people.
 - Net change is net: it cannot be read as sign-ups.
 - Posts per day comes from FediDB and covers Mastodon software only. It starts with the first stored
-  reading (2026-10-11) and one reading per day is stored, so a missed 03:17 run leaves a gap instead
-  of a late reading.
+  reading (the 2026-10-11 row, whose time was set from a bound, accurate to about 8 minutes) and one
+  reading per day is stored. It is a rate between two readings, taken at hours that vary; a day whose
+  FediDB call failed has no reading and the next figure averages over the longer interval.
 - FediDB and joinmastodon count different things (8.82M against 10.50M users): they are never mixed.
 - Everything depends on joinmastodon.org's statistics and FediDB. If they stop, the page keeps the
   archive but stops growing. joinmastodon's API also revises its own history after the fact (32 of 512
@@ -359,7 +388,8 @@ They predate the Actions and are not needed. Be aware of what they do:
   server or account that is missed on a day has no value for that day.
 - Follower and post counts are as each account's own server reported them when collected and may
   have changed since.
-- GitHub can delay scheduled Actions, so a refresh can land later than 03:17 or 15:17 UTC.
+- GitHub starts this account's scheduled Actions 4 to 8 hours late, so a refresh lands well after
+  03:17 or 15:17 UTC. The data does not depend on the hour, but the page lags the nominal times by hours.
 
 ## License
 
