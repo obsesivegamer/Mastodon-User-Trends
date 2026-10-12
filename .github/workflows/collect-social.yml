@@ -1,0 +1,84 @@
+name: Collect Mastodon Social Data
+
+on:
+  schedule:
+    # 04:07 UTC: the previous UTC day is over, so its top posts are final enough to rank, and the
+    # follower snapshot is taken at about the same time every day (the 24h baseline needs 20-36 hours).
+    # Off the hour to avoid GitHub's top-of-hour cron backlog.
+    - cron: '07 4 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  # Its own group: this workflow commits only data/social.js, which the other workflows never touch,
+  # so concurrent pushes rebase cleanly.
+  group: collect-social
+  cancel-in-progress: false
+
+jobs:
+  collect-social:
+    runs-on: ubuntu-latest
+    # The collector budgets itself to 35 minutes (CONFIG.timeBudgetMs); the rest is checkout, tests and push.
+    timeout-minutes: 60
+    steps:
+      # Check out the branch head, not the commit that triggered the run: a run queued behind another
+      # (concurrency above) must start from that run's data commit, or its rebase conflicts.
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.ref }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '24'
+
+      - name: Check syntax
+        run: |
+          node --check scripts/collect-social.js
+          node --check lib/social.js
+
+      # PRIVACY: nothing is cached between runs. data/social.js holds only accounts with 10K+ followers
+      # (the history baseline lives in that file); everything else the run sees is dropped at the end.
+      # Exits non-zero and writes nothing if too little was found or validation fails, so a failed run
+      # leaves the previous data/social.js in place. The page tests (npm test) are deliberately not run
+      # here: an unrelated UI failure must not block the day's snapshot, which exists only in this file.
+      - name: Collect accounts and top posts
+        timeout-minutes: 45
+        run: node scripts/collect-social.js
+
+      # The data gate: the committed file must pass the same validator the collector used.
+      - name: Validate data/social.js
+        run: |
+          node -e "
+          const s = require('./lib/social.js');
+          const o = s.parseScript(require('fs').readFileSync('data/social.js', 'utf8'));
+          const p = o ? s.validateSocial(o) : ['data/social.js is not a MASTODON_SOCIAL payload'];
+          if (p.length) { console.error(p.slice(0, 20).join('\\n')); process.exit(1); }
+          console.log('data/social.js valid:', Object.keys(o.accounts).length, 'accounts,', o.top_posts.length, 'posts');
+          "
+
+      - name: Commit and push if anything changed
+        env:
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/social.js
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git commit -m "chore: social data update (automated)"
+          for attempt in 1 2; do
+            if git pull --rebase --autostash origin "$BRANCH" && git push origin "HEAD:$BRANCH"; then
+              exit 0
+            fi
+            git rebase --abort 2>/dev/null || true
+            echo "Push attempt $attempt failed."
+            if [ "$attempt" -eq 1 ]; then sleep 15; fi
+          done
+          echo "::error::Could not push the social data update after 2 attempts."
+          exit 1
