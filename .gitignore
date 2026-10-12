@@ -1,5 +1,11 @@
 .DS_Store
+node_modules/
+.cache/
 artifacts/
+*.log
 *.pid
 .venv/
 __pycache__/
+.env
+.reviews/
+.state/
