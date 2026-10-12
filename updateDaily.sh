@@ -12,9 +12,9 @@ fi
 echo "Updating Mastodon historical data..."
 node updateData.js
 
-if [[ -n $(git status -s historicalData.js) ]]; then
+if [[ -n $(git status -s historicalData.js data index.html sitemap.xml) ]]; then
   echo "Committing new data to Git..."
-  git add historicalData.js
+  git add historicalData.js data index.html sitemap.xml
   git commit -m "chore: daily data update"
   
   echo "Pushing data to GitHub..."
