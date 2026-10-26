@@ -8705,7 +8705,10 @@ const historicalData = [
     "statuses": 1012607214,
     "statuses_at": "2026-10-16T08:17Z",
     "fedi_users": 8539713,
-    "fedi_instances": 8684
+    "fedi_instances": 8684,
+    "flags": [
+      "total"
+    ]
   },
   {
     "date": "2026-10-16",
@@ -8715,7 +8718,10 @@ const historicalData = [
     "statuses": 1010217138,
     "statuses_at": "2026-10-17T07:53Z",
     "fedi_users": 8542649,
-    "fedi_instances": 8710
+    "fedi_instances": 8710,
+    "flags": [
+      "total"
+    ]
   },
   {
     "date": "2026-10-17",
@@ -8725,7 +8731,10 @@ const historicalData = [
     "statuses": 1015817411,
     "statuses_at": "2026-10-18T08:08Z",
     "fedi_users": 8551088,
-    "fedi_instances": 8724
+    "fedi_instances": 8724,
+    "flags": [
+      "total"
+    ]
   },
   {
     "date": "2026-10-18",
@@ -8735,7 +8744,10 @@ const historicalData = [
     "statuses": 1004377295,
     "statuses_at": "2026-10-19T09:02Z",
     "fedi_users": 8557740,
-    "fedi_instances": 8699
+    "fedi_instances": 8699,
+    "flags": [
+      "total"
+    ]
   },
   {
     "date": "2026-10-19",
@@ -8745,13 +8757,19 @@ const historicalData = [
     "statuses": 1012161813,
     "statuses_at": "2026-10-20T08:40Z",
     "fedi_users": 8454616,
-    "fedi_instances": 8695
+    "fedi_instances": 8695,
+    "flags": [
+      "total"
+    ]
   },
   {
     "date": "2026-10-20",
     "total": 10245489,
     "active": 741423,
-    "servers": 7348
+    "servers": 7348,
+    "flags": [
+      "total"
+    ]
   },
   {
     "date": "2026-10-21",
@@ -8761,7 +8779,10 @@ const historicalData = [
     "statuses": 1004418320,
     "statuses_at": "2026-10-22T08:43Z",
     "fedi_users": 8463916,
-    "fedi_instances": 8568
+    "fedi_instances": 8568,
+    "flags": [
+      "total"
+    ]
   },
   {
     "date": "2026-10-22",
@@ -8771,7 +8792,10 @@ const historicalData = [
     "statuses": 1002619393,
     "statuses_at": "2026-10-23T08:39Z",
     "fedi_users": 8465174,
-    "fedi_instances": 8633
+    "fedi_instances": 8633,
+    "flags": [
+      "total"
+    ]
   },
   {
     "date": "2026-10-23",
@@ -8781,7 +8805,10 @@ const historicalData = [
     "statuses": 1013169422,
     "statuses_at": "2026-10-24T08:14Z",
     "fedi_users": 8453283,
-    "fedi_instances": 8640
+    "fedi_instances": 8640,
+    "flags": [
+      "total"
+    ]
   },
   {
     "date": "2026-10-24",
@@ -8792,5 +8819,15 @@ const historicalData = [
     "statuses_at": "2026-10-25T08:32Z",
     "fedi_users": 8766231,
     "fedi_instances": 8650
+  },
+  {
+    "date": "2026-10-25",
+    "total": 10508361,
+    "active": 752515,
+    "servers": 7268,
+    "statuses": 1022466312,
+    "statuses_at": "2026-10-26T09:05Z",
+    "fedi_users": 8762267,
+    "fedi_instances": 8654
   }
 ];
