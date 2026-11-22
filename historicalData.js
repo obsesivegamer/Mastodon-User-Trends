@@ -9095,5 +9095,15 @@ const historicalData = [
     "statuses_at": "2026-11-21T11:19Z",
     "fedi_users": 8793732,
     "fedi_instances": 8899
+  },
+  {
+    "date": "2026-11-21",
+    "total": 10259750,
+    "active": 684544,
+    "servers": 7141,
+    "statuses": 1021900612,
+    "statuses_at": "2026-11-22T11:37Z",
+    "fedi_users": 8859589,
+    "fedi_instances": 8893
   }
 ];
